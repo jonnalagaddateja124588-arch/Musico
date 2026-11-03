@@ -4,210 +4,528 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Musico - Music for Everyone</title>
+
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;background:#10101c;color:white;padding-bottom:110px}
-header{padding:22px 7%;display:flex;align-items:center;justify-content:space-between;background:#171727;position:sticky;top:0;z-index:5}
-.logo{font-size:29px;font-weight:bold;color:#a78bfa}
-.logo span{color:#fff}
-.search{background:#29293b;border:1px solid #41415b;border-radius:25px;padding:12px 18px;color:white;width:35%;outline:none}
-main{padding:30px 7%}
-h2{margin:28px 0 18px;font-size:23px}
-.hero{background:linear-gradient(120deg,#6d28d9,#db2777);border-radius:22px;padding:35px;min-height:190px;display:flex;justify-content:space-between;align-items:center}
-.hero h1{font-size:36px;margin-bottom:12px}
-.hero p{color:#f4e9ff}
-.hero button,.play-btn{border:0;background:white;color:#6d28d9;padding:12px 22px;border-radius:25px;font-weight:bold;cursor:pointer;margin-top:18px}
-.hero-icon{font-size:85px}
-.categories{display:flex;gap:12px;flex-wrap:wrap}
-.category{background:#29293b;border:1px solid #41415b;color:white;padding:10px 19px;border-radius:22px;cursor:pointer}
-.category.active{background:#8b5cf6;border-color:#8b5cf6}
-.songs{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:18px}
-.card{background:#1c1c2d;padding:12px;border-radius:15px;cursor:pointer;transition:.2s}
-.card:hover{background:#303047;transform:translateY(-3px)}
-.cover{width:100%;aspect-ratio:1;object-fit:cover;border-radius:11px}
-.card h3{font-size:15px;margin:12px 0 5px}
-.card p{font-size:13px;color:#aaa}
-.card button{float:right;background:none;border:0;color:#f472b6;font-size:22px;cursor:pointer}
-.empty{color:#aaa;padding:20px 0}
-.player{position:fixed;bottom:0;left:0;width:100%;background:#202033;border-top:1px solid #41415b;padding:13px 5%;display:flex;align-items:center;gap:20px;z-index:10}
-.now{display:flex;align-items:center;gap:12px;width:25%;min-width:130px}
-.now img{width:48px;height:48px;object-fit:cover;border-radius:8px}
-.now h4{font-size:13px}
-.now p{font-size:11px;color:#aaa;margin-top:5px}
-.controls{flex:1;text-align:center}
-.controls button{background:none;border:0;color:white;font-size:23px;margin:0 12px;cursor:pointer}
-.controls .mainplay{background:#a78bfa;color:#171727;border-radius:50%;width:40px;height:40px;font-size:19px}
-.progress{width:100%;max-width:400px;accent-color:#a78bfa;cursor:pointer;margin-top:10px}
-.time{font-size:11px;color:#aaa;display:flex;justify-content:space-between;max-width:400px;margin:auto}
-.vol{width:100px;accent-color:#a78bfa}
-footer{text-align:center;color:#777;padding:25px}
-@media(max-width:600px){
- header{padding:17px 5%;flex-wrap:wrap;gap:14px}
- .search{width:100%;order:2}
- main{padding:22px 5%}
- .hero h1{font-size:27px}
- .hero-icon{font-size:55px}
- .player{gap:8px;padding:10px 3%}
- .now{width:35%;gap:7px}
- .now img{width:38px;height:38px}
- .controls button{margin:0 5px}
- .vol{display:none}
- .controls .time{font-size:9px}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #100d1c;
+  color: white;
+  font-family: Arial, sans-serif;
+  padding-bottom: 120px;
+}
+
+header {
+  padding: 22px;
+  background: #1b1530;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.logo {
+  font-size: 27px;
+  font-weight: bold;
+  color: #bd8cff;
+}
+
+.tagline {
+  font-size: 12px;
+  color: #b9afca;
+  margin-top: 4px;
+}
+
+main {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.hero {
+  padding: 30px 22px;
+  border-radius: 20px;
+  background: linear-gradient(120deg,#6426a5,#ad48a8);
+  margin-bottom: 25px;
+}
+
+.hero h1 {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.hero p {
+  color: #f3e8ff;
+  line-height: 1.5;
+}
+
+.search {
+  width: 100%;
+  padding: 15px;
+  border-radius: 25px;
+  border: 1px solid #493b60;
+  background: #211a32;
+  color: white;
+  font-size: 16px;
+  outline: none;
+  margin: 15px 0;
+}
+
+h2 {
+  margin: 22px 0 15px;
+}
+
+.languages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.lang-btn {
+  border: 1px solid #55446e;
+  background: #211a32;
+  color: white;
+  padding: 11px 17px;
+  border-radius: 25px;
+  cursor: pointer;
+}
+
+.lang-btn.active,
+.lang-btn:hover {
+  background: #9147d5;
+  border-color: #9147d5;
+}
+
+.song-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.song {
+  background: #211a32;
+  padding: 15px;
+  border-radius: 15px;
+  border: 1px solid #382b4b;
+}
+
+.cover {
+  height: 125px;
+  border-radius: 12px;
+  background: linear-gradient(135deg,#52238c,#d14c9e);
+  display: grid;
+  place-items: center;
+  font-size: 45px;
+  margin-bottom: 13px;
+}
+
+.song h3 {
+  margin-bottom: 7px;
+}
+
+.song p {
+  color: #b8accb;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.song-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+button {
+  cursor: pointer;
+}
+
+.play-btn {
+  background: #9147d5;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 20px;
+}
+
+.fav-btn {
+  background: transparent;
+  border: none;
+  color: #ff6c9c;
+  font-size: 23px;
+}
+
+.player {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #211a32;
+  border-top: 1px solid #55446e;
+  padding: 14px 20px;
+  z-index: 10;
+}
+
+.player-inner {
+  max-width: 900px;
+  margin: auto;
+}
+
+.now-playing {
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: #e6d4ff;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  margin: 10px 0;
+}
+
+.controls button {
+  border: none;
+  background: transparent;
+  color: white;
+  font-size: 24px;
+}
+
+.controls .main-play {
+  background: #9147d5;
+  border-radius: 50%;
+  width: 43px;
+  height: 43px;
+}
+
+#progress {
+  width: 100%;
+  accent-color: #bd8cff;
+}
+
+.time {
+  display: flex;
+  justify-content: space-between;
+  color: #b8accb;
+  font-size: 11px;
+}
+
+.note {
+  color: #b8accb;
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 20px;
+}
+
+.empty {
+  color: #c5b8d5;
+  padding: 20px 0;
+}
+
+@media(max-width:480px) {
+  .hero h1 {font-size:25px;}
+  main {padding:15px;}
 }
 </style>
 </head>
+
 <body>
 
 <header>
- <div class="logo">♫ Musico<span>.</span></div>
- <input class="search" id="search" placeholder="🔍 Search songs or artists..." oninput="renderSongs()">
+  <div>
+    <div class="logo">🎵 Musico</div>
+    <div class="tagline">Music for Everyone</div>
+  </div>
+  <div>🎧</div>
 </header>
 
 <main>
- <section class="hero">
-  <div>
-   <h1>Feel Every Beat 🎧</h1>
-   <p>Your music. Your mood. Your world.</p>
-   <button onclick="playSong(0)">▶ Play Music</button>
+
+  <section class="hero">
+    <h1>Feel Every Beat ❤️</h1>
+    <p>Your music, your mood, your world.</p>
+  </section>
+
+  <input
+    type="search"
+    class="search"
+    id="search"
+    placeholder="🔍 Search songs or singers..."
+  >
+
+  <h2>Explore Languages</h2>
+
+  <div class="languages">
+    <button class="lang-btn active" data-lang="All">All</button>
+    <button class="lang-btn" data-lang="Telugu">తెలుగు</button>
+    <button class="lang-btn" data-lang="Hindi">हिंदी</button>
+    <button class="lang-btn" data-lang="English">English</button>
   </div>
-  <div class="hero-icon">🎵</div>
- </section>
 
- <h2>Explore Music</h2>
- <div class="categories">
-  <button class="category active" onclick="filterSongs('All',this)">All</button>
-  <button class="category" onclick="filterSongs('Pop',this)">Pop</button>
-  <button class="category" onclick="filterSongs('Chill',this)">Chill</button>
-  <button class="category" onclick="filterSongs('Electronic',this)">Electronic</button>
- </div>
+  <h2>Popular Songs</h2>
+  <div class="song-list" id="songList"></div>
 
- <h2>🔥 Popular Songs</h2>
- <div class="songs" id="songs"></div>
+  <p class="note">
+    Musico demo version. The sample audio is for testing the player.
+    Add properly licensed song files or streaming URLs to your catalogue
+    before publishing real songs.
+  </p>
 
- <h2>❤️ Your Favourites</h2>
- <div class="songs" id="favourites"></div>
 </main>
 
-<footer>Made with ♡ by Musico | Music for Everyone</footer>
-
 <div class="player">
- <div class="now">
-  <img id="currentCover" src="https://picsum.photos/seed/music1/200">
-  <div><h4 id="currentTitle">Select a song</h4><p id="currentArtist">Musico Player</p></div>
- </div>
- <div class="controls">
-  <div>
-   <button onclick="previousSong()">⏮</button>
-   <button class="mainplay" id="playButton" onclick="togglePlay()">▶</button>
-   <button onclick="nextSong()">⏭</button>
+  <div class="player-inner">
+
+    <div class="now-playing" id="nowPlaying">
+      Select a song to start listening
+    </div>
+
+    <input type="range" id="progress"
+      min="0" max="100" value="0">
+
+    <div class="time">
+      <span id="currentTime">0:00</span>
+      <span id="duration">0:00</span>
+    </div>
+
+    <div class="controls">
+      <button onclick="previousSong()">⏮</button>
+      <button class="main-play" onclick="togglePlay()" id="playButton">▶</button>
+      <button onclick="nextSong()">⏭</button>
+    </div>
+
   </div>
-  <div class="time"><span id="currentTime">0:00</span><span id="duration">0:00</span></div>
-  <input class="progress" type="range" id="progress" min="0" max="100" value="0" oninput="seekSong()">
- </div>
- <input class="vol" type="range" min="0" max="1" step="0.01" value="0.7" oninput="audio.volume=this.value">
 </div>
 
 <audio id="audio"></audio>
 
 <script>
-const songs=[
- {title:"Dreams",artist:"SoundHelix",genre:"Pop",cover:"https://picsum.photos/seed/dream/300",url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
- {title:"Summer Vibes",artist:"SoundHelix",genre:"Chill",cover:"https://picsum.photos/seed/summer/300",url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"},
- {title:"Night Drive",artist:"SoundHelix",genre:"Electronic",cover:"https://picsum.photos/seed/night/300",url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"},
- {title:"Feel Alive",artist:"SoundHelix",genre:"Pop",cover:"https://picsum.photos/seed/alive/300",url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"},
- {title:"Peaceful Mind",artist:"SoundHelix",genre:"Chill",cover:"https://picsum.photos/seed/peace/300",url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"},
- {title:"Electric Heart",artist:"SoundHelix",genre:"Electronic",cover:"https://picsum.photos/seed/electric/300",url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"}
+const songs = [
+  {
+    title: "Musico Demo Track",
+    artist: "Demo Artist",
+    language: "English",
+    cover: "🎵",
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    demo: true
+  },
+
+  {
+    title: "Add Your Telugu Song",
+    artist: "Your Telugu Catalogue",
+    language: "Telugu",
+    cover: "🎶",
+    url: ""
+  },
+
+  {
+    title: "Add Your Hindi Song",
+    artist: "Your Hindi Catalogue",
+    language: "Hindi",
+    cover: "🎼",
+    url: ""
+  },
+
+  {
+    title: "Add Your English Song",
+    artist: "Your English Catalogue",
+    language: "English",
+    cover: "🎧",
+    url: ""
+  }
 ];
 
-const audio=document.getElementById("audio");
-let currentIndex=0;
-let currentGenre="All";
-let favourites=[];
-let isPlaying=false;
+let currentIndex = -1;
+let currentLanguage = "All";
+let favourites = [];
 
-function renderSongs(){
- const query=document.getElementById("search").value.toLowerCase();
- const filtered=songs.map((s,i)=>({...s,index:i})).filter(s=>
-  (currentGenre==="All"||s.genre===currentGenre)&&
-  (s.title.toLowerCase().includes(query)||s.artist.toLowerCase().includes(query))
- );
- document.getElementById("songs").innerHTML=filtered.length?filtered.map(s=>`
- <div class="card" onclick="playSong(${s.index})">
-  <img class="cover" src="${s.cover}" alt="Album cover">
-  <button onclick="event.stopPropagation();toggleFavourite(${s.index})">${favourites.includes(s.index)?"♥":"♡"}</button>
-  <h3>${s.title}</h3><p>${s.artist} · ${s.genre}</p>
- </div>`).join(""):'<p class="empty">No songs found.</p>';
- renderFavourites();
+const audio = document.getElementById("audio");
+const songList = document.getElementById("songList");
+const playButton = document.getElementById("playButton");
+
+function renderSongs() {
+  const query = document.getElementById("search").value.toLowerCase();
+
+  const filtered = songs
+    .map((song,index) => ({...song,index}))
+    .filter(song =>
+      (currentLanguage === "All" ||
+       song.language === currentLanguage) &&
+      (song.title.toLowerCase().includes(query) ||
+       song.artist.toLowerCase().includes(query) ||
+       song.language.toLowerCase().includes(query))
+    );
+
+  songList.innerHTML = "";
+
+  if (!filtered.length) {
+    songList.innerHTML =
+      '<p class="empty">No songs found. Try another search.</p>';
+    return;
+  }
+
+  filtered.forEach(song => {
+    const card = document.createElement("div");
+    card.className = "song";
+
+    const cover = document.createElement("div");
+    cover.className = "cover";
+    cover.textContent = song.cover;
+
+    const title = document.createElement("h3");
+    title.textContent = song.title;
+
+    const artist = document.createElement("p");
+    artist.textContent = song.artist + " • " + song.language;
+
+    const actions = document.createElement("div");
+    actions.className = "song-actions";
+
+    const play = document.createElement("button");
+    play.className = "play-btn";
+    play.textContent = song.url ? "▶ Play" : "Coming soon";
+    play.disabled = !song.url;
+    play.onclick = () => playSong(song.index);
+
+    const fav = document.createElement("button");
+    fav.className = "fav-btn";
+    fav.textContent = favourites.includes(song.index) ? "♥" : "♡";
+    fav.setAttribute("aria-label", "Add to favourites");
+    fav.onclick = () => toggleFavourite(song.index);
+
+    actions.append(play, fav);
+    card.append(cover, title, artist, actions);
+    songList.appendChild(card);
+  });
 }
 
-function renderFavourites(){
- const fav=songs.map((s,i)=>({...s,index:i})).filter(s=>favourites.includes(s.index));
- document.getElementById("favourites").innerHTML=fav.length?fav.map(s=>`
- <div class="card" onclick="playSong(${s.index})">
- <img class="cover" src="${s.cover}" alt="Album cover">
- <h3>${s.title}</h3><p>${s.artist}</p>
- </div>`).join(""):'<p class="empty">Your favourite songs will appear here.</p>';
+function playSong(index) {
+  const song = songs[index];
+
+  if (!song || !song.url) {
+    alert("This song is not available yet.");
+    return;
+  }
+
+  currentIndex = index;
+  audio.src = song.url;
+  audio.play().then(() => {
+    document.getElementById("nowPlaying").textContent =
+      "🎵 Playing: " + song.title;
+    playButton.textContent = "Ⅱ";
+    renderSongs();
+  }).catch(() => {
+    alert("Unable to play this demo audio. Please check your internet connection.");
+  });
 }
 
-function filterSongs(genre,button){
- currentGenre=genre;
- document.querySelectorAll(".category").forEach(b=>b.classList.remove("active"));
- button.classList.add("active");
- renderSongs();
+function togglePlay() {
+  if (currentIndex === -1) {
+    playSong(0);
+    return;
+  }
+
+  if (audio.paused) {
+    audio.play();
+    playButton.textContent = "Ⅱ";
+  } else {
+    audio.pause();
+    playButton.textContent = "▶";
+  }
 }
 
-function toggleFavourite(index){
- favourites=favourites.includes(index)?favourites.filter(i=>i!==index):[...favourites,index];
- renderSongs();
+function nextSong() {
+  if (currentIndex === -1) return;
+
+  let next = currentIndex + 1;
+  if (next >= songs.length) next = 0;
+
+  playSong(next);
 }
 
-function playSong(index){
- currentIndex=index;
- const s=songs[index];
- audio.src=s.url;
- audio.volume=0.7;
- audio.play().then(()=>{
-  isPlaying=true;
-  updatePlayer();
- }).catch(()=>alert("Unable to play this demo track. Check your internet connection."));
- document.getElementById("currentTitle").textContent=s.title;
- document.getElementById("currentArtist").textContent=s.artist;
- document.getElementById("currentCover").src=s.cover;
+function previousSong() {
+  if (currentIndex === -1) return;
+
+  let previous = currentIndex - 1;
+  if (previous < 0) previous = songs.length - 1;
+
+  playSong(previous);
 }
 
-function updatePlayer(){
- document.getElementById("playButton").textContent=isPlaying?"Ⅱ":"▶";
+function toggleFavourite(index) {
+  if (favourites.includes(index)) {
+    favourites = favourites.filter(item => item !== index);
+  } else {
+    favourites.push(index);
+  }
+
+  renderSongs();
 }
 
-function togglePlay(){
- if(!audio.src){playSong(0);return;}
- if(audio.paused){audio.play();isPlaying=true;}
- else{audio.pause();isPlaying=false;}
- updatePlayer();
-}
+document.querySelectorAll(".lang-btn").forEach(button => {
+  button.addEventListener("click", () => {
+    currentLanguage = button.dataset.lang;
 
-function nextSong(){playSong((currentIndex+1)%songs.length);}
-function previousSong(){playSong((currentIndex-1+songs.length)%songs.length);}
+    document.querySelectorAll(".lang-btn")
+      .forEach(btn => btn.classList.remove("active"));
 
-audio.addEventListener("timeupdate",()=>{
- if(audio.duration){
-  document.getElementById("progress").value=(audio.currentTime/audio.duration)*100;
-  document.getElementById("currentTime").textContent=formatTime(audio.currentTime);
-  document.getElementById("duration").textContent=formatTime(audio.duration);
- }
+    button.classList.add("active");
+    renderSongs();
+  });
 });
-audio.addEventListener("ended",nextSong);
-audio.addEventListener("play",()=>{isPlaying=true;updatePlayer();});
-audio.addEventListener("pause",()=>{isPlaying=false;updatePlayer();});
 
-function seekSong(){
- if(audio.duration)audio.currentTime=(document.getElementById("progress").value/100)*audio.duration;
+document.getElementById("search")
+  .addEventListener("input", renderSongs);
+
+audio.addEventListener("timeupdate", () => {
+  if (!audio.duration) return;
+
+  document.getElementById("progress").value =
+    (audio.currentTime / audio.duration) * 100;
+
+  document.getElementById("currentTime").textContent =
+    formatTime(audio.currentTime);
+
+  document.getElementById("duration").textContent =
+    formatTime(audio.duration);
+});
+
+document.getElementById("progress")
+  .addEventListener("input", event => {
+    if (audio.duration) {
+      audio.currentTime =
+        (event.target.value / 100) * audio.duration;
+    }
+  });
+
+audio.addEventListener("ended", nextSong);
+
+audio.addEventListener("pause", () => {
+  playButton.textContent = "▶";
+});
+
+audio.addEventListener("play", () => {
+  playButton.textContent = "Ⅱ";
+});
+
+function formatTime(seconds) {
+  if (!Number.isFinite(seconds)) return "0:00";
+
+  const min = Math.floor(seconds / 60);
+  const sec = Math.floor(seconds % 60);
+  return min + ":" + String(sec).padStart(2,"0");
 }
-function formatTime(seconds){
- if(!Number.isFinite(seconds))return "0:00";
- return Math.floor(seconds/60)+":"+String(Math.floor(seconds%60)).padStart(2,"0");
-}
+
 renderSongs();
 </script>
+
 </body>
 </html>
