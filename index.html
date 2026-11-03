@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Musico - Music for Everyone</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#10101c;color:white;padding-bottom:110px}
+header{padding:22px 7%;display:flex;align-items:center;justify-content:space-between;background:#171727;position:sticky;top:0;z-index:5}
+.logo{font-size:29px;font-weight:bold;color:#a78bfa}
+.logo span{color:#fff}
+.search{background:#29293b;border:1px solid #41415b;border-radius:25px;padding:12px 18px;color:white;width:35%;outline:none}
+main{padding:30px 7%}
+h2{margin:28px 0 18px;font-size:23px}
+.hero{background:linear-gradient(120deg,#6d28d9,#db2777);border-radius:22px;padding:35px;min-height:190px;display:flex;justify-content:space-between;align-items:center}
+.hero h1{font-size:36px;margin-bottom:12px}
+.hero p{color:#f4e9ff}
+.hero button,.play-btn{border:0;background:white;color:#6d28d9;padding:12px 22px;border-radius:25px;font-weight:bold;cursor:pointer;margin-top:18px}
+.hero-icon{font-size:85px}
+.categories{display:flex;gap:12px;flex-wrap:wrap}
+.category{background:#29293b;border:1px solid #41415b;color:white;padding:10px 19px;border-radius:22px;cursor:pointer}
+.category.active{background:#8b5cf6;border-color:#8b5cf6}
+.songs{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:18px}
+.card{background:#1c1c2d;padding:12px;border-radius:15px;cursor:pointer;transition:.2s}
+.card:hover{background:#303047;transform:translateY(-3px)}
+.cover{width:100%;aspect-ratio:1;object-fit:cover;border-radius:11px}
+.card h3{font-size:15px;margin:12px 0 5px}
+.card p{font-size:13px;color:#aaa}
+.card button{float:right;background:none;border:0;color:#f472b6;font-size:22px;cursor:pointer}
+.empty{color:#aaa;padding:20px 0}
+.player{position:fixed;bottom:0;left:0;width:100%;background:#202033;border-top:1px solid #41415b;padding:13px 5%;display:flex;align-items:center;gap:20px;z-index:10}
+.now{display:flex;align-items:center;gap:12px;width:25%;min-width:130px}
+.now img{width:48px;height:48px;object-fit:cover;border-radius:8px}
+.now h4{font-size:13px}
+.now p{font-size:11px;color:#aaa;margin-top:5px}
+.controls{flex:1;text-align:center}
+.controls button{background:none;border:0;color:white;font-size:23px;margin:0 12px;cursor:pointer}
+.controls .mainplay{background:#a78bfa;color:#171727;border-radius:50%;width:40px;height:40px;font-size:19px}
+.progress{width:100%;max-width:400px;accent-color:#a78bfa;cursor:pointer;margin-top:10px}
+.time{font-size:11px;color:#aaa;display:flex;justify-content:space-between;max-width:400px;margin:auto}
+.vol{width:100px;accent-color:#a78bfa}
+footer{text-align:center;color:#777;padding:25px}
+@media(max-width:600px){
+ header{padding:17px 5%;flex-wrap:wrap;gap:14px}
+ .search{width:100%;order:2}
+ main{padding:22px 5%}
+ .hero h1{font-size:27px}
+ .hero-icon{font-size:55px}
+ .player{gap:8px;padding:10px 3%}
+ .now{width:35%;gap:7px}
+ .now img{width:38px;height:38px}
+ .controls button{margin:0 5px}
+ .vol{display:none}
+ .controls .time{font-size:9px}
+}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="logo">♫ Musico<span>.</span></div>
+ <input class="search" id="search" placeholder="🔍 Search songs or artists..." oninput="renderSongs()">
+</header>
+
+<main>
+ <section class="hero">
+  <div>
+   <h1>Feel Every Beat 🎧</h1>
+   <p>Your music. Your mood. Your world.</p>
+   <button onclick="playSong(0)">▶ Play Music</button>
+  </div>
+  <div class="hero-icon">🎵</div>
+ </section>
+
+ <h2>Explore Music</h2>
+ <div class="categories">
+  <button class="category active" onclick="filterSongs('All',this)">All</button>
+  <button class="category" onclick="filterSongs('Pop',this)">Pop</button>
+  <button class="category" onclick="filterSongs('Chill',this)">Chill</button>
+  <button class="category" onclick="filterSongs('Electronic',this)">Electronic</button>
+ </div>
+
+ <h2>🔥 Popular Songs</h2>
+ <div class="songs" id="songs"></div>
+
+ <h2>❤️ Your Favourites</h2>
+ <div class="songs" id="favourites"></div>
+</main>
+
+<footer>Made with ♡ by Musico | Music for Everyone</footer>
+
+<div class="player">
+ <div class="now">
+  <img id="currentCover" src="https://picsum.photos/seed/music1/200">
+  <div><h4 id="currentTitle">Select a song</h4><p id="currentArtist">Musico Player</p></div>
+ </div>
+ <div class="controls">
+  <div>
+   <button onclick="previousSong()">⏮</button>
+   <button class="mainplay" id="playButton" onclick="togglePlay()">▶</button>
+   <button onclick="nextSong()">⏭</button>
+  </div>
+  <div class="time"><span id="currentTime">0:00</span><span id="duration">0:00</span></div>
+  <input class="progress" type="range" id="progress" min="0" max="100" value="0" oninput="seekSong()">
+ </div>
+ <input class="vol" type="range" min="0" max="1" step="0.01" value="0.7" oninput="audio.volume=this.value">
+</div>
+
+<audio id="audio"></audio>
+
+<script>
+const songs=[
+ {title:"Dreams",artist:"SoundHelix",genre:"Pop",cover:"https://picsum.photos/seed/dream/300",url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"},
+ {title:"Summer Vibes",artist:"SoundHelix",genre:"Chill",cover:"https://picsum.photos/seed/summer/300",url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"},
+ {title:"Night Drive",artist:"SoundHelix",genre:"Electronic",cover:"https://picsum.photos/seed/night/300",url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"},
+ {title:"Feel Alive",artist:"SoundHelix",genre:"Pop",cover:"https://picsum.photos/seed/alive/300",url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"},
+ {title:"Peaceful Mind",artist:"SoundHelix",genre:"Chill",cover:"https://picsum.photos/seed/peace/300",url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"},
+ {title:"Electric Heart",artist:"SoundHelix",genre:"Electronic",cover:"https://picsum.photos/seed/electric/300",url:"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"}
+];
+
+const audio=document.getElementById("audio");
+let currentIndex=0;
+let currentGenre="All";
+let favourites=[];
+let isPlaying=false;
+
+function renderSongs(){
+ const query=document.getElementById("search").value.toLowerCase();
+ const filtered=songs.map((s,i)=>({...s,index:i})).filter(s=>
+  (currentGenre==="All"||s.genre===currentGenre)&&
+  (s.title.toLowerCase().includes(query)||s.artist.toLowerCase().includes(query))
+ );
+ document.getElementById("songs").innerHTML=filtered.length?filtered.map(s=>`
+ <div class="card" onclick="playSong(${s.index})">
+  <img class="cover" src="${s.cover}" alt="Album cover">
+  <button onclick="event.stopPropagation();toggleFavourite(${s.index})">${favourites.includes(s.index)?"♥":"♡"}</button>
+  <h3>${s.title}</h3><p>${s.artist} · ${s.genre}</p>
+ </div>`).join(""):'<p class="empty">No songs found.</p>';
+ renderFavourites();
+}
+
+function renderFavourites(){
+ const fav=songs.map((s,i)=>({...s,index:i})).filter(s=>favourites.includes(s.index));
+ document.getElementById("favourites").innerHTML=fav.length?fav.map(s=>`
+ <div class="card" onclick="playSong(${s.index})">
+ <img class="cover" src="${s.cover}" alt="Album cover">
+ <h3>${s.title}</h3><p>${s.artist}</p>
+ </div>`).join(""):'<p class="empty">Your favourite songs will appear here.</p>';
+}
+
+function filterSongs(genre,button){
+ currentGenre=genre;
+ document.querySelectorAll(".category").forEach(b=>b.classList.remove("active"));
+ button.classList.add("active");
+ renderSongs();
+}
+
+function toggleFavourite(index){
+ favourites=favourites.includes(index)?favourites.filter(i=>i!==index):[...favourites,index];
+ renderSongs();
+}
+
+function playSong(index){
+ currentIndex=index;
+ const s=songs[index];
+ audio.src=s.url;
+ audio.volume=0.7;
+ audio.play().then(()=>{
+  isPlaying=true;
+  updatePlayer();
+ }).catch(()=>alert("Unable to play this demo track. Check your internet connection."));
+ document.getElementById("currentTitle").textContent=s.title;
+ document.getElementById("currentArtist").textContent=s.artist;
+ document.getElementById("currentCover").src=s.cover;
+}
+
+function updatePlayer(){
+ document.getElementById("playButton").textContent=isPlaying?"Ⅱ":"▶";
+}
+
+function togglePlay(){
+ if(!audio.src){playSong(0);return;}
+ if(audio.paused){audio.play();isPlaying=true;}
+ else{audio.pause();isPlaying=false;}
+ updatePlayer();
+}
+
+function nextSong(){playSong((currentIndex+1)%songs.length);}
+function previousSong(){playSong((currentIndex-1+songs.length)%songs.length);}
+
+audio.addEventListener("timeupdate",()=>{
+ if(audio.duration){
+  document.getElementById("progress").value=(audio.currentTime/audio.duration)*100;
+  document.getElementById("currentTime").textContent=formatTime(audio.currentTime);
+  document.getElementById("duration").textContent=formatTime(audio.duration);
+ }
+});
+audio.addEventListener("ended",nextSong);
+audio.addEventListener("play",()=>{isPlaying=true;updatePlayer();});
+audio.addEventListener("pause",()=>{isPlaying=false;updatePlayer();});
+
+function seekSong(){
+ if(audio.duration)audio.currentTime=(document.getElementById("progress").value/100)*audio.duration;
+}
+function formatTime(seconds){
+ if(!Number.isFinite(seconds))return "0:00";
+ return Math.floor(seconds/60)+":"+String(Math.floor(seconds%60)).padStart(2,"0");
+}
+renderSongs();
+</script>
+</body>
+</html>
