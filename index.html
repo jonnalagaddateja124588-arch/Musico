@@ -322,6 +322,18 @@ button {
 </div>
 
 <audio id="audio"></audio>
+  
+  <div style="text-align:center; margin:20px;">
+  <iframe
+    id="youtubePlayer"
+    width="320"
+    height="180"
+    src=""
+    title="MUSICO YouTube Player"
+    allow="autoplay; encrypted-media; picture-in-picture"
+    allowfullscreen>
+  </iframe>
+</div>
 
 <script>
   function searchYouTube() {
@@ -349,14 +361,23 @@ const songs = [
     url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
     demo: true
   },
-
   {
-    title: "Add Your Telugu Song",
-    artist: "Your Telugu Catalogue",
+    title: "Samajavaragamana",
+    artist: "Sid Sriram",
     language: "Telugu",
     cover: "🎶",
-    url: ""
+    url: "",
+    videoId: "REPLACE_WITH_VIDEO_ID"
   },
+  {
+    title: "Kesariya",
+    artist: "Arijit Singh",
+    language: "Hindi",
+    cover: "❤️",
+    url: "",
+    videoId: "REPLACE_WITH_VIDEO_ID"
+  }
+];
 
   {
     title: "Add Your Hindi Song",
@@ -442,66 +463,37 @@ function renderSongs() {
 function playSong(index) {
   const song = songs[index];
 
-  if (!song || !song.url) {
+  if (!song) return;
+
+  currentIndex = index;
+
+  if (song.videoId) {
+    audio.pause();
+    audio.src = "";
+
+    document.getElementById("youtubePlayer").src =
+      "https://www.youtube.com/embed/" +
+      song.videoId +
+      "?autoplay=1";
+
+    document.getElementById("youtubePlayer").style.display = "block";
+
+  } else if (song.url) {
+    document.getElementById("youtubePlayer").src = "";
+    document.getElementById("youtubePlayer").style.display = "none";
+
+    audio.src = song.url;
+    audio.play();
+  } else {
     alert("This song is not available yet.");
     return;
   }
 
-  currentIndex = index;
-  audio.src = song.url;
-  audio.play().then(() => {
-    document.getElementById("nowPlaying").textContent =
-      "🎵 Playing: " + song.title;
-    playButton.textContent = "Ⅱ";
-    renderSongs();
-  }).catch(() => {
-    alert("Unable to play this demo audio. Please check your internet connection.");
-  });
-}
-
-function togglePlay() {
-  if (currentIndex === -1) {
-    playSong(0);
-    return;
-  }
-
-  if (audio.paused) {
-    audio.play();
-    playButton.textContent = "Ⅱ";
-  } else {
-    audio.pause();
-    playButton.textContent = "▶";
-  }
-}
-
-function nextSong() {
-  if (currentIndex === -1) return;
-
-  let next = currentIndex + 1;
-  if (next >= songs.length) next = 0;
-
-  playSong(next);
-}
-
-function previousSong() {
-  if (currentIndex === -1) return;
-
-  let previous = currentIndex - 1;
-  if (previous < 0) previous = songs.length - 1;
-
-  playSong(previous);
-}
-
-function toggleFavourite(index) {
-  if (favourites.includes(index)) {
-    favourites = favourites.filter(item => item !== index);
-  } else {
-    favourites.push(index);
-  }
+  document.getElementById("nowPlaying").textContent =
+    "🎵 Playing: " + song.title;
 
   renderSongs();
 }
-
 document.querySelectorAll(".lang-btn").forEach(button => {
   button.addEventListener("click", () => {
     currentLanguage = button.dataset.lang;
@@ -557,25 +549,6 @@ function formatTime(seconds) {
 }
 
 renderSongs();
-</script>
-  
-  <h2>🎵 YouTube Music Search</h2>
-
-  <input
-    
-    type="text"
-    placeholder="Search your favourite songs..."
-    style="padding:14px; width:70%; border-radius:25px; border:none;"
-  >
-
-  <button
-    onclick="searchYouTube()"
-    style="padding:14px 20px; border-radius:25px; background:#ff0033; color:white; border:none; cursor:pointer;">
-    Search
-  </button>
-
-  <p id="youtubeMessage"></p>
-</div>
 
 <script>
 function searchYouTube() {
