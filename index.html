@@ -3,7 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Musico - Music for Everyone</title>
+<title>Musico - Stream Music & Podcasts</title>
+
+<!-- PWA Manifest & Meta Tags for App Installation -->
+<link rel="manifest" id="manifestPlaceholder">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Musico">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <style>
 * {
@@ -13,49 +21,79 @@
 }
 
 body {
-  background: #100d1c;
-  color: white;
-  font-family: Arial, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding-bottom: 140px;
 }
 
+/* Header & Navigation */
 header {
-  padding: 18px 22px;
-  background: #1b1530;
+  padding: 16px 20px;
+  background: #ffffff;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 50;
-  border-bottom: 1px solid #382b4b;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 .logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: #bd8cff;
+  font-size: 22px;
+  font-weight: 800;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-icon {
+  width: 28px;
+  height: 28px;
+  background: #2563eb;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 14px;
 }
 
 .top-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
+  align-items: center;
 }
 
 .top-btn {
-  background: #251d3a;
-  color: #e6d4ff;
-  border: 1px solid #493b60;
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
   padding: 8px 14px;
   border-radius: 20px;
   cursor: pointer;
   font-size: 13px;
-  transition: 0.2s;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 .top-btn:hover {
-  background: #9147d5;
+  background: #2563eb;
   color: white;
+}
+
+.install-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: none;
 }
 
 main {
@@ -75,9 +113,11 @@ main {
 h2 {
   margin: 20px 0 12px;
   font-size: 20px;
-  color: #bd8cff;
+  color: #1e40af;
+  font-weight: 700;
 }
 
+/* Grid & Cards */
 .grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -86,26 +126,28 @@ h2 {
 }
 
 .card {
-  background: #211a32;
+  background: #ffffff;
   padding: 15px;
-  border-radius: 15px;
-  border: 1px solid #382b4b;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
   cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
   transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
 .card:hover {
   transform: translateY(-4px);
-  border-color: #9147d5;
+  border-color: #3b82f6;
 }
 
 .card-cover {
   height: 120px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #52238c, #d14c9e);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   display: grid;
   place-items: center;
   font-size: 40px;
+  color: white;
   margin-bottom: 10px;
 }
 
@@ -115,27 +157,31 @@ h2 {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #0f172a;
 }
 
 .card p {
-  color: #b8accb;
+  color: #64748b;
   font-size: 12px;
 }
 
+/* Inputs & Forms */
 .search-input {
   width: 100%;
-  padding: 15px;
+  padding: 14px 20px;
   border-radius: 25px;
-  border: 1px solid #493b60;
-  background: #211a32;
-  color: white;
-  font-size: 16px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 15px;
   outline: none;
   margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .search-input:focus {
-  border-color: #9147d5;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
 }
 
 #hiddenAudioContainer {
@@ -147,15 +193,17 @@ h2 {
   pointer-events: none;
 }
 
+/* Player Interface */
 .player {
   position: fixed;
   bottom: 60px;
   left: 0;
   width: 100%;
-  background: #211a32;
-  border-top: 1px solid #55446e;
-  padding: 10px 20px;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  padding: 12px 20px;
   z-index: 100;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
 }
 
 .player-inner {
@@ -169,13 +217,14 @@ h2 {
   align-items: center;
   font-size: 14px;
   margin-bottom: 8px;
-  color: #e6d4ff;
+  color: #1e3a8a;
+  font-weight: 600;
 }
 
 .timer-badge {
   font-size: 12px;
-  color: #ff6c9c;
-  background: #341e3d;
+  color: #dc2626;
+  background: #fee2e2;
   padding: 3px 8px;
   border-radius: 10px;
 }
@@ -188,444 +237,4 @@ h2 {
   margin: 6px 0;
 }
 
-.controls button {
-  border: none;
-  background: transparent;
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.controls .main-play {
-  background: #9147d5;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: grid;
-  place-items: center;
-}
-
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.7);
-  z-index: 200;
-  place-items: center;
-}
-
-.modal-content {
-  background: #211a32;
-  padding: 20px;
-  border-radius: 15px;
-  border: 1px solid #55446e;
-  text-align: center;
-  max-width: 300px;
-  width: 90%;
-}
-
-.modal-content button {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-  background: #382b4b;
-  border: 1px solid #55446e;
-  color: white;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.modal-content button:hover {
-  background: #9147d5;
-}
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #1b1530;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 5px;
-  z-index: 100;
-  border-top: 1px solid #493b60;
-}
-
-.bottom-nav button {
-  background: none;
-  border: none;
-  color: #b8accb;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.bottom-nav button.active {
-  color: #bd8cff;
-}
-</style>
-</head>
-<body>
-
-<header>
-  <div class="logo">🎵 MUSICO</div>
-  <div class="top-actions">
-    <button class="top-btn" onclick="showPage('home')">🏠 Home</button>
-    <button class="top-btn" onclick="showPage('recents')">🕒 Recents</button>
-    <button class="top-btn" onclick="showPage('profile')">👤 Profile</button>
-  </div>
-</header>
-
-<main>
-  <!-- Home Page -->
-  <section id="homePage" class="page active">
-    <h2>Playlists</h2>
-    <div class="grid-container" id="playlistGrid"></div>
-
-    <h2>Albums</h2>
-    <div class="grid-container" id="albumGrid"></div>
-  </section>
-
-  <!-- Search Page -->
-  <section id="searchPage" class="page">
-    <h2>Search Songs</h2>
-    <input
-      type="text"
-      id="songSearch"
-      class="search-input"
-      placeholder="Type any song, artist, or Telugu hits..."
-      oninput="filterSearch()"
-    >
-    <div class="grid-container" id="searchResults"></div>
-  </section>
-
-  <!-- Library Page -->
-  <section id="libraryPage" class="page">
-    <h2>Your Library</h2>
-    <div class="grid-container" id="libraryGrid"></div>
-  </section>
-
-  <!-- Recents Page -->
-  <section id="recentsPage" class="page">
-    <h2>Recently Played</h2>
-    <div class="grid-container" id="recentsGrid"></div>
-  </section>
-
-  <!-- Profile Page -->
-  <section id="profilePage" class="page">
-    <h2>User Profile</h2>
-    <div class="card">
-      <h3>Musico Member</h3>
-      <p style="margin-top: 8px;">Live YouTube API v3 Enabled</p>
-    </div>
-  </section>
-
-  <!-- Background Audio Streamer Container -->
-  <div id="hiddenAudioContainer">
-    <div id="youtubePlayer"></div>
-  </div>
-</main>
-
-<!-- Bottom Sticky Player -->
-<div class="player">
-  <div class="player-inner">
-    <div class="now-playing-info">
-      <span id="nowPlaying">Select a song to start listening</span>
-      <span id="timerStatus" class="timer-badge" style="display:none;"></span>
-    </div>
-
-    <div class="controls">
-      <button onclick="previousSong()">⏮</button>
-      <button class="main-play" onclick="togglePlay()" id="playButton">▶</button>
-      <button onclick="nextSong()">⏭</button>
-      <button onclick="openTimerModal()" title="Sleep Timer">⏱️</button>
-    </div>
-  </div>
-</div>
-
-<!-- Bottom Navigation Bar -->
-<nav class="bottom-nav">
-  <button id="nav-home" class="active" onclick="showPage('home')">🏠<span>Home</span></button>
-  <button id="nav-search" onclick="showPage('search')">🔍<span>Search</span></button>
-  <button id="nav-library" onclick="showPage('library')">🎵<span>Library</span></button>
-</nav>
-
-<!-- Sleep Timer Modal -->
-<div class="modal" id="timerModal">
-  <div class="modal-content">
-    <h3>Sleep Timer</h3>
-    <button onclick="setSleepTimer(15)">15 Minutes</button>
-    <button onclick="setSleepTimer(30)">30 Minutes</button>
-    <button onclick="setSleepTimer(45)">45 Minutes</button>
-    <button onclick="setSleepTimer(60)">60 Minutes</button>
-    <button onclick="cancelSleepTimer()" style="background:#5c2424;">Turn Off</button>
-    <button onclick="closeTimerModal()" style="background:transparent;">Close</button>
-  </div>
-</div>
-
-<script src="https://www.youtube.com/iframe_api"></script>
-
-<script>
-const YOUTUBE_API_KEY = "AIzaSyDqi_eQpFxhthmtrF_pOGygTjsuCihneBI";
-
-const playlists = [
-  { title: "Telugu Super Hits", count: "Live Search", cover: "🎧" },
-  { title: "Bollywood Romance", count: "Live Search", cover: "💖" },
-  { title: "Global Top Charts", count: "Live Search", cover: "🌍" }
-];
-
-const albums = [
-  { title: "Trending Audio", artist: "YouTube Music", cover: "💿" },
-  { title: "Top Hits", artist: "Global Artists", cover: "🌲" },
-  { title: "Chill Vibes", artist: "Curated", cover: "🎸" }
-];
-
-let player;
-let currentPlaylist = [];
-let currentIndex = -1;
-let isPlaying = false;
-let sleepTimerId = null;
-let sleepCountdownId = null;
-let recents = [];
-let searchTimeout = null;
-
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('youtubePlayer', {
-    height: '100',
-    width: '100',
-    playerVars: { 'autoplay': 1, 'controls': 0, 'disablekb': 1 },
-    events: { 'onStateChange': onPlayerStateChange }
-  });
-}
-
-function onPlayerStateChange(event) {
-  if (event.data === YT.PlayerState.PLAYING) {
-    isPlaying = true;
-    document.getElementById('playButton').textContent = 'Ⅱ';
-  } else if (event.data === YT.PlayerState.PAUSED) {
-    isPlaying = false;
-    document.getElementById('playButton').textContent = '▶';
-  } else if (event.data === YT.PlayerState.ENDED) {
-    nextSong();
-  }
-}
-
-function showPage(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
-
-  const targetPage = document.getElementById(pageId + 'Page');
-  if (targetPage) targetPage.classList.add('active');
-
-  const activeNav = document.getElementById('nav-' + pageId);
-  if (activeNav) activeNav.classList.add('active');
-
-  if (pageId === 'search') {
-    document.getElementById('songSearch').focus();
-  }
-}
-
-function renderDashboard() {
-  document.getElementById('playlistGrid').innerHTML = playlists.map(p => `
-    <div class="card" onclick="quickSearch('${p.title}')">
-      <div class="card-cover">${p.cover}</div>
-      <h3>${p.title}</h3>
-      <p>${p.count}</p>
-    </div>
-  `).join('');
-
-  document.getElementById('albumGrid').innerHTML = albums.map(a => `
-    <div class="card" onclick="quickSearch('${a.title}')">
-      <div class="card-cover">${a.cover}</div>
-      <h3>${a.title}</h3>
-      <p>${a.artist}</p>
-    </div>
-  `).join('');
-}
-
-function quickSearch(query) {
-  showPage('search');
-  document.getElementById('songSearch').value = query;
-  filterSearch();
-}
-
-function filterSearch() {
-  const query = document.getElementById('songSearch').value.trim();
-  clearTimeout(searchTimeout);
-  
-  if (!query) {
-    document.getElementById('searchResults').innerHTML = '<p style="color:#b8accb;">Type any song or artist name to search YouTube...</p>';
-    return;
-  }
-
-  searchTimeout = setTimeout(async () => {
-    try {
-      document.getElementById('searchResults').innerHTML = '<p style="color:#bd8cff;">Searching YouTube...</p>';
-      
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + " audio song")}&type=video&maxResults=10&key=${YOUTUBE_API_KEY}`;
-      
-      const response = await fetch(url);
-      const data = await response.json();
-
-      if (data.error) {
-        document.getElementById('searchResults').innerHTML = `<p style="color:#ff6c9c;">API Error: ${data.error.message}</p>`;
-        return;
-      }
-
-      currentPlaylist = data.items.map(item => ({
-        videoId: item.id.videoId,
-        title: item.snippet.title,
-        artist: item.snippet.channelTitle,
-        cover: "🎵"
-      }));
-
-      renderDynamicSearchResults(currentPlaylist);
-    } catch (error) {
-      console.error("Search failed:", error);
-      document.getElementById('searchResults').innerHTML = '<p style="color:#ff6c9c;">Failed to fetch songs. Check your connection or API key restrictions.</p>';
-    }
-  }, 500);
-}
-
-function renderDynamicSearchResults(list) {
-  const container = document.getElementById('searchResults');
-  if (!list.length) {
-    container.innerHTML = '<p style="color:#b8accb;">No matching songs found.</p>';
-    return;
-  }
-  
-  container.innerHTML = list.map((song, index) => `
-    <div class="card" onclick="playDynamicSong(${index})">
-      <div class="card-cover">${song.cover}</div>
-      <h3>${song.title}</h3>
-      <p>${song.artist} • YouTube</p>
-    </div>
-  `).join('');
-}
-
-function playDynamicSong(index) {
-  if (index < 0 || index >= currentPlaylist.length) return;
-  
-  currentIndex = index;
-  const song = currentPlaylist[currentIndex];
-  
-  if (!recents.some(s => s.videoId === song.videoId)) {
-    recents.unshift(song);
-    updateRecentsUI();
-  }
-
-  if (player && typeof player.loadVideoById === 'function') {
-    player.loadVideoById(song.videoId);
-    player.playVideo();
-    document.getElementById('nowPlaying').textContent = `🎵 Playing: ${song.title} - ${song.artist}`;
-  }
-}
-
-function togglePlay() {
-  if (currentIndex === -1 && currentPlaylist.length > 0) {
-    playDynamicSong(0);
-    return;
-  }
-  
-  if (player && typeof player.getPlayerState === 'function') {
-    const state = player.getPlayerState();
-    if (state === YT.PlayerState.PLAYING) {
-      player.pauseVideo();
-    } else {
-      player.playVideo();
-    }
-  }
-}
-
-function nextSong() {
-  if (!currentPlaylist.length) return;
-  const nextIdx = (currentIndex + 1) % currentPlaylist.length;
-  playDynamicSong(nextIdx);
-}
-
-function previousSong() {
-  if (!currentPlaylist.length) return;
-  const prevIdx = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
-  playDynamicSong(prevIdx);
-}
-
-function updateRecentsUI() {
-  document.getElementById('recentsGrid').innerHTML = recents.map((song, index) => `
-    <div class="card" onclick="playRecentSong('${song.videoId}')">
-      <div class="card-cover">${song.cover}</div>
-      <h3>${song.title}</h3>
-      <p>${song.artist}</p>
-    </div>
-  `).join('');
-}
-
-function playRecentSong(videoId) {
-  const foundIndex = currentPlaylist.findIndex(s => s.videoId === videoId);
-  if (foundIndex !== -1) {
-    playDynamicSong(foundIndex);
-  } else {
-    const song = recents.find(s => s.videoId === videoId);
-    if (song) {
-      currentPlaylist.unshift(song);
-      playDynamicSong(0);
-    }
-  }
-}
-
-function openTimerModal() {
-  document.getElementById('timerModal').style.display = 'grid';
-}
-
-function closeTimerModal() {
-  document.getElementById('timerModal').style.display = 'none';
-}
-
-function setSleepTimer(minutes) {
-  cancelSleepTimer();
-  let durationSeconds = minutes * 60;
-  
-  const statusBadge = document.getElementById('timerStatus');
-  statusBadge.style.display = 'inline-block';
-
-  sleepCountdownId = setInterval(() => {
-    durationSeconds--;
-    const mins = Math.floor(durationSeconds / 60);
-    const secs = durationSeconds % 60;
-    statusBadge.textContent = `⏱ Stop in ${mins}:${secs < 10 ? '0' : ''}${secs}`;
-
-    if (durationSeconds <= 0) {
-      clearInterval(sleepCountdownId);
-    }
-  }, 1000);
-
-  sleepTimerId = setTimeout(() => {
-    if (player && typeof player.pauseVideo === 'function') {
-      player.pauseVideo();
-    }
-    alert("Sleep timer complete. Playback paused.");
-    cancelSleepTimer();
-  }, minutes * 60 * 1000);
-
-  closeTimerModal();
-}
-
-function cancelSleepTimer() {
-  if (sleepTimerId) clearTimeout(sleepTimerId);
-  if (sleepCountdownId) clearInterval(sleepCountdownId);
-  document.getElementById('timerStatus').style.display = 'none';
-  closeTimerModal();
-}
-
-renderDashboard();
-</script>
-
-</body>
-</html>
+.controls button
