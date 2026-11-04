@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Musico - Web Music Player</title>
+  <title>Musico - Telugu Music Player</title>
   
   <!-- Google Sign-In SDK -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -16,27 +16,52 @@
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #f4f7fc; /* Clean Light Background */
+      background-color: #f4f7fc;
       color: #1a1a1a;
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
       padding: 20px;
-      padding-bottom: 110px;
+      padding-bottom: 150px;
     }
+
+    /* TOP HEADER: Home, Recents, Profile */
     header {
       width: 100%;
       max-width: 650px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
     .logo {
-      color: #0066ff; /* Vibrant Blue */
+      color: #0066ff;
       font-size: 1.8rem;
       font-weight: bold;
+    }
+    .top-icon-btn {
+      background: #e4ebf5;
+      border: 1px solid #d0dbe8;
+      color: #0066ff;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     /* Category Navigation Tabs */
@@ -81,7 +106,7 @@
       display: block;
     }
 
-    /* Featured Playlists Grid */
+    /* Grid Layouts */
     .section-title {
       font-size: 1.2rem;
       font-weight: bold;
@@ -131,7 +156,6 @@
       text-overflow: ellipsis;
     }
 
-    /* Mini Horizontal Row Cards */
     .row-card {
       display: flex;
       align-items: center;
@@ -159,7 +183,6 @@
       color: #666;
     }
 
-    /* Recommended Section */
     .recommended-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -195,21 +218,24 @@
       text-overflow: ellipsis;
     }
 
-    /* Sticky Bottom Slide Bar (Mini Player) */
+    /* STICKY MINI PLAYER BAR (Hidden by default until a song is played) */
     .sticky-mini-bar {
       position: fixed;
-      bottom: 0;
+      bottom: 60px;
       left: 0;
       right: 0;
       background: #ffffff;
       border-top: 1px solid #d0dbe8;
-      padding: 12px 20px;
-      display: flex;
+      border-bottom: 1px solid #d0dbe8;
+      padding: 10px 20px;
+      display: none; /* Hidden initially */
       align-items: center;
       justify-content: space-between;
       cursor: pointer;
       z-index: 100;
-      box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05);
+    }
+    .sticky-mini-bar.visible {
+      display: flex;
     }
     .mini-track-details {
       display: flex;
@@ -217,8 +243,8 @@
       gap: 12px;
     }
     .mini-track-details img {
-      width: 42px;
-      height: 42px;
+      width: 38px;
+      height: 38px;
       border-radius: 6px;
       object-fit: cover;
     }
@@ -230,18 +256,53 @@
     .mini-play-btn {
       background: #0066ff;
       border: none;
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       color: #fff;
-      font-size: 1rem;
+      font-size: 0.9rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    /* Expanded Full Player View */
+    /* BOTTOM NAVIGATION BAR: Home, Search, Library */
+    .bottom-nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: #ffffff;
+      border-top: 1px solid #e1ecfc;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 101;
+      box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05);
+    }
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: #666;
+      font-size: 0.75rem;
+      text-decoration: none;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .bottom-nav-item.active {
+      color: #0066ff;
+      font-weight: 600;
+    }
+    .bottom-nav-item span {
+      font-size: 1.2rem;
+    }
+
+    /* EXPANDED FULL PLAYER VIEW */
     .full-player-view {
       position: fixed;
       top: 100%;
@@ -323,7 +384,6 @@
       display: none;
     }
 
-    /* Bottom Action Deck */
     .bottom-actions {
       display: flex;
       flex-direction: column;
@@ -350,7 +410,6 @@
       border-color: #0066ff;
     }
 
-    /* Lyrics Modal Window */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -399,23 +458,31 @@
 </head>
 <body>
 
+  <!-- TOP HEADER: Home, Recents, Profile -->
   <header>
-    <div class="logo">Musico</div>
-    <div id="g_id_onload"
-         data-client_id="721484485179-lf5o68dkv7fi098nub4rffs1appu0nta.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse"
-         data-auto_select="false">
+    <div class="header-left">
+      <button class="top-icon-btn" title="Home" onclick="location.reload()">🏠</button>
+      <button class="top-icon-btn" title="Recents" onclick="alert('Viewing Recent Telugu Tracks')">🕒</button>
+      <div class="logo">Musico</div>
     </div>
-    <div class="g_id_signin"
-         data-type="standard"
-         data-size="medium"
-         data-theme="outline"
-         data-text="sign_in"
-         data-shape="pill">
+    
+    <div class="header-right">
+      <div id="g_id_onload"
+           data-client_id="721484485179-lf5o68dkv7fi098nub4rffs1appu0nta.apps.googleusercontent.com"
+           data-callback="handleCredentialResponse"
+           data-auto_select="false">
+      </div>
+      <div class="g_id_signin"
+           data-type="standard"
+           data-size="medium"
+           data-theme="outline"
+           data-text="sign_in"
+           data-shape="pill">
+      </div>
     </div>
   </header>
 
-  <!-- Category Tabs -->
+  <!-- Category Navigation Tabs -->
   <div class="nav-tabs">
     <button class="nav-btn active" onclick="switchCategory('playlists', this)">Playlists</button>
     <button class="nav-btn" onclick="switchCategory('albums', this)">Albums</button>
@@ -424,106 +491,118 @@
 
   <main class="player-card">
     
-    <!-- Playlists View -->
+    <!-- Playlists View (Telugu Playlists & Songs) -->
     <div id="playlists" class="tab-content active">
-      <div class="section-title">Featured Playlists</div>
+      <div class="section-title">Tollywood Featured Playlists</div>
       
-      <!-- 4 Featured Cards Grid -->
       <div class="featured-grid">
-        <div class="featured-card" onclick="playMp3('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'Summer Chill', 'Beach Sunset', 'https://picsum.photos/300/300?random=10')">
-          <img src="https://picsum.photos/300/300?random=10" alt="playlist">
-          <div class="featured-title">Summer Chill</div>
-          <div class="featured-subtitle">Beach Sunset</div>
+        <div class="featured-card" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'Pushpa 2 Item Song', 'Devi Sri Prasad', 'https://picsum.photos/300/300?random=50')">
+          <img src="https://picsum.photos/300/300?random=50" alt="Pushpa 2">
+          <div class="featured-title">Pushpa 2 Beats</div>
+          <div class="featured-subtitle">Devi Sri Prasad</div>
         </div>
-        <div class="featured-card" onclick="playMp3('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'Deep Focus', 'Cosmic Drift', 'https://picsum.photos/300/300?random=11')">
-          <img src="https://picsum.photos/300/300?random=11" alt="playlist">
-          <div class="featured-title">Deep Focus</div>
-          <div class="featured-subtitle">Cosmic Drift</div>
+        <div class="featured-card" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'Daavudi - Devara', 'Anirudh Ravichander', 'https://picsum.photos/300/300?random=51')">
+          <img src="https://picsum.photos/300/300?random=51" alt="Devara">
+          <div class="featured-title">Devara Hits</div>
+          <div class="featured-subtitle">Anirudh Ravichander</div>
         </div>
-        <div class="featured-card" onclick="playMp3('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', 'Indie Pop', 'Bands', 'https://picsum.photos/300/300?random=12')">
-          <img src="https://picsum.photos/300/300?random=12" alt="playlist">
-          <div class="featured-title">Indie Pop Hits</div>
-          <div class="featured-subtitle">Bands</div>
+        <div class="featured-card" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', 'Naatu Naatu - RRR', 'M.M. Keeravani', 'https://picsum.photos/300/300?random=52')">
+          <img src="https://picsum.photos/300/300?random=52" alt="RRR">
+          <div class="featured-title">RRR Anthems</div>
+          <div class="featured-subtitle">M.M. Keeravani</div>
         </div>
-        <div class="featured-card" onclick="playMp3('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', 'Global Folk', 'Global Folk', 'https://picsum.photos/300/300?random=13')">
-          <img src="https://picsum.photos/300/300?random=13" alt="playlist">
-          <div class="featured-title">Global Folk</div>
-          <div class="featured-subtitle">Global Folk</div>
-        </div>
-      </div>
-
-      <!-- 2 Smaller Row Cards -->
-      <div class="row-card" onclick="playMp3('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'Don\'t Stop Believin\'', 'The Weeknd', 'https://picsum.photos/200/200?random=14')">
-        <img src="https://picsum.photos/200/200?random=14" alt="track">
-        <div class="row-info">
-          <div class="song-title">Don't Stop Believin'</div>
-          <div class="song-artist">The Weeknd</div>
-        </div>
-      </div>
-      <div class="row-card" onclick="playMp3('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'Funky Beats', 'DJ Fuego', 'https://picsum.photos/200/200?random=15')">
-        <img src="https://picsum.photos/200/200?random=15" alt="track">
-        <div class="row-info">
-          <div class="song-title">Funky Beats</div>
-          <div class="song-artist">DJ Fuego</div>
+        <div class="featured-card" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', 'Butta Bomma', 'Thaman S', 'https://picsum.photos/300/300?random=53')">
+          <img src="https://picsum.photos/300/300?random=53" alt="Ala Vaikunthapurramuloo">
+          <div class="featured-title">Melody Magic</div>
+          <div class="featured-subtitle">Thaman S</div>
         </div>
       </div>
 
-      <!-- Recommended Section -->
-      <div class="section-title" style="margin-top: 20px;">Recommended for You</div>
+      <div class="row-card" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'Ramuloo Ramulaa', 'Allu Arjun', 'https://picsum.photos/200/200?random=54')">
+        <img src="https://picsum.photos/200/200?random=54" alt="Ramuloo Ramulaa">
+        <div class="row-info">
+          <div class="song-title">Ramuloo Ramulaa</div>
+          <div class="song-artist">Ala Vaikunthapurramuloo</div>
+        </div>
+      </div>
+      <div class="row-card" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'Samayama', 'Sid Sriram', 'https://picsum.photos/200/200?random=55')">
+        <img src="https://picsum.photos/200/200?random=55" alt="Samayama">
+        <div class="row-info">
+          <div class="song-title">Samayama</div>
+          <div class="song-artist">Sid Sriram - Hi Nanna</div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-top: 20px;">Recommended Telugu Songs</div>
       <div class="recommended-grid">
-        <div class="rec-item" onclick="playMp3('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'Lofi Sunset', 'Musico Curator', 'https://picsum.photos/200/200?random=20')">
-          <img src="https://picsum.photos/200/200?random=20" alt="rec">
-          <div class="rec-title">Lofi Sunset</div>
-          <div class="rec-artist">- Musico Curator</div>
+        <div class="rec-item" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'Kadalalle', 'Sid Sriram', 'https://picsum.photos/200/200?random=60')">
+          <img src="https://picsum.photos/200/200?random=60" alt="Kadalalle">
+          <div class="rec-title">Kadalalle</div>
+          <div class="rec-artist">- Dear Comrade</div>
         </div>
-        <div class="rec-item" onclick="playMp3('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'Acoustic Folk', 'Wildwood', 'https://picsum.photos/200/200?random=21')">
-          <img src="https://picsum.photos/200/200?random=21" alt="rec">
-          <div class="rec-title">Acoustic Folk</div>
-          <div class="rec-artist">- Wildwood</div>
+        <div class="rec-item" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'Chulibili', 'Sid Sriram', 'https://picsum.photos/200/200?random=61')">
+          <img src="https://picsum.photos/200/200?random=61" alt="Chulibili">
+          <div class="rec-title">Chulibili</div>
+          <div class="rec-artist">- Ante Sundaraniki</div>
         </div>
-        <div class="rec-item" onclick="playMp3('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', 'Funk Classics', 'Musico Firtist', 'https://picsum.photos/200/200?random=22')">
-          <img src="https://picsum.photos/200/200?random=22" alt="rec">
-          <div class="rec-title">Funk Classics</div>
-          <div class="rec-artist">- Musico Firtist</div>
+        <div class="rec-item" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', 'Evare', 'Vijay Yesudas', 'https://picsum.photos/200/200?random=62')">
+          <img src="https://picsum.photos/200/200?random=62" alt="Evare">
+          <div class="rec-title">Evare</div>
+          <div class="rec-artist">- Premam</div>
         </div>
-        <div class="rec-item" onclick="playMp3('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', 'Deep Tech', 'House Chill', 'https://picsum.photos/200/200?random=23')">
-          <img src="https://picsum.photos/200/200?random=23" alt="rec">
-          <div class="rec-title">Deep Tech</div>
-          <div class="rec-artist">- House Chill</div>
+        <div class="rec-item" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', 'Priyathama', 'Chinmayi', 'https://picsum.photos/200/200?random=63')">
+          <img src="https://picsum.photos/200/200?random=63" alt="Priyathama">
+          <div class="rec-title">Priyathama</div>
+          <div class="rec-artist">- Majili</div>
         </div>
-        <div class="rec-item" onclick="playMp3('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'Yoga Meditate', 'Meditations', 'https://picsum.photos/200/200?random=24')">
-          <img src="https://picsum.photos/200/200?random=24" alt="rec">
-          <div class="rec-title">Yoga Meditate</div>
-          <div class="rec-artist">- Meditations</div>
+        <div class="rec-item" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'Vachindamma', 'Sid Sriram', 'https://picsum.photos/200/200?random=64')">
+          <img src="https://picsum.photos/200/200?random=64" alt="Vachindamma">
+          <div class="rec-title">Vachindamma</div>
+          <div class="rec-artist">- Geetha Govindam</div>
         </div>
       </div>
     </div>
 
-    <!-- Albums View -->
+    <!-- Albums View (Telugu Albums) -->
     <div id="albums" class="tab-content">
-      <div class="section-title">Featured Albums</div>
+      <div class="section-title">Blockbuster Telugu Albums</div>
       <div class="featured-grid">
-        <div class="featured-card" onclick="playMp3('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'Starboy', 'The Weeknd', 'https://picsum.photos/300/300?random=30')">
-          <img src="https://picsum.photos/300/300?random=30" alt="album">
-          <div class="featured-title">Starboy</div>
-          <div class="featured-subtitle">The Weeknd</div>
+        <div class="featured-card" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'Pushpa 2 The Rule', 'Allu Arjun & DSP', 'https://picsum.photos/300/300?random=70')">
+          <img src="https://picsum.photos/300/300?random=70" alt="Pushpa 2 Album">
+          <div class="featured-title">Pushpa 2</div>
+          <div class="featured-subtitle">Devi Sri Prasad</div>
         </div>
-        <div class="featured-card" onclick="playMp3('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'The Halfiest', 'Journey', 'https://picsum.photos/300/300?random=31')">
-          <img src="https://picsum.photos/300/300?random=31" alt="album">
-          <div class="featured-title">The Halfiest</div>
-          <div class="featured-subtitle">Journey</div>
+        <div class="featured-card" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'Devara Part 1', 'Jr NTR & Anirudh', 'https://picsum.photos/300/300?random=71')">
+          <img src="https://picsum.photos/300/300?random=71" alt="Devara Album">
+          <div class="featured-title">Devara</div>
+          <div class="featured-subtitle">Anirudh Ravichander</div>
+        </div>
+        <div class="featured-card" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', 'Kalki 2898 AD', 'Prabhas & Santhosh', 'https://picsum.photos/300/300?random=72')">
+          <img src="https://picsum.photos/300/300?random=72" alt="Kalki Album">
+          <div class="featured-title">Kalki 2898 AD</div>
+          <div class="featured-subtitle">Santhosh Narayanan</div>
+        </div>
+        <div class="featured-card" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', 'Guntur Kaaram', 'Mahesh Babu & Thaman', 'https://picsum.photos/300/300?random=73')">
+          <img src="https://picsum.photos/300/300?random=73" alt="Guntur Kaaram">
+          <div class="featured-title">Guntur Kaaram</div>
+          <div class="featured-subtitle">Thaman S</div>
         </div>
       </div>
     </div>
 
-    <!-- Podcasts View -->
+    <!-- Podcasts View (Telugu Podcasts) -->
     <div id="podcasts" class="tab-content">
-      <div class="section-title">Featured Podcasts</div>
+      <div class="section-title">Popular Telugu Podcasts</div>
       <div class="featured-grid">
-        <div class="featured-card" onclick="playMp3('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', 'Tech Talk Daily', 'Podcast Host', 'https://picsum.photos/300/300?random=40')">
-          <img src="https://picsum.photos/300/300?random=40" alt="podcast">
-          <div class="featured-title">Tech Talk Daily</div>
-          <div class="featured-subtitle">Episode 101</div>
+        <div class="featured-card" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'Tollywood Cinema History', 'Podcast Talks', 'https://picsum.photos/300/300?random=80')">
+          <img src="https://picsum.photos/300/300?random=80" alt="Podcast 1">
+          <div class="featured-title">Tollywood History</div>
+          <div class="featured-subtitle">Cinema Special</div>
+        </div>
+        <div class="featured-card" onclick="selectAndPlay('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'Telugu Audio Kathalu', 'Storyteller', 'https://picsum.photos/300/300?random=81')">
+          <img src="https://picsum.photos/300/300?random=81" alt="Podcast 2">
+          <div class="featured-title">Telugu Kathalu</div>
+          <div class="featured-subtitle">Moral Stories</div>
         </div>
       </div>
     </div>
@@ -531,32 +610,44 @@
   </main>
 
   <!-- Sticky Bottom Slide Bar (Mini Player) -->
-  <div class="sticky-mini-bar" onclick="openFullPlayer()">
+  <div class="sticky-mini-bar" id="sticky-mini-bar" onclick="openFullPlayer()">
     <div class="mini-track-details">
-      <img id="mini-img" src="https://picsum.photos/300/300?random=10" alt="cover">
+      <img id="mini-img" src="https://picsum.photos/300/300?random=50" alt="cover">
       <div>
-        <div class="song-title" id="mini-title">Summer Chill</div>
-        <div class="song-artist" id="mini-artist">Beach Sunset</div>
+        <div class="song-title" id="mini-title">Select a track</div>
+        <div class="song-artist" id="mini-artist">Tollywood</div>
       </div>
     </div>
     <div class="mini-controls">
       <button class="mini-play-btn" id="mini-play-btn" onclick="event.stopPropagation(); togglePlay();">⏸</button>
-      <span style="font-size: 0.9rem; color: #0066ff;">▲ Expand</span>
+      <span style="font-size: 0.85rem; color: #0066ff;">▲ Expand</span>
     </div>
   </div>
+
+  <!-- BOTTOM NAVIGATION BAR: Home, Search, Library -->
+  <nav class="bottom-nav-bar">
+    <button class="bottom-nav-item active" onclick="location.reload()">
+      <span>🏠</span> Home
+    </button>
+    <button class="bottom-nav-item" onclick="alert('Search Telugu songs, albums, and artists')">
+      <span>🔍</span> Search
+    </button>
+    <button class="bottom-nav-item" onclick="alert('Opening your saved Telugu library')">
+      <span>📚</span> Library
+    </button>
+  </nav>
 
   <!-- Expanded Full Player View -->
   <div class="full-player-view" id="full-player-overlay">
     <button class="close-view-btn" onclick="closeFullPlayer()">✕</button>
     
-    <img id="main-cover-img" class="main-cover" src="https://picsum.photos/300/300?random=10" alt="cover">
+    <img id="main-cover-img" class="main-cover" src="https://picsum.photos/300/300?random=50" alt="cover">
     
     <div class="track-info">
-      <div class="track-title" id="current-title">Summer Chill</div>
-      <div class="track-status">● Background Audio Active</div>
+      <div class="track-title" id="current-title">Pushpa 2 Beats</div>
+      <div class="track-status">● Telugu Audio Streaming Active</div>
     </div>
 
-    <!-- Playback Controls -->
     <div class="controls-row">
       <button class="btn-skip" onclick="alert('Previous track')">⏮</button>
       <button class="btn-circle" id="main-play-btn" onclick="togglePlay()">⏸</button>
@@ -564,13 +655,12 @@
     </div>
 
     <audio id="musico-audio">
-      <source id="audio-source" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+      <source id="audio-source" src="" type="audio/mpeg">
     </audio>
 
-    <!-- Bottom Actions -->
     <div class="bottom-actions">
       <button class="action-btn" onclick="openLyricsModal()">
-        <span>🎙️</span> Lyrics
+        <span>🎙️</span> Telugu Lyrics
       </button>
       <button class="action-btn" onclick="triggerSleepTimer()">
         <span>🌙</span> Sleep Timer
@@ -585,15 +675,15 @@
   <div class="modal-overlay" id="lyrics-modal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeLyricsModal()">✕</button>
-      <h3 id="lyrics-title" style="color:#0066ff;">Track Lyrics</h3>
+      <h3 id="lyrics-title" style="color:#0066ff;">Telugu Track Lyrics</h3>
       <div class="lyrics-content" id="lyrics-body">
-        ♪ Verse 1:
-        Listening to smooth melodies...
-        Streaming live on Musico player.
+        ♪ Charanam 1:
+        Andamaina telugu paata...
+        Musico lo vinasompuga saaguthundi.
 
         ♪ Chorus:
-        No ads, no interruptions,
-        Just background music all night long.
+        Malli malli paadali ee geetham,
+        Tollywood beats tho manchi aanandam!
       </div>
     </div>
   </div>
@@ -609,7 +699,8 @@
       btn.classList.add('active');
     }
 
-    function playMp3(url, title, artist, coverImg) {
+    // Selecting any track plays it AND automatically opens the full player view
+    function selectAndPlay(url, title, artist, coverImg) {
       document.getElementById('current-title').innerText = title;
       document.getElementById('mini-title').innerText = title;
       document.getElementById('mini-artist').innerText = artist;
@@ -619,6 +710,10 @@
       audioPlayer.src = url;
       audioPlayer.play();
       updatePlayIcons(true);
+
+      // Reveal mini player bar and open full player automatically
+      document.getElementById('sticky-mini-bar').classList.add('visible');
+      openFullPlayer();
       updateMediaSession(title, artist, coverImg);
     }
 
@@ -646,7 +741,7 @@
     }
 
     function openLyricsModal() {
-      document.getElementById('lyrics-title').innerText = document.getElementById('current-title').innerText + " - Lyrics";
+      document.getElementById('lyrics-title').innerText = document.getElementById('current-title').innerText + " - Telugu Lyrics";
       document.getElementById('lyrics-modal').classList.add('active');
     }
     function closeLyricsModal() {
@@ -667,7 +762,7 @@
     }
 
     function setRingtoneTune() {
-      alert("Preparing track file to set as your Ringtone / Caller Tune...");
+      alert("Preparing Telugu track file to set as your Ringtone / Caller Tune...");
     }
 
     function handleCredentialResponse(response) {
@@ -679,7 +774,7 @@
         navigator.mediaSession.metadata = new MediaMetadata({
           title: title,
           artist: artist,
-          album: "Musico Stream",
+          album: "Musico Telugu Stream",
           artwork: [{ src: coverImg, sizes: '512x512', type: 'image/png' }]
         });
 
@@ -699,8 +794,6 @@
         audioPlayer.play();
       }
     });
-
-    updateMediaSession("Summer Chill", "Beach Sunset", "https://picsum.photos/300/300?random=10");
   </script>
 </body>
 </html>
