@@ -135,21 +135,14 @@ h2 {
   border-color: #9147d5;
 }
 
-.video-container {
-  width: 100%;
-  max-width: 500px;
-  margin: 15px auto;
-  aspect-ratio: 16/9;
-  border-radius: 12px;
+/* Hidden YouTube Audio Engine Container */
+#hiddenAudioContainer {
+  position: absolute;
+  width: 0;
+  height: 0;
   overflow: hidden;
-  background: #000;
-  display: none;
-}
-
-.video-container iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .player {
@@ -329,19 +322,13 @@ h2 {
     <h2>User Profile</h2>
     <div class="card">
       <h3>Musico Member</h3>
-      <p style="margin-top: 8px;">Free Plan • Ready to Stream</p>
+      <p style="margin-top: 8px;">Free Plan • Background Audio Active</p>
     </div>
   </section>
 
-  <!-- YouTube Video Embedded Player Frame -->
-  <div class="video-container" id="videoContainer">
-    <iframe
-      id="youtubePlayer"
-      src=""
-      title="YouTube Music Player"
-      allow="autoplay; encrypted-media; picture-in-picture"
-      allowfullscreen>
-    </iframe>
+  <!-- Completely Hidden YouTube Audio Streamer -->
+  <div id="hiddenAudioContainer">
+    <div id="youtubePlayer"></div>
   </div>
 </main>
 
@@ -382,12 +369,14 @@ h2 {
   </div>
 </div>
 
+<!-- Load YouTube IFrame Player API Script -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
 <script>
-// Built-in working song database with real YouTube IDs
 const songs = [
   { id: 1, title: "Samajavaragamana", artist: "Sid Sriram", language: "Telugu", videoId: "A48qUj_LjjM", cover: "🎶" },
   { id: 2, title: "Kesariya", artist: "Arijit Singh", language: "Hindi", videoId: "BddP6PYo2gs", cover: "❤️" },
-  { id: "3", title: "Perfect", artist: "Ed Sheeran", language: "English", videoId: "2Vv-BfVoq4g", cover: "🎵" },
+  { id: 3, title: "Perfect", artist: "Ed Sheeran", language: "English", videoId: "2Vv-BfVoq4g", cover: "🎵" },
   { id: 4, title: "Ramuloo Ramulaa", artist: "Anurag Kulkarni", language: "Telugu", videoId: "g59xicXtbKA", cover: "🔥" }
 ];
 
@@ -403,11 +392,43 @@ const albums = [
   { title: "÷ (Divide)", artist: "Ed Sheeran", cover: "🎸" }
 ];
 
+let player;
 let currentIndex = -1;
 let isPlaying = false;
 let sleepTimerId = null;
 let sleepCountdownId = null;
 let recents = [];
+
+// This function is automatically called by the YouTube API script when ready
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player('youtubePlayer', {
+    height: '0',
+    width: '0',
+    playerVars: {
+      'autoplay': 0,
+      'controls': 0,
+      'disablekb': 1,
+      'fs': 0,
+      'iv_load_policy': 3
+    },
+    events: {
+      'onStateChange': onPlayerStateChange
+    }
+  });
+}
+
+function onPlayerStateChange(event) {
+  // YT.PlayerState.PLAYING is 1, PAUSED is 2
+  if (event.data === YT.PlayerState.PLAYING) {
+    isPlaying = true;
+    document.getElementById('playButton').textContent = 'Ⅱ';
+  } else if (event.data === YT.PlayerState.PAUSED) {
+    isPlaying = false;
+    document.getElementById('playButton').textContent = '▶';
+  } else if (event.data === YT.PlayerState.ENDED) {
+    nextSong();
+  }
+}
 
 function showPage(pageId) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -482,27 +503,25 @@ function playSongById(id) {
     updateRecentsUI();
   }
 
-  const iframe = document.getElementById('youtubePlayer');
-  const container = document.getElementById('videoContainer');
-  
-  iframe.src = `https://www.youtube.com/embed/${song.videoId}?autoplay=1&enablejsapi=1`;
-  container.style.display = 'block';
-
-  document.getElementById('nowPlaying').textContent = `🎵 Playing: ${song.title} - ${song.artist}`;
-  document.getElementById('playButton').textContent = 'Ⅱ';
-  isPlaying = true;
+  if (player && typeof player.loadVideoById === 'function') {
+    player.loadVideoById(song.videoId);
+    document.getElementById('nowPlaying').textContent = `🎵 Playing: ${song.title} - ${song.artist}`;
+  }
 }
 
 function togglePlay() {
-  if (currentIndex === -1) return;
-  const iframe = document.getElementById('youtubePlayer');
+  if (currentIndex === -1) {
+    if (songs.length > 0) playSongById(songs[0].id);
+    return;
+  }
   
-  if (isPlaying) {
-    iframe.src = "";
-    document.getElementById('playButton').textContent = '▶';
-    isPlaying = false;
-  } else {
-    playSongById(songs[currentIndex].id);
+  if (player && typeof player.getPlayerState === 'function') {
+    const state = player.getPlayerState();
+    if (state === YT.PlayerState.PLAYING) {
+      player.pauseVideo();
+    } else {
+      player.playVideo();
+    }
   }
 }
 
@@ -555,7 +574,9 @@ function setSleepTimer(minutes) {
   }, 1000);
 
   sleepTimerId = setTimeout(() => {
-    if (isPlaying) togglePlay();
+    if (player && typeof player.pauseVideo === 'function') {
+      player.pauseVideo();
+    }
     alert("Sleep timer complete. Playback paused.");
     cancelSleepTimer();
   }, minutes * 60 * 1000);
@@ -565,7 +586,7 @@ function setSleepTimer(minutes) {
 
 function cancelSleepTimer() {
   if (sleepTimerId) clearTimeout(sleepTimerId);
-  if (sleepCountdownId) clearInterval(sleepCountdownId);
+  if (sleepCountdownId) clearTimeout(sleepCountdownId);
   document.getElementById('timerStatus').style.display = 'none';
   closeTimerModal();
 }
