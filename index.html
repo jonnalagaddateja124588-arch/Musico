@@ -324,7 +324,7 @@ h2 {
     <h2>User Profile</h2>
     <div class="card">
       <h3>Musico Member</h3>
-      <p style="margin-top: 8px;">Free Plan • Audio Engine Ready</p>
+      <p style="margin-top: 8px;">Free Plan • Keyword Search Active</p>
     </div>
   </section>
 
@@ -464,11 +464,13 @@ function renderDashboard() {
 
 function filterSearch() {
   const query = document.getElementById('songSearch').value.toLowerCase().trim();
-  const filtered = songs.filter(s => 
-    s.title.toLowerCase().includes(query) || 
-    s.artist.toLowerCase().includes(query) || 
-    s.language.toLowerCase().includes(query)
-  );
+  const keywords = query.split(" ").filter(Boolean);
+  
+  const filtered = songs.filter(s => {
+    const text = (s.title + " " + s.artist + " " + s.language).toLowerCase();
+    return keywords.every(word => text.includes(word));
+  });
+  
   renderSearchResults(filtered);
 }
 
@@ -583,7 +585,7 @@ function setSleepTimer(minutes) {
 
 function cancelSleepTimer() {
   if (sleepTimerId) clearTimeout(sleepTimerId);
-  if (sleepCountdownId) clearTimeout(sleepCountdownId);
+  if (sleepCountdownId) clearInterval(sleepCountdownId);
   document.getElementById('timerStatus').style.display = 'none';
   closeTimerModal();
 }
