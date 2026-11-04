@@ -3,88 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Musico</title>
+  <title>Musico - Web Player</title>
   
-  <!-- Google Sign-In SDK -->
+  <!-- Google Sign-In Library -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <style>
-    /* Paste your custom Musico CSS styles here */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     body {
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background-color: #121212;
       color: #ffffff;
-      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
       padding: 20px;
     }
-  </style>
-</head>
-<body>
-
-  <!-- Google OAuth Sign-In Configuration -->
-  <div id="g_id_onload"
-       data-client_id="721484485179-lf5o68dkv7fi098nub4rffs1appu0nta.apps.googleusercontent.com"
-       data-callback="handleCredentialResponse"
-       data-auto_select="false">
-  </div>
-
-  <!-- Google Sign-In Button Container -->
-  <div class="g_id_signin"
-       data-type="standard"
-       data-size="large"
-       data-theme="outline"
-       data-text="sign_in_with"
-       data-shape="rectangular"
-       data-logo_alignment="left">
-  </div>
-
-  <!-- Your Musico App UI Elements (Player, Playlist, Search, etc.) -->
-  <div id="player-container">
-    <!-- Paste your YouTube iframe or audio player HTML here -->
-  </div>
-
-  <!-- Scripts -->
-  <script>
-    // Handle Google OAuth Login Callback
-    function handleCredentialResponse(response) {
-      console.log("Encoded JWT ID token: " + response.credential);
-      // Add your login logic or session saving here
+    header {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
     }
-
-    // Media Session API for Background Audio & Lock Screen Controls
-    if ('mediaSession' in navigator) {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: "Playing Track",
-        artist: "Musico App",
-        album: "Musico Streaming",
-        artwork: [
-          { src: 'https://via.placeholder.com/512', sizes: '512x512', type: 'image/png' }
-        ]
-      });
-
-      // Handle lock-screen media controls
-      navigator.mediaSession.setActionHandler('play', () => {
-        if (typeof player !== 'undefined' && player.playVideo) player.playVideo();
-      });
-      navigator.mediaSession.setActionHandler('pause', () => {
-        if (typeof player !== 'undefined' && player.pauseVideo) player.pauseVideo();
-      });
-      navigator.mediaSession.setActionHandler('previoustrack', () => {
-        if (typeof playPreviousTrack === 'function') playPreviousTrack();
-      });
-      navigator.mediaSession.setActionHandler('nexttrack', () => {
-        if (typeof playNextTrack === 'function') playNextTrack();
-      });
+    h1 {
+      color: #1db954;
+      font-size: 1.8rem;
     }
-
-    // Prevent auto-pausing when app is minimized or tab is switched
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        if (typeof player !== 'undefined' && player.getPlayerState && player.getPlayerState() === YT.PlayerState.PLAYING) {
-          player.playVideo();
-        }
-      }
-    });
-  </script>
-</body>
-</html>
+    .player-card {
+      background: #1e1e1e;
+      padding: 25px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      background-color: #000;
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 15px;
+    }
+    button {
+      background-color: #1db954;
+      color: white;
