@@ -140,10 +140,10 @@ h2 {
 
 #hiddenAudioContainer {
   position: absolute;
-  width: 0;
-  height: 0;
+  width: 1px;
+  height: 1px;
   overflow: hidden;
-  opacity: 0;
+  opacity: 0.01;
   pointer-events: none;
 }
 
@@ -301,7 +301,7 @@ h2 {
       type="text"
       id="songSearch"
       class="search-input"
-      placeholder="Search Telugu, Hindi, English songs or type anything..."
+      placeholder="Type 'Telugu', 'Hindi', or any song name..."
       oninput="filterSearch()"
     >
     <div class="grid-container" id="searchResults"></div>
@@ -324,11 +324,11 @@ h2 {
     <h2>User Profile</h2>
     <div class="card">
       <h3>Musico Member</h3>
-      <p style="margin-top: 8px;">Free Plan • Expanded Song Database Active</p>
+      <p style="margin-top: 8px;">Free Plan • Audio Engine Ready</p>
     </div>
   </section>
 
-  <!-- Hidden YouTube Audio Streamer -->
+  <!-- Background Audio Streamer Container -->
   <div id="hiddenAudioContainer">
     <div id="youtubePlayer"></div>
   </div>
@@ -374,7 +374,6 @@ h2 {
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-// Expanded song database covering Telugu, Hindi, and English hits
 const songs = [
   { id: 1, title: "Samajavaragamana", artist: "Sid Sriram", language: "Telugu", videoId: "A48qUj_LjjM", cover: "🎶" },
   { id: 2, title: "Butta Bomma", artist: "Armaan Malik", language: "Telugu", videoId: "2ncu5mhfrw4", cover: "💃" },
@@ -408,9 +407,9 @@ let recents = [];
 
 function onYouTubeIframeAPIReady() {
   player = new YT.Player('youtubePlayer', {
-    height: '0',
-    width: '0',
-    playerVars: { 'autoplay': 0, 'controls': 0, 'disablekb': 1 },
+    height: '100',
+    width: '100',
+    playerVars: { 'autoplay': 1, 'controls': 0, 'disablekb': 1 },
     events: { 'onStateChange': onPlayerStateChange }
   });
 }
@@ -470,21 +469,6 @@ function filterSearch() {
     s.artist.toLowerCase().includes(query) || 
     s.language.toLowerCase().includes(query)
   );
-  
-  const container = document.getElementById('searchResults');
-  
-  if (!filtered.length && query.length > 0) {
-    // Fallback: If song is not in local list, allow playing a custom search query directly via audio stream helper
-    container.innerHTML = `
-      <div class="card" onclick="playCustomSearch('${query}')">
-        <div class="card-cover">🔍</div>
-        <h3>Search & Play: "${query}"</h3>
-        <p>Click to stream audio match</p>
-      </div>
-    `;
-    return;
-  }
-  
   renderSearchResults(filtered);
 }
 
@@ -517,15 +501,8 @@ function playSongById(id) {
 
   if (player && typeof player.loadVideoById === 'function') {
     player.loadVideoById(song.videoId);
+    player.playVideo();
     document.getElementById('nowPlaying').textContent = `🎵 Playing: ${song.title} - ${song.artist}`;
-  }
-}
-
-function playCustomSearch(query) {
-  // Uses a popular fallback matching ID for dynamic user searches without API keys
-  if (player && typeof player.loadVideoById === 'function') {
-    player.loadVideoById("A48qUj_LjjM"); // Defaults to top track stream if custom query is typed
-    document.getElementById('nowPlaying').textContent = `🎵 Playing: ${query}`;
   }
 }
 
@@ -606,7 +583,7 @@ function setSleepTimer(minutes) {
 
 function cancelSleepTimer() {
   if (sleepTimerId) clearTimeout(sleepTimerId);
-  if (sleepCountdownId) clearInterval(sleepCountdownId);
+  if (sleepCountdownId) clearTimeout(sleepCountdownId);
   document.getElementById('timerStatus').style.display = 'none';
   closeTimerModal();
 }
