@@ -162,7 +162,29 @@ button {
   font-size: 23px;
 }
 
-.player {
+  .bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #1b1530;
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 5px;
+  z-index: 20;
+  border-top: 1px solid #493b60;
+}
+
+.bottom-nav button {
+  background: none;
+  border: none;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+}
   position: fixed;
   bottom: 0;
   left: 0;
@@ -240,10 +262,9 @@ button {
 <body>
 
 <header>
-  <div>
-    <div class="logo">🎵 Musico</div>
-    <div class="tagline">Music for Everyone</div>
-    <h2>🎵 YouTube Music Search</h2>
+  <div class="logo">🎵 MUSICO</div>
+  <div>🎧</div>
+</header>
 <!-- MUSICO YOUTUBE SEARCH -->
     
 <div style="padding:25px; text-align:center;">
@@ -271,13 +292,17 @@ button {
 
 <main>
 
-  <section class="hero">
-    <h1>Feel Every Beat ❤️</h1>
-    <p>Your music, your mood, your world.</p>
-  </section>
 
+  <div class="top-search">
+  <input
+    type="text"
+    id="homeSearch"
+    placeholder="Search your favourite songs..."
+    class="search"
+  >
+</div>
 
-  <h2>Explore Languages</h2>
+<h2>Explore Languages</h2>
 
   <div class="languages">
     <button class="lang-btn active" data-lang="All">All</button>
@@ -287,13 +312,26 @@ button {
   </div>
 
   <h2>Popular Songs</h2>
-  <div class="song-list" id="songList"></div>
+    <div class="song-list" id="songList"></div>
 
-  <p class="note">
-    Musico demo version. The sample audio is for testing the player.
-    Add properly licensed song files or streaming URLs to your catalogue
-    before publishing real songs.
-  </p>
+  <nav class="bottom-nav">
+    <button onclick="showPage('home')">🏠<span>Home</span></button>
+    <button onclick="showPage('search')">🔍<span>Search</span></button>
+    <button onclick="showPage('library')">🎵<span>Library</span></button>
+    <button onclick="showPage('account')">👤<span>Account</span></button>
+  </nav>
+  <section id="searchPage" style="display:none;">
+  <h2>Search Songs</h2>
+
+  <input
+    type="text"
+    id="songSearch"
+    class="search"
+    placeholder="Search Telugu, Hindi or English songs..."
+  >
+
+  <div id="searchResults" class="song-list"></div>
+</section>
 
 </main>
 
@@ -337,19 +375,16 @@ button {
 
 <script>
   function searchYouTube() {
-  const song = document.getElementById("youtubeSearch").value.trim();
+  const query = document.getElementById("youtubeSearch").value.trim();
+  const message = document.getElementById("youtubeMessage");
 
-  if (!song) {
-    document.getElementById("youtubeMessage").textContent =
-      "Please enter a song name!";
+  if (!query) {
+    message.textContent = "Please enter a song name!";
     return;
   }
 
-  window.open(
-    "https://www.youtube.com/results?search_query=" +
-    encodeURIComponent(song),
-    "_blank"
-  );
+  message.textContent =
+    "Search results need YouTube Data API integration. We'll add this next!";
 }
   
 const songs = [
@@ -358,8 +393,7 @@ const songs = [
     artist: "Demo Artist",
     language: "English",
     cover: "🎵",
-    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-    demo: true
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
   },
   {
     title: "Samajavaragamana",
@@ -378,7 +412,6 @@ const songs = [
     videoId: "REPLACE_WITH_VIDEO_ID"
   }
 ];
-
   {
     title: "Add Your Hindi Song",
     artist: "Your Hindi Catalogue",
@@ -403,6 +436,16 @@ let favourites = [];
 const audio = document.getElementById("audio");
 const songList = document.getElementById("songList");
 const playButton = document.getElementById("playButton");
+  
+  function showPage(page) {
+  const home = document.querySelector(".languages").parentElement;
+
+  document.getElementById("searchPage").style.display =
+    page === "search" ? "block" : "none";
+
+  home.style.display = page === "search" ? "none" : "block";
+}
+  
 
 function renderSongs() {
   const query = "";
@@ -506,8 +549,6 @@ document.querySelectorAll(".lang-btn").forEach(button => {
   });
 });
 
-document.getElementById("search")
-  .addEventListener("input", renderSongs);
 
 audio.addEventListener("timeupdate", () => {
   if (!audio.duration) return;
@@ -550,22 +591,6 @@ function formatTime(seconds) {
 
 renderSongs();
 
-<script>
-function searchYouTube() {
-  const song = document.getElementById("youtubeSearch").value.trim();
-
-  if (!song) {
-    document.getElementById("youtubeMessage").textContent =
-      "Please enter a song name!";
-    return;
-  }
-
-  window.open(
-    "https://www.youtube.com/results?search_query=" +
-    encodeURIComponent(song),
-    "_blank"
-  );
-}
 </script>
 
 
