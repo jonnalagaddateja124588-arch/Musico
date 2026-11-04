@@ -423,7 +423,7 @@ function renderSongs() {
 
     const play = document.createElement("button");
     play.className = "play-btn";
-    play.textContent = song.url ? "▶ Play" : "Coming soon";
+    play.textContent = song.url ? "▶ Play" : "＋ Add to Playlist";
     play.disabled = !song.url;
     play.onclick = () => playSong(song.index);
 
@@ -559,11 +559,10 @@ function formatTime(seconds) {
 renderSongs();
 </script>
   
-<div style="padding:25px; text-align:center;">
   <h2>🎵 YouTube Music Search</h2>
 
   <input
-    id="youtubeSearch"
+    
     type="text"
     placeholder="Search your favourite songs..."
     style="padding:14px; width:70%; border-radius:25px; border:none;"
