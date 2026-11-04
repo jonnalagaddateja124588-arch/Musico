@@ -265,30 +265,6 @@ button {
   <div class="logo">🎵 MUSICO</div>
   <div>🎧</div>
 </header>
-<!-- MUSICO YOUTUBE SEARCH -->
-    
-<div style="padding:25px; text-align:center;">
-
-  <input
-    id="youtubeSearch"
-    type="text"
-    placeholder="Search your favourite songs..."
-    style="padding:14px; width:70%; border-radius:25px; border:none;"
-  >
-
-  <button
-    onclick="searchYouTube()"
-    style="padding:14px 20px; border-radius:25px; background:#ff0033; color:white; border:none; cursor:pointer;">
-    Search
-  </button>
-
-  <p id="youtubeMessage"></p>
-
-</div>
-
-    
-  <div>🎧</div>
-</header>
 
 <main>
 
@@ -389,43 +365,25 @@ button {
   
 const songs = [
   {
-    title: "Musico Demo Track",
-    artist: "Demo Artist",
-    language: "English",
-    cover: "🎵",
-    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-  },
-  {
     title: "Samajavaragamana",
     artist: "Sid Sriram",
     language: "Telugu",
     cover: "🎶",
-    url: "",
-    videoId: "REPLACE_WITH_VIDEO_ID"
+    videoId: "PASTE_YOUTUBE_VIDEO_ID"
   },
   {
     title: "Kesariya",
     artist: "Arijit Singh",
     language: "Hindi",
     cover: "❤️",
-    url: "",
-    videoId: "REPLACE_WITH_VIDEO_ID"
-  }
-];
-  {
-    title: "Add Your Hindi Song",
-    artist: "Your Hindi Catalogue",
-    language: "Hindi",
-    cover: "🎼",
-    url: ""
+    videoId: "PASTE_YOUTUBE_VIDEO_ID"
   },
-
   {
-    title: "Add Your English Song",
-    artist: "Your English Catalogue",
+    title: "Perfect",
+    artist: "Ed Sheeran",
     language: "English",
-    cover: "🎧",
-    url: ""
+    cover: "🎵",
+    videoId: "PASTE_YOUTUBE_VIDEO_ID"
   }
 ];
 
@@ -448,7 +406,7 @@ const playButton = document.getElementById("playButton");
   
 
 function renderSongs() {
-  const query = "";
+  const query = document.getElementById("homeSearch").value.toLowerCase().trim();
 
   const filtered = songs
     .map((song,index) => ({...song,index}))
