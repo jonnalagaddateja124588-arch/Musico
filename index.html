@@ -1,118 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Musico - Web Music Player</title>
-  
-  <!-- Google Sign-In SDK -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Musico - Stream Music & Podcasts</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #121212;
-      color: #ffffff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    header {
-      width: 100%;
-      max-width: 650px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 25px;
-    }
-    .logo {
-      color: #1db954;
-      font-size: 1.8rem;
-      font-weight: bold;
-    }
-    .player-card {
-      background: #1e1e1e;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 650px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
-    .video-container {
-      position: relative;
-      padding-bottom: 56.25%;
-      height: 0;
-      overflow: hidden;
-      border-radius: 12px;
-      background-color: #000;
-    }
-    .video-container iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-  </style>
-</head>
-<body>
+<!-- PWA Manifest & Meta Tags for App Installation -->
+<link rel="manifest" id="manifestPlaceholder">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Musico">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
-  <header>
-    <div class="logo">Musico</div>
-    <!-- Google OAuth Login Button -->
-    <div id="g_id_onload"
-         data-client_id="721484485179-lf5o68dkv7fi098nub4rffs1appu0nta.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse"
-         data-auto_select="false">
-    </div>
-    <div class="g_id_signin"
-         data-type="standard"
-         data-size="medium"
-         data-theme="outline"
-         data-text="sign_in"
-         data-shape="pill">
-    </div>
-  </header>
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-  <main class="player-card">
-    <!-- YouTube Player Embed -->
-    <div class="video-container">
-      <div id="youtube-player"></div>
-    </div>
-  </main>
+body {
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding-bottom: 140px;
+}
 
-  <!-- YouTube IFrame API -->
-  <script src="https://www.youtube.com/iframe_api"></script>
+/* Header & Navigation */
+header {
+  padding: 16px 20px;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
 
-  <script>
-    var player;
+.logo {
+  font-size: 22px;
+  font-weight: 800;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-    // Load initial YouTube player state
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('youtube-player', {
-        height: '360',
-        width: '640',
-        videoId: '',
-        playerVars: {
-          'playsinline': 1,
-          'autoplay': 0
-        }
-      });
-    }
+.logo-icon {
+  width: 28px;
+  height: 28px;
+  background: #2563eb;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 14px;
+}
 
-    // Google Sign-In Callback Function
-    function handleCredentialResponse(response) {
-      console.log("Logged in token:", response.credential);
-      alert("Successfully signed in to Musico!");
-    }
-  </script>
-</body>
-</html>
+.top-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.top-btn {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.top-btn:hover {
+  background: #2563eb;
+  color: white;
+}
+
+.install-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: none;
+}
+
+main {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+h2 {
+  margin: 20px 0 12px;
+  font-size: 20px;
+  color: #1e40af;
+  font-weight: 700;
+}
+
+/* Grid & Cards */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: #3b82f6;
+}
+
+.card-cover {
+  height: 120px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  display: grid;
+  place-items: center;
+  font-size: 40px;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.card h3 {
+  font-size: 15px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #0f172a;
+}
+
+.card p {
+  color: #64748b;
+  font-size: 12px;
+}
+
+/* Inputs & Forms */
+.search-input {
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 25px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 15px;
+  outline: none;
+  margin-
