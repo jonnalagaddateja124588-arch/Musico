@@ -308,6 +308,22 @@ button {
 <audio id="audio"></audio>
 
 <script>
+  function searchYouTube() {
+  const song = document.getElementById("youtubeSearch").value.trim();
+
+  if (!song) {
+    document.getElementById("youtubeMessage").textContent =
+      "Please enter a song name!";
+    return;
+  }
+
+  window.open(
+    "https://www.youtube.com/results?search_query=" +
+    encodeURIComponent(song),
+    "_blank"
+  );
+}
+  
 const songs = [
   {
     title: "Musico Demo Track",
@@ -526,6 +542,45 @@ function formatTime(seconds) {
 
 renderSongs();
 </script>
+  
+<!-- MUSICO YOUTUBE SEARCH -->
+<div style="padding:25px; text-align:center;">
+  <h2>🎵 YouTube Music Search</h2>
+
+  <input
+    id="youtubeSearch"
+    type="text"
+    placeholder="Search your favourite songs..."
+    style="padding:14px; width:70%; border-radius:25px; border:none;"
+  >
+
+  <button
+    onclick="searchYouTube()"
+    style="padding:14px 20px; border-radius:25px; background:#ff0033; color:white; border:none; cursor:pointer;">
+    Search
+  </button>
+
+  <p id="youtubeMessage"></p>
+</div>
+
+<script>
+function searchYouTube() {
+  const song = document.getElementById("youtubeSearch").value.trim();
+
+  if (!song) {
+    document.getElementById("youtubeMessage").textContent =
+      "Please enter a song name!";
+    return;
+  }
+
+  window.open(
+    "https://www.youtube.com/results?search_query=" +
+    encodeURIComponent(song),
+    "_blank"
+  );
+}
+</script>
+
 
 </body>
 </html>
