@@ -1,769 +1,769 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Musico - Modern Web Music & Podcast Player</title>
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Google Sign-In SDK -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Musico - Stream Music & Podcasts</title>
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-    
-    * {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      box-sizing: border-box;
-    }
+<!-- PWA Manifest & Meta Tags for App Installation -->
+<link rel="manifest" id="manifestPlaceholder">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Musico">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 
-    /* Custom Glassmorphism Effects */
-    .glass-panel {
-      background: rgba(22, 27, 38, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    
-    .glass-card {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    .glass-card:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: rgba(59, 130, 246, 0.3);
-      transform: translateY(-4px);
-    }
+body {
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding-bottom: 140px;
+}
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.6);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(59, 130, 246, 0.5);
-    }
+/* Header & Navigation */
+header {
+  padding: 16px 20px;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
 
-    /* Custom Range Sliders */
-    input[type=range] {
-      -webkit-appearance: none;
-      background: transparent;
-    }
-    input[type=range]:focus {
-      outline: none;
-    }
-    input[type=range]::-webkit-slider-runnable-track {
-      width: 100%;
-      height: 4px;
-      cursor: pointer;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 2px;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      height: 12px;
-      width: 12px;
-      border-radius: 50%;
-      background: #3b82f6;
-      cursor: pointer;
-      -webkit-appearance: none;
-      margin-top: -4px;
-      box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
-      transition: transform 0.1s ease;
-    }
-    input[type=range]:hover::-webkit-slider-thumb {
-      transform: scale(1.3);
-    }
+.logo {
+  font-size: 22px;
+  font-weight: 800;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-    /* Audio Equalizer Visualizer Animation */
-    .bar {
-      width: 3px;
-      background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
-      border-radius: 3px;
-      animation: bounce 1.2s ease-in-out infinite alternate;
-    }
-    .playing .bar:nth-child(1) { animation-duration: 0.8s; }
-    .playing .bar:nth-child(2) { animation-duration: 1.1s; }
-    .playing .bar:nth-child(3) { animation-duration: 0.9s; }
-    .playing .bar:nth-child(4) { animation-duration: 1.3s; }
-    .playing .bar:nth-child(5) { animation-duration: 0.7s; }
-    
-    @keyframes bounce {
-      0% { height: 4px; }
-      100% { height: 20px; }
-    }
-    .paused .bar {
-      height: 4px !important;
-      animation: none !important;
-    }
-  </style>
+.logo-icon {
+  width: 28px;
+  height: 28px;
+  background: #2563eb;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 14px;
+}
+
+.top-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.top-btn {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.top-btn:hover {
+  background: #2563eb;
+  color: white;
+}
+
+.install-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: none;
+}
+
+main {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+h2 {
+  margin: 20px 0 12px;
+  font-size: 20px;
+  color: #1e40af;
+  font-weight: 700;
+}
+
+/* Grid & Cards */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.card {
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: #3b82f6;
+}
+
+.card-cover {
+  height: 120px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  display: grid;
+  place-items: center;
+  font-size: 40px;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.card h3 {
+  font-size: 15px;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #0f172a;
+}
+
+.card p {
+  color: #64748b;
+  font-size: 12px;
+}
+
+/* Inputs & Forms */
+.search-input {
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 25px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 15px;
+  outline: none;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.search-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+#hiddenAudioContainer {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0.01;
+  pointer-events: none;
+}
+
+/* Player Interface */
+.player {
+  position: fixed;
+  bottom: 60px;
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  padding: 12px 20px;
+  z-index: 100;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+}
+
+.player-inner {
+  max-width: 900px;
+  margin: auto;
+}
+
+.now-playing-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+.timer-badge {
+  font-size: 12px;
+  color: #dc2626;
+  background: #fee2e2;
+  padding: 3px 8px;
+  border-radius: 10px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 6px 0;
+}
+
+.controls button {
+  border: none;
+  background: transparent;
+  color: #1e40af;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.controls .main-play {
+  background: #2563eb;
+  color: white;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+}
+
+/* Modals & Profiles */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  place-items: center;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+  max-width: 320px;
+  width: 90%;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+}
+
+.modal-content button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.modal-content button:hover {
+  background: #2563eb;
+  color: white;
+}
+
+.profile-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+.avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: #dbeafe;
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+  margin: 0 auto 15px;
+}
+
+/* Bottom Nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  display: flex;
+  justify-space: around;
+  padding: 10px 5px;
+  z-index: 100;
+  border-top: 1px solid #e2e8f0;
+}
+
+.bottom-nav button {
+  background: none;
+  border: none;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bottom-nav button.active {
+  color: #2563eb;
+}
+</style>
 </head>
-<body class="bg-[#0b0f17] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white overflow-hidden">
+<body>
 
-  <!-- Main Layout Wrapper -->
-  <div class="flex flex-1 h-screen overflow-hidden relative">
-    
-    <!-- Sidebar Navigation -->
-    <aside class="w-64 glass-panel border-r border-slate-800/60 hidden md:flex flex-col justify-between p-5 z-20">
-      <div>
-        <!-- App Logo -->
-        <div class="flex items-center gap-3 px-2 mb-8">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-            <i data-lucide="music" class="w-5 h-5 text-white"></i>
-          </div>
-          <div>
-            <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-blue-400 bg-clip-text text-transparent">Musico</h1>
-            <p class="text-[10px] text-blue-400/80 font-semibold tracking-wider uppercase">Audio Studio</p>
-          </div>
-        </div>
-
-        <!-- Navigation Links -->
-        <nav class="space-y-1.5">
-          <button onclick="switchTab('home')" id="nav-home" class="nav-btn active w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm transition-all bg-blue-600 text-white shadow-lg shadow-blue-600/25">
-            <i data-lucide="house" class="w-4 h-4"></i> Home
-          </button>
-          <button onclick="switchTab('search')" id="nav-search" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">
-            <i data-lucide="search" class="w-4 h-4"></i> Search
-          </button>
-          <button onclick="switchTab('podcasts')" id="nav-podcasts" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">
-            <i data-lucide="podcast" class="w-4 h-4"></i> Podcasts
-          </button>
-          <button onclick="switchTab('library')" id="nav-library" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">
-            <i data-lucide="library" class="w-4 h-4"></i> Your Library
-          </button>
-          <button onclick="switchTab('profile')" id="nav-profile" class="nav-btn w-full flex items-center gap-3.5 px-4 py-3 rounded-xl font-medium text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">
-            <i data-lucide="user" class="w-4 h-4"></i> Profile
-          </button>
-        </nav>
-      </div>
-
-      <!-- User Mini Info Card -->
-      <div id="sidebarUserBox" class="glass-card p-3 rounded-2xl flex items-center gap-3">
-        <div id="sidebarAvatar" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-700">
-          <i data-lucide="user" class="w-5 h-5 text-slate-400"></i>
-        </div>
-        <div class="flex-1 min-w-0">
-          <p id="sidebarUserName" class="text-xs font-semibold text-white truncate">Guest User</p>
-          <p id="sidebarUserEmail" class="text-[11px] text-slate-400 truncate">Not signed in</p>
-        </div>
-      </div>
-    </aside>
-
-    <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col h-full overflow-hidden relative z-10">
-      
-      <!-- Top Mobile Header -->
-      <header class="md:hidden flex items-center justify-between p-4 glass-panel border-b border-slate-800/60">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
-            <i data-lucide="music" class="w-4 h-4"></i>
-          </div>
-          <span class="font-bold text-lg text-white tracking-tight">Musico</span>
-        </div>
-        <button onclick="switchTab('profile')" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-300">
-          <i data-lucide="user" class="w-4 h-4"></i>
-        </button>
-      </header>
-
-      <!-- Dynamic Page Container -->
-      <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-36">
-        
-        <!-- HOME PAGE -->
-        <section id="page-home" class="tab-page space-y-8">
-          <!-- Hero Banner -->
-          <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-900/60 via-indigo-900/40 to-slate-900 border border-blue-500/20 p-6 md:p-10 flex flex-col justify-end min-h-[220px]">
-            <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30 w-fit mb-3">
-              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Featured Stream
-            </span>
-            <h2 class="text-2xl md:text-4xl font-extrabold text-white mb-2">Chill Lofi Study Beats</h2>
-            <p class="text-slate-300 text-sm max-w-xl mb-6">Relaxing royalty-free audio streams for deep work, study sessions, and focus.</p>
-            <div class="flex items-center gap-3">
-              <button onclick="playTrack(0)" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold text-sm transition flex items-center gap-2 shadow-lg shadow-blue-600/30">
-                <i data-lucide="play" class="w-4 h-4 fill-white"></i> Listen Now
-              </button>
-              <button onclick="addToQueue(0)" class="glass-card hover:bg-white/10 text-white px-4 py-3 rounded-xl font-semibold text-sm transition flex items-center gap-2">
-                <i data-lucide="plus" class="w-4 h-4"></i> Add to Queue
-              </button>
-            </div>
-          </div>
-
-          <!-- Featured Tracks Grid -->
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                <i data-lucide="flame" class="w-5 h-5 text-orange-400"></i> Trending Audio Tracks
-              </h3>
-            </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" id="homeMusicGrid"></div>
-          </div>
-
-          <!-- Category Quick Filters -->
-          <div>
-            <h3 class="text-lg font-bold text-white mb-4">Browse Genres</h3>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div onclick="filterByGenre('Ambient')" class="glass-card p-4 rounded-2xl cursor-pointer hover:border-blue-500/40 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
-                  <i data-lucide="waves" class="w-6 h-6"></i>
-                </div>
-                <div>
-                  <h4 class="font-bold text-white text-sm">Ambient</h4>
-                  <p class="text-xs text-slate-400">Calm vibes</p>
-                </div>
-              </div>
-              <div onclick="filterByGenre('Synthwave')" class="glass-card p-4 rounded-2xl cursor-pointer hover:border-blue-500/40 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center">
-                  <i data-lucide="zap" class="w-6 h-6"></i>
-                </div>
-                <div>
-                  <h4 class="font-bold text-white text-sm">Synthwave</h4>
-                  <p class="text-xs text-slate-400">Retro beats</p>
-                </div>
-              </div>
-              <div onclick="filterByGenre('Piano')" class="glass-card p-4 rounded-2xl cursor-pointer hover:border-blue-500/40 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                  <i data-lucide="piano" class="w-6 h-6"></i>
-                </div>
-                <div>
-                  <h4 class="font-bold text-white text-sm">Piano</h4>
-                  <p class="text-xs text-slate-400">Peaceful keys</p>
-                </div>
-              </div>
-              <div onclick="filterByGenre('Podcast')" class="glass-card p-4 rounded-2xl cursor-pointer hover:border-blue-500/40 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
-                  <i data-lucide="mic" class="w-6 h-6"></i>
-                </div>
-                <div>
-                  <h4 class="font-bold text-white text-sm">Podcasts</h4>
-                  <p class="text-xs text-slate-400">Talk & ideas</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- SEARCH PAGE -->
-        <section id="page-search" class="tab-page hidden space-y-6">
-          <div class="relative">
-            <i data-lucide="search" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Search songs, artists, genres, or podcasts..." class="w-full bg-slate-900/80 border border-slate-700/60 rounded-2xl py-3.5 pl-12 pr-4 text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" />
-          </div>
-
-          <div id="searchResults" class="space-y-3">
-            <!-- Results rendered via JavaScript -->
-          </div>
-        </section>
-
-        <!-- PODCASTS PAGE -->
-        <section id="page-podcasts" class="tab-page hidden space-y-6">
-          <div>
-            <h2 class="text-2xl font-bold text-white mb-2">Popular Podcasts</h2>
-            <p class="text-slate-400 text-sm">Listen to insightful discussions, tech news, and audio stories.</p>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="podcastGrid"></div>
-        </section>
-
-        <!-- LIBRARY PAGE -->
-        <section id="page-library" class="tab-page hidden space-y-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 class="text-2xl font-bold text-white mb-1">Your Library</h2>
-              <p class="text-slate-400 text-sm">Your favorite tracks and custom saved playlists.</p>
-            </div>
-            <button onclick="createNewPlaylist()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition flex items-center gap-2">
-              <i data-lucide="plus" class="w-4 h-4"></i> New Playlist
-            </button>
-          </div>
-
-          <!-- Liked Songs Section -->
-          <div>
-            <h3 class="text-md font-semibold text-slate-300 mb-3 flex items-center gap-2">
-              <i data-lucide="heart" class="w-4 h-4 text-red-400 fill-red-400"></i> Favorites
-            </h3>
-            <div id="favoritesList" class="space-y-2"></div>
-          </div>
-
-          <!-- User Custom Playlists -->
-          <div>
-            <h3 class="text-md font-semibold text-slate-300 mb-3">Custom Playlists</h3>
-            <div id="playlistsContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
-          </div>
-        </section>
-
-        <!-- PROFILE / AUTH PAGE -->
-        <section id="page-profile" class="tab-page hidden space-y-6">
-          <div class="glass-card max-w-md mx-auto p-8 rounded-3xl text-center space-y-6">
-            <div id="profileAvatar" class="w-24 h-24 rounded-full bg-slate-800 border-2 border-blue-500/40 mx-auto flex items-center justify-center overflow-hidden">
-              <i data-lucide="user" class="w-10 h-10 text-slate-400"></i>
-            </div>
-            
-            <div>
-              <h2 id="profileName" class="text-2xl font-bold text-white">Guest User</h2>
-              <p id="profileEmail" class="text-slate-400 text-sm">Sign in with Google to sync your audio library</p>
-            </div>
-
-            <!-- Google OAuth Sign-In Mount -->
-            <div class="flex justify-center pt-2">
-              <div id="g_id_onload"
-                   data-client_id="721484485179-lf5o68dkv7fi098nub4rffs1appu0nta.apps.googleusercontent.com"
-                   data-callback="handleCredentialResponse">
-              </div>
-              <div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="dark" data-text="signin_with"></div>
-            </div>
-
-            <div id="logoutBtnContainer" class="hidden">
-              <button onclick="handleSignOut()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 py-2.5 rounded-xl font-medium text-sm transition">
-                Sign Out
-              </button>
-            </div>
-          </div>
-        </section>
-
-      </div>
-    </main>
+<header>
+  <div class="logo">
+    <div class="logo-icon">📊</div>
+    <span>MUSICO</span>
   </div>
+  <div class="top-actions">
+    <button class="install-btn" id="installBtn" onclick="installApp()">📲 Install App</button>
+    <button class="top-btn" onclick="showPage('home')">🏠 Home</button>
+    <button class="top-btn" onclick="showPage('podcasts')">🎙️ Podcasts</button>
+    <button class="top-btn" onclick="showPage('profile')">👤 Profile</button>
+  </div>
+</header>
 
-  <!-- Mobile Bottom Tab Navigation -->
-  <nav class="md:hidden glass-panel border-t border-slate-800 fixed bottom-0 left-0 right-0 z-40 flex justify-around p-2">
-    <button onclick="switchTab('home')" class="p-2 text-blue-400 flex flex-col items-center gap-1 text-[10px]"><i data-lucide="house" class="w-5 h-5"></i>Home</button>
-    <button onclick="switchTab('search')" class="p-2 text-slate-400 flex flex-col items-center gap-1 text-[10px]"><i data-lucide="search" class="w-5 h-5"></i>Search</button>
-    <button onclick="switchTab('podcasts')" class="p-2 text-slate-400 flex flex-col items-center gap-1 text-[10px]"><i data-lucide="podcast" class="w-5 h-5"></i>Podcasts</button>
-    <button onclick="switchTab('library')" class="p-2 text-slate-400 flex flex-col items-center gap-1 text-[10px]"><i data-lucide="library" class="w-5 h-5"></i>Library</button>
-  </nav>
+<main>
+  <!-- Home Page -->
+  <section id="homePage" class="page active">
+    <h2>Playlists</h2>
+    <div class="grid-container" id="playlistGrid"></div>
 
-  <!-- Sticky Bottom Audio Player Bar -->
-  <footer class="fixed bottom-0 left-0 right-0 glass-panel border-t border-slate-800/80 px-4 py-3 z-50">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+    <h2>Top Albums</h2>
+    <div class="grid-container" id="albumGrid"></div>
+  </section>
+
+  <!-- Search Page -->
+  <section id="searchPage" class="page">
+    <h2>Search Music & Audio</h2>
+    <input
+      type="text"
+      id="songSearch"
+      class="search-input"
+      placeholder="Search songs, artists, playlists..."
+      oninput="filterSearch()"
+    >
+    <div class="grid-container" id="searchResults"></div>
+  </section>
+
+  <!-- Podcasts Page -->
+  <section id="podcastsPage" class="page">
+    <h2>Popular Podcasts</h2>
+    <div class="grid-container" id="podcastGrid"></div>
+  </section>
+
+  <!-- Library Page -->
+  <section id="libraryPage" class="page">
+    <h2>Your Saved Library</h2>
+    <div class="grid-container" id="libraryGrid"></div>
+  </section>
+
+  <!-- Profile / Auth Page -->
+  <section id="profilePage" class="page">
+    <h2>Account Profile</h2>
+    <div class="profile-card">
+      <div class="avatar" id="userAvatar">👤</div>
+      <h3 id="userName" style="margin-bottom:6px;">Guest User</h3>
+      <p id="userEmail" style="color:#64748b; margin-bottom: 20px;">Sign in to sync your playlists across devices</p>
       
-      <!-- Currently Playing Track Info -->
-      <div class="flex items-center gap-3.5 w-full md:w-1/4">
-        <div id="playerCover" class="w-12 h-12 rounded-xl bg-slate-800 flex-shrink-0 bg-cover bg-center border border-white/10 flex items-center justify-center">
-          <i data-lucide="disc" class="w-6 h-6 text-slate-500 animate-spin"></i>
-        </div>
-        <div class="min-w-0 flex-1">
-          <h4 id="playerTitle" class="text-sm font-bold text-white truncate">No track selected</h4>
-          <p id="playerArtist" class="text-xs text-slate-400 truncate">Choose a track to play</p>
-        </div>
-        <button onclick="toggleFavoriteCurrent()" class="text-slate-400 hover:text-red-400 transition p-1">
-          <i id="playerFavIcon" data-lucide="heart" class="w-4 h-4"></i>
-        </button>
+      <div id="g_id_onload"
+           data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+           data-callback="handleCredentialResponse">
       </div>
-
-      <!-- Player Controls & Seekbar -->
-      <div class="flex flex-col items-center gap-1.5 w-full md:w-2/4">
-        <!-- Control Buttons -->
-        <div class="flex items-center gap-5">
-          <button onclick="toggleShuffle()" id="shuffleBtn" class="text-slate-400 hover:text-white transition" title="Shuffle"><i data-lucide="shuffle" class="w-4 h-4"></i></button>
-          <button onclick="prevTrack()" class="text-slate-300 hover:text-white transition"><i data-lucide="skip-back" class="w-5 h-5 fill-slate-300"></i></button>
-          <button onclick="togglePlay()" id="masterPlayBtn" class="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center shadow-lg shadow-blue-600/30 transition">
-            <i data-lucide="play" class="w-5 h-5 fill-white ml-0.5"></i>
-          </button>
-          <button onclick="nextTrack()" class="text-slate-300 hover:text-white transition"><i data-lucide="skip-forward" class="w-5 h-5 fill-slate-300"></i></button>
-          <button onclick="openSleepTimerModal()" class="text-slate-400 hover:text-blue-400 transition relative" title="Sleep Timer">
-            <i data-lucide="timer" class="w-4 h-4"></i>
-            <span id="timerBadge" class="hidden absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"></span>
-          </button>
-        </div>
-
-        <!-- Progress Seekbar -->
-        <div class="flex items-center gap-3 w-full max-w-md">
-          <span id="currentTimeDisplay" class="text-[11px] text-slate-400 font-mono w-10 text-right">0:00</span>
-          <input type="range" id="progressBar" min="0" max="100" value="0" oninput="seekTrack(this.value)" class="flex-1" />
-          <span id="durationDisplay" class="text-[11px] text-slate-400 font-mono w-10">0:00</span>
-        </div>
-      </div>
-
-      <!-- Volume & Visualizer Info -->
-      <div class="hidden md:flex items-center justify-end gap-4 w-1/4">
-        <!-- Visualizer Bars -->
-        <div id="visualizer" class="flex items-center gap-1 h-5 paused">
-          <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-        </div>
-
-        <!-- Volume Slider -->
-        <div class="flex items-center gap-2">
-          <i data-lucide="volume-2" class="w-4 h-4 text-slate-400"></i>
-          <input type="range" id="volumeBar" min="0" max="1" step="0.01" value="0.8" oninput="setVolume(this.value)" class="w-20" />
-        </div>
-      </div>
-
+      <div style="display:flex; justify-content:center;" class="g_id_signin" data-type="standard"></div>
     </div>
-  </footer>
+  </section>
 
-  <!-- Sleep Timer Modal -->
-  <div id="timerModal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-panel p-6 rounded-3xl max-w-sm w-full border border-slate-700/80 space-y-4">
-      <div class="flex items-center justify-between">
-        <h3 class="text-lg font-bold text-white flex items-center gap-2"><i data-lucide="timer" class="w-5 h-5 text-blue-400"></i> Sleep Timer</h3>
-        <button onclick="closeSleepTimerModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-      </div>
-      <p class="text-xs text-slate-400">Audio playback will automatically pause after the chosen duration.</p>
-      
-      <div class="grid grid-cols-2 gap-2">
-        <button onclick="setSleepTimer(15)" class="glass-card py-2.5 px-4 rounded-xl text-sm font-medium hover:bg-blue-600/30 hover:border-blue-500/50 transition">15 Minutes</button>
-        <button onclick="setSleepTimer(30)" class="glass-card py-2.5 px-4 rounded-xl text-sm font-medium hover:bg-blue-600/30 hover:border-blue-500/50 transition">30 Minutes</button>
-        <button onclick="setSleepTimer(45)" class="glass-card py-2.5 px-4 rounded-xl text-sm font-medium hover:bg-blue-600/30 hover:border-blue-500/50 transition">45 Minutes</button>
-        <button onclick="setSleepTimer(60)" class="glass-card py-2.5 px-4 rounded-xl text-sm font-medium hover:bg-blue-600/30 hover:border-blue-500/50 transition">60 Minutes</button>
-      </div>
+  <!-- Background Player Engine Container -->
+  <div id="hiddenAudioContainer">
+    <div id="youtubePlayer"></div>
+  </div>
+</main>
 
-      <button onclick="cancelSleepTimer()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 py-2 rounded-xl text-xs font-semibold transition">Turn Off Timer</button>
+<!-- Bottom Sticky Player -->
+<div class="player">
+  <div class="player-inner">
+    <div class="now-playing-info">
+      <span id="nowPlaying">Select a song or podcast to play</span>
+      <span id="timerStatus" class="timer-badge" style="display:none;"></span>
+    </div>
+
+    <div class="controls">
+      <button onclick="previousSong()">⏮</button>
+      <button class="main-play" onclick="togglePlay()" id="playButton">▶</button>
+      <button onclick="nextSong()">⏭</button>
+      <button onclick="openTimerModal()" title="Sleep Timer">⏱️</button>
     </div>
   </div>
+</div>
 
-  <!-- HTML5 Audio Element -->
-  <audio id="audioEngine" crossorigin="anonymous"></audio>
+<!-- Bottom Navigation Bar -->
+<nav class="bottom-nav">
+  <button id="nav-home" class="active" onclick="showPage('home')">🏠<span>Home</span></button>
+  <button id="nav-search" onclick="showPage('search')">🔍<span>Search</span></button>
+  <button id="nav-podcasts" onclick="showPage('podcasts')">🎙️<span>Podcasts</span></button>
+  <button id="nav-library" onclick="showPage('library')">🎵<span>Library</span></button>
+</nav>
 
-  <!-- Application Logic JavaScript -->
-  <script>
-    // Royalty-free Streams Database
-    const trackDatabase = [
-      {
-        id: 0,
-        title: "Lofi Study Beats",
-        artist: "Lofi Chillout",
-        genre: "Ambient",
-        cover: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=400&q=80",
-        src: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3"
-      },
-      {
-        id: 1,
-        title: "Synthwave Horizon",
-        artist: "Retro Soundscape",
-        genre: "Synthwave",
-        cover: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
-        src: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3?filename=synthwave-80s-110045.mp3"
-      },
-      {
-        id: 2,
-        title: "Peaceful Piano Ambient",
-        artist: "Serene Keys",
-        genre: "Piano",
-        cover: "https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?auto=format&fit=crop&w=400&q=80",
-        src: "https://cdn.pixabay.com/download/audio/2022/11/06/audio_c10f367e9f.mp3?filename=relaxing-piano-126865.mp3"
-      },
-      {
-        id: 3,
-        title: "Future Tech Talk",
-        artist: "Musico Podcasts",
-        genre: "Podcast",
-        cover: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=400&q=80",
-        src: "https://cdn.pixabay.com/download/audio/2021/08/09/audio_8844865181.mp3?filename=podcasting-background-12345.mp3"
-      },
-      {
-        id: 4,
-        title: "Deep Space Focus",
-        artist: "Cosmic Audio",
-        genre: "Ambient",
-        cover: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=80",
-        src: "https://cdn.pixabay.com/download/audio/2022/10/14/audio_9939f73318.mp3?filename=ambient-space-124156.mp3"
-      }
-    ];
+<!-- Sleep Timer Modal -->
+<div class="modal" id="timerModal">
+  <div class="modal-content">
+    <h3>Sleep Timer</h3>
+    <button onclick="setSleepTimer(15)">15 Minutes</button>
+    <button onclick="setSleepTimer(30)">30 Minutes</button>
+    <button onclick="setSleepTimer(45)">45 Minutes</button>
+    <button onclick="setSleepTimer(60)">60 Minutes</button>
+    <button onclick="cancelSleepTimer()" style="background:#fee2e2; color:#dc2626;">Turn Off</button>
+    <button onclick="closeTimerModal()" style="background:transparent; border:none; color:#64748b;">Close</button>
+  </div>
+</div>
 
-    // State Variables
-    let currentTrackIndex = 0;
-    let isPlaying = false;
-    let isShuffle = false;
-    let favorites = new Set();
-    let userPlaylists = [];
-    let timerTimeout = null;
+<script src="https://www.youtube.com/iframe_api"></script>
 
-    // DOM Elements
-    const audio = document.getElementById('audioEngine');
-    const masterPlayBtn = document.getElementById('masterPlayBtn');
-    const playerTitle = document.getElementById('playerTitle');
-    const playerArtist = document.getElementById('playerArtist');
-    const playerCover = document.getElementById('playerCover');
-    const progressBar = document.getElementById('progressBar');
-    const currentTimeDisplay = document.getElementById('currentTimeDisplay');
-    const durationDisplay = document.getElementById('durationDisplay');
-    const visualizer = document.getElementById('visualizer');
+<script>
+const YOUTUBE_API_KEY = "AIzaSyDqi_eQpFxhthmtrF_pOGygTjsuCihneBI";
 
-    // Initialize App
-    window.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
-      renderHomeGrid();
-      renderPodcasts();
-      renderSearchResults(trackDatabase);
-      loadTrack(0, false);
+const playlists = [
+  { title: "Telugu Hits", count: "Live Stream", cover: "🎧" },
+  { title: "Global Top 50", count: "Live Stream", cover: "🌍" },
+  { title: "Lo-Fi Beats", count: "Live Stream", cover: "☕" }
+];
 
-      // Audio Event Listeners
-      audio.addEventListener('timeupdate', updateProgress);
-      audio.addEventListener('ended', nextTrack);
+const albums = [
+  { title: "Trending Melodies", artist: "Curated", cover: "💿" },
+  { title: "Chill Pop", artist: "Global Artists", cover: "🌊" }
+];
+
+const podcasts = [
+  { title: "The Ranveer Show", host: "BeerBiceps", cover: "🎙️" },
+  { title: "TED Radio Hour", host: "NPR", cover: "💡" },
+  { title: "Huberman Lab", host: "Andrew Huberman", cover: "🧠" },
+  { title: "Telugu Crime Stories", host: "Podcasts", cover: "🔍" }
+];
+
+let player;
+let currentPlaylist = [];
+let currentIndex = -1;
+let isPlaying = false;
+let sleepTimerId = null;
+let sleepCountdownId = null;
+let searchTimeout = null;
+let deferredPrompt = null;
+
+// PWA Manifest Injector
+const manifestData = {
+  "name": "Musico Music & Podcasts",
+  "short_name": "Musico",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [{
+    "src": "https://img.icons8.com/color/512/audio-wave.png",
+    "sizes": "512x512",
+    "type": "image/png"
+  }]
+};
+document.getElementById('manifestPlaceholder').setAttribute('href', 'data:application/json;base64,' + btoa(JSON.stringify(manifestData)));
+
+// Service Worker for Install & PWA Standalone Mode
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('data:application/javascript;base64,' + btoa(`
+    self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+    self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
+  `));
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBtn').style.display = 'block';
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      document.getElementById('installBtn').style.display = 'none';
+    });
+  }
+}
+
+// Media Session Setup (Key for screen-off/lock-screen background playback)
+function updateMediaSession(song) {
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: song.title,
+      artist: song.artist,
+      album: "Musico Stream",
+      artwork: [{ src: "https://img.icons8.com/color/512/audio-wave.png", sizes: "512x512", type: "image/png" }]
     });
 
-    // Navigation Switcher
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-page').forEach(page => page.classList.add('hidden'));
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        btn.classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
-        btn.classList.add('text-slate-400');
-      });
+    navigator.mediaSession.setActionHandler('play', () => togglePlay());
+    navigator.mediaSession.setActionHandler('pause', () => togglePlay());
+    navigator.mediaSession.setActionHandler('previoustrack', () => previousSong());
+    navigator.mediaSession.setActionHandler('nexttrack', () => nextSong());
+  }
+}
 
-      document.getElementById(`page-${tabId}`).classList.remove('hidden');
-      const activeNav = document.getElementById(`nav-${tabId}`);
-      if (activeNav) {
-        activeNav.classList.add('bg-blue-600', 'text-white', 'shadow-lg');
-        activeNav.classList.remove('text-slate-400');
-      }
-    }
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player('youtubePlayer', {
+    height: '100',
+    width: '100',
+    playerVars: { 
+      'autoplay': 1, 
+      'controls': 0, 
+      'disablekb': 1,
+      'iv_load_policy': 3,
+      'rel': 0,
+      'enablejsapi': 1,
+      'playsinline': 1
+    },
+    events: { 'onStateChange': onPlayerStateChange }
+  });
+}
 
-    // Render Home Track Grid
-    function renderHomeGrid() {
-      const grid = document.getElementById('homeMusicGrid');
-      grid.innerHTML = trackDatabase.map((track, idx) => `
-        <div class="glass-card p-3 rounded-2xl cursor-pointer group" onclick="playTrack(${idx})">
-          <div class="relative mb-3 aspect-square rounded-xl overflow-hidden bg-slate-800">
-            <img src="${track.cover}" alt="${track.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-              <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg">
-                <i data-lucide="play" class="w-5 h-5 fill-white ml-0.5"></i>
-              </div>
-            </div>
-          </div>
-          <h4 class="font-bold text-white text-sm truncate">${track.title}</h4>
-          <p class="text-xs text-slate-400 truncate">${track.artist}</p>
-        </div>
-      `).join('');
-      lucide.createIcons();
-    }
+function onPlayerStateChange(event) {
+  if (event.data === YT.PlayerState.PLAYING) {
+    isPlaying = true;
+    document.getElementById('playButton').textContent = 'Ⅱ';
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
+  } else if (event.data === YT.PlayerState.PAUSED) {
+    isPlaying = false;
+    document.getElementById('playButton').textContent = '▶';
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
+  } else if (event.data === YT.PlayerState.ENDED) {
+    nextSong();
+  }
+}
 
-    // Render Podcasts
-    function renderPodcasts() {
-      const podcasts = trackDatabase.filter(t => t.genre === 'Podcast');
-      const grid = document.getElementById('podcastGrid');
-      grid.innerHTML = podcasts.map(pod => `
-        <div class="glass-card p-4 rounded-2xl flex items-center gap-4 cursor-pointer" onclick="playTrack(${pod.id})">
-          <img src="${pod.cover}" class="w-16 h-16 rounded-xl object-cover" />
-          <div class="flex-1 min-w-0">
-            <h4 class="font-bold text-white text-sm truncate">${pod.title}</h4>
-            <p class="text-xs text-slate-400">${pod.artist}</p>
-            <span class="inline-block mt-2 text-[10px] text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full font-semibold">Audio Episode</span>
-          </div>
-        </div>
-      `).join('');
-    }
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
 
-    // Audio Playback Controls
-    function loadTrack(index, autoPlay = true) {
-      currentTrackIndex = index;
-      const track = trackDatabase[index];
+  const targetPage = document.getElementById(pageId + 'Page');
+  if (targetPage) targetPage.classList.add('active');
 
-      audio.src = track.src;
-      playerTitle.textContent = track.title;
-      playerArtist.textContent = track.artist;
-      playerCover.style.backgroundImage = `url('${track.cover}')`;
-      playerCover.innerHTML = '';
+  const activeNav = document.getElementById('nav-' + pageId);
+  if (activeNav) activeNav.classList.add('active');
 
-      updateMediaSession(track);
+  if (pageId === 'search') document.getElementById('songSearch').focus();
+}
 
-      if (autoPlay) {
-        audio.play().then(() => {
-          isPlaying = true;
-          updatePlayerUI();
-        }).catch(err => console.log('Playback interrupted:', err));
-      }
-    }
+function renderDashboard() {
+  document.getElementById('playlistGrid').innerHTML = playlists.map(p => `
+    <div class="card" onclick="quickSearch('${p.title}')">
+      <div class="card-cover">${p.cover}</div>
+      <h3>${p.title}</h3>
+      <p>${p.count}</p>
+    </div>
+  `).join('');
 
-    function togglePlay() {
-      if (!audio.src) {
-        loadTrack(0);
+  document.getElementById('albumGrid').innerHTML = albums.map(a => `
+    <div class="card" onclick="quickSearch('${a.title}')">
+      <div class="card-cover">${a.cover}</div>
+      <h3>${a.title}</h3>
+      <p>${a.artist}</p>
+    </div>
+  `).join('');
+
+  document.getElementById('podcastGrid').innerHTML = podcasts.map(pod => `
+    <div class="card" onclick="quickSearch('${pod.title} podcast')">
+      <div class="card-cover" style="background: linear-gradient(135deg, #1d4ed8, #0ea5e9);">${pod.cover}</div>
+      <h3>${pod.title}</h3>
+      <p>${pod.host}</p>
+    </div>
+  `).join('');
+}
+
+function quickSearch(query) {
+  showPage('search');
+  document.getElementById('songSearch').value = query;
+  filterSearch();
+}
+
+function filterSearch() {
+  const query = document.getElementById('songSearch').value.trim();
+  clearTimeout(searchTimeout);
+  
+  if (!query) {
+    document.getElementById('searchResults').innerHTML = '<p style="color:#64748b;">Search songs, podcasts, or artists...</p>';
+    return;
+  }
+
+  searchTimeout = setTimeout(async () => {
+    try {
+      document.getElementById('searchResults').innerHTML = '<p style="color:#2563eb;">Searching...</p>';
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&key=${YOUTUBE_API_KEY}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.error) {
+        document.getElementById('searchResults').innerHTML = `<p style="color:#dc2626;">Error: ${data.error.message}</p>`;
         return;
       }
 
-      if (isPlaying) {
-        audio.pause();
-        isPlaying = false;
-      } else {
-        audio.play();
-        isPlaying = true;
-      }
-      updatePlayerUI();
-    }
+      currentPlaylist = data.items.map(item => ({
+        videoId: item.id.videoId,
+        title: item.snippet.title,
+        artist: item.snippet.channelTitle,
+        cover: "🎵"
+      }));
 
-    function updatePlayerUI() {
-      masterPlayBtn.innerHTML = isPlaying 
-        ? `<i data-lucide="pause" class="w-5 h-5 fill-white"></i>` 
-        : `<i data-lucide="play" class="w-5 h-5 fill-white ml-0.5"></i>`;
-      
-      visualizer.className = isPlaying ? "flex items-center gap-1 h-5 playing" : "flex items-center gap-1 h-5 paused";
-      lucide.createIcons();
+      renderDynamicSearchResults(currentPlaylist);
+    } catch (error) {
+      document.getElementById('searchResults').innerHTML = '<p style="color:#dc2626;">Failed to search audio tracks.</p>';
     }
+  }, 500);
+}
 
-    function playTrack(index) {
-      loadTrack(index, true);
+function renderDynamicSearchResults(list) {
+  const container = document.getElementById('searchResults');
+  if (!list.length) {
+    container.innerHTML = '<p style="color:#64748b;">No results found.</p>';
+    return;
+  }
+  
+  container.innerHTML = list.map((song, index) => `
+    <div class="card" onclick="playDynamicSong(${index})">
+      <div class="card-cover">${song.cover}</div>
+      <h3>${song.title}</h3>
+      <p>${song.artist}</p>
+    </div>
+  `).join('');
+}
+
+function playDynamicSong(index) {
+  if (index < 0 || index >= currentPlaylist.length) return;
+  
+  currentIndex = index;
+  const song = currentPlaylist[currentIndex];
+
+  if (player && typeof player.loadVideoById === 'function') {
+    player.loadVideoById(song.videoId);
+    player.playVideo();
+    document.getElementById('nowPlaying').textContent = `🎵 ${song.title}`;
+    updateMediaSession(song);
+  }
+}
+
+function togglePlay() {
+  if (currentIndex === -1 && currentPlaylist.length > 0) {
+    playDynamicSong(0);
+    return;
+  }
+  
+  if (player && typeof player.getPlayerState === 'function') {
+    const state = player.getPlayerState();
+    if (state === YT.PlayerState.PLAYING) {
+      player.pauseVideo();
+    } else {
+      player.playVideo();
     }
+  }
+}
 
-    function nextTrack() {
-      let nextIndex = isShuffle 
-        ? Math.floor(Math.random() * trackDatabase.length)
-        : (currentTrackIndex + 1) % trackDatabase.length;
-      loadTrack(nextIndex, true);
-    }
+function nextSong() {
+  if (!currentPlaylist.length) return;
+  playDynamicSong((currentIndex + 1) % currentPlaylist.length);
+}
 
-    function prevTrack() {
-      let prevIndex = (currentTrackIndex - 1 + trackDatabase.length) % trackDatabase.length;
-      loadTrack(prevIndex, true);
-    }
+function previousSong() {
+  if (!currentPlaylist.length) return;
+  playDynamicSong((currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length);
+}
 
-    function toggleShuffle() {
-      isShuffle = !isShuffle;
-      document.getElementById('shuffleBtn').classList.toggle('text-blue-400', isShuffle);
-    }
+function handleCredentialResponse(response) {
+  const base64Url = response.credential.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+  
+  const user = JSON.parse(jsonPayload);
+  document.getElementById('userName').textContent = user.name;
+  document.getElementById('userEmail').textContent = user.email;
+  if(user.picture) {
+    document.getElementById('userAvatar').innerHTML = `<img src="${user.picture}" style="width:100%; height:100%; border-radius:50%;">`;
+  }
+}
 
-    function seekTrack(value) {
-      if (audio.duration) {
-        audio.currentTime = (value / 100) * audio.duration;
-      }
-    }
+function openTimerModal() { document.getElementById('timerModal').style.display = 'grid'; }
+function closeTimerModal() { document.getElementById('timerModal').style.display = 'none'; }
 
-    function setVolume(value) {
-      audio.volume = value;
-    }
+function setSleepTimer(minutes) {
+  cancelSleepTimer();
+  let duration = minutes * 60;
+  const badge = document.getElementById('timerStatus');
+  badge.style.display = 'inline-block';
 
-    function updateProgress() {
-      if (audio.duration) {
-        const pct = (audio.currentTime / audio.duration) * 100;
-        progressBar.value = pct;
-        currentTimeDisplay.textContent = formatTime(audio.currentTime);
-        durationDisplay.textContent = formatTime(audio.duration);
-      }
-    }
+  sleepCountdownId = setInterval(() => {
+    duration--;
+    const m = Math.floor(duration / 60);
+    const s = duration % 60;
+    badge.textContent = `⏱ ${m}:${s < 10 ? '0' : ''}${s}`;
+    if (duration <= 0) clearInterval(sleepCountdownId);
+  }, 1000);
 
-    function formatTime(seconds) {
-      const mins = Math.floor(seconds / 60);
-      const secs = Math.floor(seconds % 60);
-      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-    }
+  sleepTimerId = setTimeout(() => {
+    if (player && typeof player.pauseVideo === 'function') player.pauseVideo();
+    cancelSleepTimer();
+  }, minutes * 60 * 1000);
 
-    // Lock-Screen MediaSession Controls
-    function updateMediaSession(track) {
-      if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-          title: track.title,
-          artist: track.artist,
-          album: "Musico Audio Engine",
-          artwork: [{ src: track.cover, sizes: '512x512', type: 'image/jpeg' }]
-        });
+  closeTimerModal();
+}
 
-        navigator.mediaSession.setActionHandler('play', togglePlay);
-        navigator.mediaSession.setActionHandler('pause', togglePlay);
-        navigator.mediaSession.setActionHandler('previoustrack', prevTrack);
-        navigator.mediaSession.setActionHandler('nexttrack', nextTrack);
-      }
-    }
+function cancelSleepTimer() {
+  if (sleepTimerId) clearTimeout(sleepTimerId);
+  if (sleepCountdownId) clearInterval(sleepCountdownId);
+  document.getElementById('timerStatus').style.display = 'none';
+  closeTimerModal();
+}
 
-    // Search Logic
-    function handleSearch() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = trackDatabase.filter(t => 
-        t.title.toLowerCase().includes(query) || 
-        t.artist.toLowerCase().includes(query) ||
-        t.genre.toLowerCase().includes(query)
-      );
-      renderSearchResults(filtered);
-    }
+renderDashboard();
+</script>
 
-    function renderSearchResults(results) {
-      const container = document.getElementById('searchResults');
-      if (!results.length) {
-        container.innerHTML = `<p class="text-slate-500 text-sm py-4 text-center">No audio tracks matched your search.</p>`;
-        return;
-      }
-      container.innerHTML = results.map(t => `
-        <div class="glass-card p-3 rounded-xl flex items-center justify-between gap-4 cursor-pointer" onclick="playTrack(${t.id})">
-          <div class="flex items-center gap-3">
-            <img src="${t.cover}" class="w-10 h-10 rounded-lg object-cover" />
-            <div>
-              <h4 class="font-bold text-white text-sm">${t.title}</h4>
-              <p class="text-xs text-slate-400">${t.artist}</p>
-            </div>
-          </div>
-          <span class="text-xs text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-full font-medium">${t.genre}</span>
-        </div>
-      `).join('');
-    }
-
-    function filterByGenre(genre) {
-      switchTab('search');
-      document.getElementById('searchInput').value = genre;
-      handleSearch();
-    }
-
-    // Sleep Timer Controls
-    function openSleepTimerModal() {
-      document.getElementById('timerModal').classList.remove('hidden');
-    }
-
-    function closeSleepTimerModal() {
-      document.getElementById('timerModal').classList.add('hidden');
-    }
-
-    function setSleepTimer(minutes) {
-      cancelSleepTimer();
-      document.getElementById('timerBadge').classList.remove('hidden');
-      timerTimeout = setTimeout(() => {
-        if (isPlaying) togglePlay();
-        cancelSleepTimer();
-      }, minutes * 60 * 1000);
-      closeSleepTimerModal();
-    }
-
-    function cancelSleepTimer() {
-      if (timerTimeout) clearTimeout(timerTimeout);
-      document.getElementById('timerBadge').classList.add('hidden');
-      closeSleepTimerModal();
-    }
-
-    // Google OAuth Sign-In Callback
-    function handleCredentialResponse(response) {
-      const responsePayload = parseJwt(response.credential);
-      
-      document.getElementById('sidebarUserName').textContent = responsePayload.name;
-      document.getElementById('sidebarUserEmail').textContent = responsePayload.email;
-      document.getElementById('sidebarAvatar').innerHTML = `<img src="${responsePayload.picture}" class="w-full h-full object-cover" />`;
-      
-      document.getElementById('profileName').textContent = responsePayload.name;
-      document.getElementById('profileEmail').textContent = responsePayload.email;
-      document.getElementById('profileAvatar').innerHTML = `<img src="${responsePayload.picture}" class="w-full h-full object-cover" />`;
-      
-      document.getElementById('logoutBtnContainer').classList.remove('hidden');
-    }
-
-    function handleSignOut() {
-      document.getElementById('sidebarUserName').textContent = "Guest User";
-      document.getElementById('sidebarUserEmail').textContent = "Not signed in";
-      document.getElementById('sidebarAvatar').innerHTML = `<i data-lucide="user" class="w-5 h-5 text-slate-400"></i>`;
-      
-      document.getElementById('profileName').textContent = "Guest User";
-      document.getElementById('profileEmail').textContent = "Sign in with Google to sync your audio library";
-      document.getElementById('profileAvatar').innerHTML = `<i data-lucide="user" class="w-10 h-10 text-slate-400"></i>`;
-      
-      document.getElementById('logoutBtnContainer').classList.add('hidden');
-      lucide.createIcons();
-    }
-
-    function parseJwt(token) {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c => {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
-      return JSON.parse(jsonPayload);
-    }
-  </script>
 </body>
 </html>
