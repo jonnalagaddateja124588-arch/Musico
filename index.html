@@ -243,7 +243,29 @@ button {
   <div>
     <div class="logo">🎵 Musico</div>
     <div class="tagline">Music for Everyone</div>
-  </div>
+    <h2>🎵 YouTube Music Search</h2>
+<!-- MUSICO YOUTUBE SEARCH -->
+    
+<div style="padding:25px; text-align:center;">
+
+  <input
+    id="youtubeSearch"
+    type="text"
+    placeholder="Search your favourite songs..."
+    style="padding:14px; width:70%; border-radius:25px; border:none;"
+  >
+
+  <button
+    onclick="searchYouTube()"
+    style="padding:14px 20px; border-radius:25px; background:#ff0033; color:white; border:none; cursor:pointer;">
+    Search
+  </button>
+
+  <p id="youtubeMessage"></p>
+
+</div>
+
+    
   <div>🎧</div>
 </header>
 
@@ -254,12 +276,6 @@ button {
     <p>Your music, your mood, your world.</p>
   </section>
 
-  <input
-    type="search"
-    class="search"
-    id="search"
-    placeholder="🔍 Search songs or singers..."
-  >
 
   <h2>Explore Languages</h2>
 
@@ -368,7 +384,7 @@ const songList = document.getElementById("songList");
 const playButton = document.getElementById("playButton");
 
 function renderSongs() {
-  const query = document.getElementById("search").value.toLowerCase();
+  const query = "";
 
   const filtered = songs
     .map((song,index) => ({...song,index}))
@@ -543,7 +559,6 @@ function formatTime(seconds) {
 renderSongs();
 </script>
   
-<!-- MUSICO YOUTUBE SEARCH -->
 <div style="padding:25px; text-align:center;">
   <h2>🎵 YouTube Music Search</h2>
 
