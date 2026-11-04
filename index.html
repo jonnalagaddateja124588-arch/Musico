@@ -301,7 +301,7 @@ h2 {
       type="text"
       id="songSearch"
       class="search-input"
-      placeholder="Type 'Telugu', 'Hindi', or any song name..."
+      placeholder="Type any song, artist, or Telugu hits..."
       oninput="filterSearch()"
     >
     <div class="grid-container" id="searchResults"></div>
@@ -324,7 +324,7 @@ h2 {
     <h2>User Profile</h2>
     <div class="card">
       <h3>Musico Member</h3>
-      <p style="margin-top: 8px;">Free Plan • Keyword Search Active</p>
+      <p style="margin-top: 8px;">Live YouTube API v3 Enabled</p>
     </div>
   </section>
 
@@ -374,36 +374,28 @@ h2 {
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-const songs = [
-  { id: 1, title: "Samajavaragamana", artist: "Sid Sriram", language: "Telugu", videoId: "A48qUj_LjjM", cover: "🎶" },
-  { id: 2, title: "Butta Bomma", artist: "Armaan Malik", language: "Telugu", videoId: "2ncu5mhfrw4", cover: "💃" },
-  { id: 3, title: "Ramuloo Ramulaa", artist: "Anurag Kulkarni", language: "Telugu", videoId: "g59xicXtbKA", cover: "🔥" },
-  { id: 4, title: "Srivalli", artist: "Sid Sriram", language: "Telugu", videoId: "SZjwbq9q9Ag", cover: "🌿" },
-  { id: 5, title: "Naatu Naatu", artist: "Rahul Sipligunj, Kaala Bhairava", language: "Telugu", videoId: "OsUjOHnHh9s", cover: "🕺" },
-  { id: 6, title: "Kesariya", artist: "Arijit Singh", language: "Hindi", videoId: "BddP6PYo2gs", cover: "❤️" },
-  { id: 7, title: "Apna Bana Le", artist: "Arijit Singh", language: "Hindi", videoId: "Elz9W3bT6tk", cover: "✨" },
-  { id: 8, title: "Perfect", artist: "Ed Sheeran", language: "English", videoId: "2Vv-BfVoq4g", cover: "🎵" },
-  { id: 9, title: "Shape of You", artist: "Ed Sheeran", language: "English", videoId: "JGwWNGJdvx8", cover: "🎧" }
-];
+const YOUTUBE_API_KEY = "AIzaSyDqi_eQpFxhthmtrF_pOGygTjsuCihneBI";
 
 const playlists = [
-  { title: "Telugu Super Hits", count: "5 Tracks", cover: "🎧" },
-  { title: "Bollywood Romance", count: "2 Tracks", cover: "💖" },
-  { title: "Global Top Charts", count: "2 Tracks", cover: "🌍" }
+  { title: "Telugu Super Hits", count: "Live Search", cover: "🎧" },
+  { title: "Bollywood Romance", count: "Live Search", cover: "💖" },
+  { title: "Global Top Charts", count: "Live Search", cover: "🌍" }
 ];
 
 const albums = [
-  { title: "Ala Vaikunthapurramuloo", artist: "Thaman S", cover: "💿" },
-  { title: "Pushpa: The Rise", artist: "Devi Sri Prasad", cover: "🌲" },
-  { title: "÷ (Divide)", artist: "Ed Sheeran", cover: "🎸" }
+  { title: "Trending Audio", artist: "YouTube Music", cover: "💿" },
+  { title: "Top Hits", artist: "Global Artists", cover: "🌲" },
+  { title: "Chill Vibes", artist: "Curated", cover: "🎸" }
 ];
 
 let player;
+let currentPlaylist = [];
 let currentIndex = -1;
 let isPlaying = false;
 let sleepTimerId = null;
 let sleepCountdownId = null;
 let recents = [];
+let searchTimeout = null;
 
 function onYouTubeIframeAPIReady() {
   player = new YT.Player('youtubePlayer', {
@@ -438,13 +430,12 @@ function showPage(pageId) {
 
   if (pageId === 'search') {
     document.getElementById('songSearch').focus();
-    filterSearch();
   }
 }
 
 function renderDashboard() {
   document.getElementById('playlistGrid').innerHTML = playlists.map(p => `
-    <div class="card">
+    <div class="card" onclick="quickSearch('${p.title}')">
       <div class="card-cover">${p.cover}</div>
       <h3>${p.title}</h3>
       <p>${p.count}</p>
@@ -452,51 +443,81 @@ function renderDashboard() {
   `).join('');
 
   document.getElementById('albumGrid').innerHTML = albums.map(a => `
-    <div class="card">
+    <div class="card" onclick="quickSearch('${a.title}')">
       <div class="card-cover">${a.cover}</div>
       <h3>${a.title}</h3>
       <p>${a.artist}</p>
     </div>
   `).join('');
+}
 
-  renderSearchResults(songs);
+function quickSearch(query) {
+  showPage('search');
+  document.getElementById('songSearch').value = query;
+  filterSearch();
 }
 
 function filterSearch() {
-  const query = document.getElementById('songSearch').value.toLowerCase().trim();
-  const keywords = query.split(" ").filter(Boolean);
+  const query = document.getElementById('songSearch').value.trim();
+  clearTimeout(searchTimeout);
   
-  const filtered = songs.filter(s => {
-    const text = (s.title + " " + s.artist + " " + s.language).toLowerCase();
-    return keywords.every(word => text.includes(word));
-  });
-  
-  renderSearchResults(filtered);
+  if (!query) {
+    document.getElementById('searchResults').innerHTML = '<p style="color:#b8accb;">Type any song or artist name to search YouTube...</p>';
+    return;
+  }
+
+  searchTimeout = setTimeout(async () => {
+    try {
+      document.getElementById('searchResults').innerHTML = '<p style="color:#bd8cff;">Searching YouTube...</p>';
+      
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + " audio song")}&type=video&maxResults=10&key=${YOUTUBE_API_KEY}`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.error) {
+        document.getElementById('searchResults').innerHTML = `<p style="color:#ff6c9c;">API Error: ${data.error.message}</p>`;
+        return;
+      }
+
+      currentPlaylist = data.items.map(item => ({
+        videoId: item.id.videoId,
+        title: item.snippet.title,
+        artist: item.snippet.channelTitle,
+        cover: "🎵"
+      }));
+
+      renderDynamicSearchResults(currentPlaylist);
+    } catch (error) {
+      console.error("Search failed:", error);
+      document.getElementById('searchResults').innerHTML = '<p style="color:#ff6c9c;">Failed to fetch songs. Check your connection or API key restrictions.</p>';
+    }
+  }, 500);
 }
 
-function renderSearchResults(list) {
+function renderDynamicSearchResults(list) {
   const container = document.getElementById('searchResults');
   if (!list.length) {
     container.innerHTML = '<p style="color:#b8accb;">No matching songs found.</p>';
     return;
   }
-  container.innerHTML = list.map((song) => `
-    <div class="card" onclick="playSongById(${song.id})">
+  
+  container.innerHTML = list.map((song, index) => `
+    <div class="card" onclick="playDynamicSong(${index})">
       <div class="card-cover">${song.cover}</div>
       <h3>${song.title}</h3>
-      <p>${song.artist} • ${song.language}</p>
+      <p>${song.artist} • YouTube</p>
     </div>
   `).join('');
 }
 
-function playSongById(id) {
-  const index = songs.findIndex(s => s.id === id);
-  if (index === -1) return;
+function playDynamicSong(index) {
+  if (index < 0 || index >= currentPlaylist.length) return;
   
   currentIndex = index;
-  const song = songs[currentIndex];
+  const song = currentPlaylist[currentIndex];
   
-  if (!recents.includes(song)) {
+  if (!recents.some(s => s.videoId === song.videoId)) {
     recents.unshift(song);
     updateRecentsUI();
   }
@@ -509,8 +530,8 @@ function playSongById(id) {
 }
 
 function togglePlay() {
-  if (currentIndex === -1) {
-    if (songs.length > 0) playSongById(songs[0].id);
+  if (currentIndex === -1 && currentPlaylist.length > 0) {
+    playDynamicSong(0);
     return;
   }
   
@@ -525,25 +546,38 @@ function togglePlay() {
 }
 
 function nextSong() {
-  if (!songs.length) return;
-  const nextIdx = (currentIndex + 1) % songs.length;
-  playSongById(songs[nextIdx].id);
+  if (!currentPlaylist.length) return;
+  const nextIdx = (currentIndex + 1) % currentPlaylist.length;
+  playDynamicSong(nextIdx);
 }
 
 function previousSong() {
-  if (!songs.length) return;
-  const prevIdx = (currentIndex - 1 + songs.length) % songs.length;
-  playSongById(songs[prevIdx].id);
+  if (!currentPlaylist.length) return;
+  const prevIdx = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+  playDynamicSong(prevIdx);
 }
 
 function updateRecentsUI() {
-  document.getElementById('recentsGrid').innerHTML = recents.map(song => `
-    <div class="card" onclick="playSongById(${song.id})">
+  document.getElementById('recentsGrid').innerHTML = recents.map((song, index) => `
+    <div class="card" onclick="playRecentSong('${song.videoId}')">
       <div class="card-cover">${song.cover}</div>
       <h3>${song.title}</h3>
       <p>${song.artist}</p>
     </div>
   `).join('');
+}
+
+function playRecentSong(videoId) {
+  const foundIndex = currentPlaylist.findIndex(s => s.videoId === videoId);
+  if (foundIndex !== -1) {
+    playDynamicSong(foundIndex);
+  } else {
+    const song = recents.find(s => s.videoId === videoId);
+    if (song) {
+      currentPlaylist.unshift(song);
+      playDynamicSong(0);
+    }
+  }
 }
 
 function openTimerModal() {
