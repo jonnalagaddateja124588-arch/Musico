@@ -5,14 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Musico - Stream Music & Podcasts</title>
 
+<!-- PWA Manifest & Meta Tags for App Installation -->
 <link rel="manifest" id="manifestPlaceholder">
 <meta name="theme-color" content="#2563eb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Musico">
-
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://www.youtube.com/iframe_api"></script>
 
 <style>
 * {
@@ -25,9 +24,10 @@ body {
   background: #f8fafc;
   color: #0f172a;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  padding-bottom: 150px;
+  padding-bottom: 140px;
 }
 
+/* Header & Navigation */
 header {
   padding: 16px 20px;
   background: #ffffff;
@@ -76,6 +76,7 @@ header {
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 .top-btn:hover {
@@ -116,9 +117,10 @@ h2 {
   font-weight: 700;
 }
 
+/* Grid & Cards */
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 15px;
   margin-bottom: 25px;
 }
@@ -131,7 +133,6 @@ h2 {
   cursor: pointer;
   box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
   transition: transform 0.2s ease, border-color 0.2s ease;
-  min-width: 0;
 }
 
 .card:hover {
@@ -140,7 +141,7 @@ h2 {
 }
 
 .card-cover {
-  height: 140px;
+  height: 120px;
   border-radius: 12px;
   background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   display: grid;
@@ -148,13 +149,6 @@ h2 {
   font-size: 40px;
   color: white;
   margin-bottom: 10px;
-  overflow: hidden;
-}
-
-.card-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .card h3 {
@@ -169,11 +163,9 @@ h2 {
 .card p {
   color: #64748b;
   font-size: 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
+/* Inputs & Forms */
 .search-input {
   width: 100%;
   padding: 14px 20px;
@@ -201,8 +193,7 @@ h2 {
   pointer-events: none;
 }
 
-/* Mini player */
-
+/* Player Interface */
 .player {
   position: fixed;
   bottom: 60px;
@@ -210,7 +201,7 @@ h2 {
   width: 100%;
   background: #ffffff;
   border-top: 1px solid #e2e8f0;
-  padding: 10px 20px;
+  padding: 12px 20px;
   z-index: 100;
   box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
 }
@@ -228,7 +219,6 @@ h2 {
   margin-bottom: 8px;
   color: #1e3a8a;
   font-weight: 600;
-  cursor: pointer;
 }
 
 .timer-badge {
@@ -265,191 +255,7 @@ h2 {
   place-items: center;
 }
 
-.mini-progress {
-  width: 100%;
-  height: 3px;
-  background: #dbeafe;
-  border-radius: 10px;
-  overflow: hidden;
-  cursor: pointer;
-}
-
-.mini-progress div {
-  height: 100%;
-  background: #2563eb;
-  width: 0%;
-}
-
-/* Full screen player */
-
-.full-player {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: #f8fafc;
-  z-index: 300;
-  overflow-y: auto;
-  padding: 25px;
-}
-
-.full-player.active {
-  display: block;
-}
-
-.full-player-inner {
-  max-width: 500px;
-  margin: auto;
-  text-align: center;
-}
-
-.player-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-  color: #1e40af;
-}
-
-.player-top button {
-  border: none;
-  background: transparent;
-  font-size: 25px;
-  cursor: pointer;
-  color: #1e40af;
-}
-
-.full-cover {
-  width: min(75vw, 340px);
-  height: min(75vw, 340px);
-  margin: 20px auto 25px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(37,99,235,0.15);
-}
-
-.full-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.full-title {
-  font-size: 23px;
-  margin-bottom: 8px;
-  color: #0f172a;
-  overflow-wrap: anywhere;
-}
-
-.full-artist {
-  color: #64748b;
-  margin-bottom: 25px;
-}
-
-.seek-area {
-  margin: 20px 0;
-}
-
-.seek-area input {
-  width: 100%;
-  accent-color: #2563eb;
-  cursor: pointer;
-}
-
-.time-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: #64748b;
-  margin-top: 5px;
-}
-
-.full-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 35px;
-  margin: 25px 0;
-}
-
-.full-controls button {
-  border: none;
-  background: transparent;
-  color: #1e40af;
-  font-size: 27px;
-  cursor: pointer;
-}
-
-.full-controls .main-play {
-  width: 65px;
-  height: 65px;
-  background: #2563eb;
-  color: white;
-  border-radius: 50%;
-  font-size: 25px;
-}
-
-.player-extra {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 25px;
-}
-
-.player-extra button {
-  border: none;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: #1e40af;
-  padding: 12px 18px;
-  border-radius: 12px;
-  cursor: pointer;
-}
-
-/* Lyrics */
-
-.lyrics-panel {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: #ffffff;
-  z-index: 350;
-  overflow-y: auto;
-  padding: 25px;
-}
-
-.lyrics-panel.active {
-  display: block;
-}
-
-.lyrics-inner {
-  max-width: 650px;
-  margin: auto;
-}
-
-.lyrics-inner h2 {
-  margin-bottom: 20px;
-}
-
-.lyrics-text {
-  white-space: pre-wrap;
-  line-height: 2;
-  color: #334155;
-  text-align: center;
-  font-size: 16px;
-  padding: 20px 0;
-}
-
-.lyrics-close {
-  border: none;
-  background: #eff6ff;
-  color: #2563eb;
-  padding: 10px 18px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-/* Modals */
-
+/* Modals & Profiles */
 .modal {
   display: none;
   position: fixed;
@@ -459,9 +265,8 @@ h2 {
   height: 100%;
   background: rgba(15, 23, 42, 0.4);
   backdrop-filter: blur(4px);
-  z-index: 400;
+  z-index: 200;
   place-items: center;
-  padding: 15px;
 }
 
 .modal-content {
@@ -470,15 +275,9 @@ h2 {
   border-radius: 20px;
   border: 1px solid #e2e8f0;
   text-align: center;
-  max-width: 360px;
+  max-width: 320px;
   width: 90%;
-  max-height: 85vh;
-  overflow-y: auto;
   box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-}
-
-.modal-content h3 {
-  margin-bottom: 15px;
 }
 
 .modal-content button {
@@ -517,15 +316,9 @@ h2 {
   place-items: center;
   font-size: 32px;
   margin: 0 auto 15px;
-  overflow: hidden;
 }
 
-.avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
+/* Bottom Nav - Fixed Spacing & Z-Index Overlap */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -563,66 +356,17 @@ h2 {
 .bottom-nav button.active {
   color: #2563eb;
 }
-
-.empty-message {
-  color: #64748b;
-  font-size: 14px;
-  padding: 10px 0;
-}
-
-@media(max-width:600px) {
-  header {
-    padding: 12px;
-  }
-
-  .logo {
-    font-size: 18px;
-  }
-
-  .top-actions {
-    gap: 5px;
-  }
-
-  .top-btn {
-    padding: 7px 8px;
-    font-size: 11px;
-  }
-
-  .install-btn {
-    padding: 7px 8px;
-    font-size: 10px;
-  }
-
-  main {
-    padding: 14px;
-  }
-
-  .grid-container {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-
-  .card {
-    padding: 10px;
-  }
-
-  .card-cover {
-    height: 115px;
-  }
-}
 </style>
 </head>
-
 <body>
 
 <header>
   <div class="logo">
-    <div class="logo-icon">🎵</div>
+    <div class="logo-icon">📊</div>
     <span>MUSICO</span>
   </div>
-
   <div class="top-actions">
-    <button class="install-btn" id="installBtn" onclick="installApp()">📲 Install</button>
+    <button class="install-btn" id="installBtn" onclick="installApp()">📲 Install App</button>
     <button class="top-btn" onclick="showPage('home')">🏠 Home</button>
     <button class="top-btn" onclick="showPage('podcasts')">🎙️ Podcasts</button>
     <button class="top-btn" onclick="showPage('profile')">👤 Profile</button>
@@ -630,50 +374,18 @@ h2 {
 </header>
 
 <main>
-
-  <!-- HOME -->
-
+  <!-- Home Page -->
   <section id="homePage" class="page active">
-
-    <h2>Recently Played</h2>
-    <div class="grid-container" id="recentGrid">
-      <p class="empty-message">Your recently played songs will appear here.</p>
-    </div>
-
-    <h2>Recommended Songs</h2>
-    <div class="grid-container" id="recommendedGrid">
-      <div class="card" onclick="quickSearch('Telugu trending songs')">
-        <div class="card-cover">🎧</div>
-        <h3>Telugu Trending</h3>
-        <p>Discover popular music</p>
-      </div>
-
-      <div class="card" onclick="quickSearch('Hindi trending songs')">
-        <div class="card-cover">🎶</div>
-        <h3>Hindi Hits</h3>
-        <p>Popular Hindi songs</p>
-      </div>
-
-      <div class="card" onclick="quickSearch('English pop songs')">
-        <div class="card-cover">🌍</div>
-        <h3>English Pop</h3>
-        <p>Global music</p>
-      </div>
-    </div>
-
-    <h2>Popular Playlists</h2>
+    <h2>Playlists</h2>
     <div class="grid-container" id="playlistGrid"></div>
 
-    <h2>Trending Albums</h2>
+    <h2>Top Albums</h2>
     <div class="grid-container" id="albumGrid"></div>
-
   </section>
 
-  <!-- SEARCH -->
-
+  <!-- Search Page -->
   <section id="searchPage" class="page">
     <h2>Search Music & Audio</h2>
-
     <input
       type="text"
       id="songSearch"
@@ -681,67 +393,49 @@ h2 {
       placeholder="Search songs, artists, playlists..."
       oninput="filterSearch()"
     >
-
     <div class="grid-container" id="searchResults"></div>
   </section>
 
-  <!-- PODCASTS -->
-
+  <!-- Podcasts Page -->
   <section id="podcastsPage" class="page">
     <h2>Popular Podcasts</h2>
     <div class="grid-container" id="podcastGrid"></div>
   </section>
 
-  <!-- LIBRARY -->
-
+  <!-- Library Page -->
   <section id="libraryPage" class="page">
     <h2>Your Saved Library</h2>
     <div class="grid-container" id="libraryGrid"></div>
   </section>
 
-  <!-- PROFILE -->
-
+  <!-- Profile / Auth Page -->
   <section id="profilePage" class="page">
     <h2>Account Profile</h2>
-
     <div class="profile-card">
       <div class="avatar" id="userAvatar">👤</div>
       <h3 id="userName" style="margin-bottom:6px;">Guest User</h3>
-
-      <p id="userEmail" style="color:#64748b;margin-bottom:20px;">
-        Sign in to sync your playlists across devices
-      </p>
-
+      <p id="userEmail" style="color:#64748b; margin-bottom: 20px;">Sign in to sync your playlists across devices</p>
+      
       <div id="g_id_onload"
-        data-client_id="YOUR_GOOGLE_CLIENT_ID"
-        data-callback="handleCredentialResponse">
+           data-client_id="721484485179-lf5o68dkv7fi098nub4rffs1appu0nta.apps.googleusercontent.com"
+           data-callback="handleCredentialResponse">
       </div>
-
-      <div style="display:flex;justify-content:center;"
-        class="g_id_signin"
-        data-type="standard">
-      </div>
+      <div style="display:flex; justify-content:center;" class="g_id_signin" data-type="standard"></div>
     </div>
   </section>
 
+  <!-- Background Player Engine Container -->
   <div id="hiddenAudioContainer">
     <div id="youtubePlayer"></div>
   </div>
-
 </main>
 
-<!-- MINI PLAYER -->
-
+<!-- Bottom Sticky Player -->
 <div class="player">
   <div class="player-inner">
-
-    <div class="now-playing-info" onclick="openFullPlayer()">
+    <div class="now-playing-info">
       <span id="nowPlaying">Select a song or podcast to play</span>
       <span id="timerStatus" class="timer-badge" style="display:none;"></span>
-    </div>
-
-    <div class="mini-progress" onclick="seekFromMini(event)">
-      <div id="miniProgressFill"></div>
     </div>
 
     <div class="controls">
@@ -749,14 +443,11 @@ h2 {
       <button class="main-play" onclick="togglePlay()" id="playButton">▶</button>
       <button onclick="nextSong()">⏭</button>
       <button onclick="openTimerModal()" title="Sleep Timer">⏱️</button>
-      <button onclick="openFullPlayer()" title="Expand Player">⛶</button>
     </div>
-
   </div>
 </div>
 
-<!-- BOTTOM NAVIGATION -->
-
+<!-- Bottom Navigation Bar -->
 <nav class="bottom-nav">
   <button id="nav-home" class="active" onclick="showPage('home')">🏠<span>Home</span></button>
   <button id="nav-search" onclick="showPage('search')">🔍<span>Search</span></button>
@@ -764,125 +455,32 @@ h2 {
   <button id="nav-library" onclick="showPage('library')">🎵<span>Library</span></button>
 </nav>
 
-<!-- FULL PLAYER -->
-
-<div class="full-player" id="fullPlayer">
-
-  <div class="full-player-inner">
-
-    <div class="player-top">
-      <button onclick="closeFullPlayer()">⌄</button>
-      <strong>NOW PLAYING</strong>
-      <button onclick="openMoreMenu()">⋮</button>
-    </div>
-
-    <div class="full-cover" id="fullCover">🎵</div>
-
-    <h2 class="full-title" id="fullTitle">No song selected</h2>
-    <p class="full-artist" id="fullArtist">Choose a song to start listening</p>
-
-    <div class="seek-area">
-      <input type="range" id="seekBar" min="0" max="100" value="0"
-        oninput="seekSong(this.value)">
-
-      <div class="time-labels">
-        <span id="currentTime">0:00</span>
-        <span id="totalTime">0:00</span>
-      </div>
-    </div>
-
-    <div class="full-controls">
-      <button onclick="previousSong()">⏮</button>
-      <button class="main-play" id="fullPlayButton" onclick="togglePlay()">▶</button>
-      <button onclick="nextSong()">⏭</button>
-    </div>
-
-    <div class="player-extra">
-      <button onclick="openLyrics()">📃 Lyrics</button>
-      <button onclick="saveCurrentSong()">♡ Save</button>
-      <button onclick="openMoreMenu()">⋮ More</button>
-    </div>
-
-  </div>
-</div>
-
-<!-- LYRICS -->
-
-<div class="lyrics-panel" id="lyricsPanel">
-  <div class="lyrics-inner">
-    <button class="lyrics-close" onclick="closeLyrics()">← Back</button>
-    <h2 id="lyricsTitle">Song Lyrics</h2>
-    <div class="lyrics-text" id="lyricsText">
-      Select a song to find its lyrics.
-    </div>
-  </div>
-</div>
-
-<!-- SLEEP TIMER -->
-
+<!-- Sleep Timer Modal -->
 <div class="modal" id="timerModal">
   <div class="modal-content">
-    <h3>⏱ Sleep Timer</h3>
+    <h3>Sleep Timer</h3>
     <button onclick="setSleepTimer(15)">15 Minutes</button>
     <button onclick="setSleepTimer(30)">30 Minutes</button>
     <button onclick="setSleepTimer(45)">45 Minutes</button>
     <button onclick="setSleepTimer(60)">60 Minutes</button>
-    <button onclick="cancelSleepTimer()" style="background:#fee2e2;color:#dc2626;">Turn Off</button>
-    <button onclick="closeTimerModal()" style="background:transparent;border:none;color:#64748b;">Close</button>
+    <button onclick="cancelSleepTimer()" style="background:#fee2e2; color:#dc2626;">Turn Off</button>
+    <button onclick="closeTimerModal()" style="background:transparent; border:none; color:#64748b;">Close</button>
   </div>
 </div>
 
-<!-- THREE DOT MENU -->
-
-<div class="modal" id="moreModal">
-  <div class="modal-content">
-    <h3>More Options</h3>
-    <button onclick="saveCurrentSong();closeMoreMenu()">♡ Add to Library</button>
-    <button onclick="openLyrics();closeMoreMenu()">📃 View Lyrics</button>
-    <button onclick="openTimerModal();closeMoreMenu()">⏱ Sleep Timer</button>
-    <button onclick="openRingtoneInfo()">📱 Ringtone / Caller Tune</button>
-    <button onclick="shareCurrentSong()">↗ Share Song</button>
-    <button onclick="closeMoreMenu()" style="background:transparent;border:none;color:#64748b;">Close</button>
-  </div>
-</div>
-
-<!-- RINGTONE INFORMATION -->
-
-<div class="modal" id="ringtoneModal">
-  <div class="modal-content">
-    <h3>📱 Ringtone & Caller Tune</h3>
-
-    <p style="color:#64748b;font-size:14px;line-height:1.7;margin-bottom:15px;">
-      MUSICO uses YouTube playback for music. It cannot directly extract
-      audio from YouTube or set your phone's ringtone or caller tune.
-    </p>
-
-    <p style="color:#64748b;font-size:14px;line-height:1.7;margin-bottom:15px;">
-      To set a ringtone, use a legally obtained audio file and select it
-      through your phone's sound settings. Caller tunes must be activated
-      through your mobile network provider.
-    </p>
-
-    <button onclick="closeRingtoneInfo()">Close</button>
-  </div>
-</div>
+<script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-/* --------------------------------
-   API CONFIGURATION
----------------------------------- */
-
-
-const YOUTUBE_API_KEY = AIzaSyDqi_eQpFxhthmtrF_pOGygTjsuCihneBI
+const YOUTUBE_API_KEY = "AIzaSyDqi_eQpFxhthmtrF_pOGygTjsuCihneBI";
 
 const playlists = [
-  { title: "Telugu Hits", count: "Telugu Music", cover: "🎧" },
-  { title: "Global Top 50", count: "Worldwide Music", cover: "🌍" },
-  { title: "Lo-Fi Beats", count: "Relax & Study", cover: "☕" }
+  { title: "Telugu Hits", count: "Live Stream", cover: "🎧" },
+  { title: "Global Top 50", count: "Live Stream", cover: "🌍" },
+  { title: "Lo-Fi Beats", count: "Live Stream", cover: "☕" }
 ];
 
 const albums = [
-  { title: "Trending Melodies", artist: "Curated Music", cover: "💿" },
+  { title: "Trending Melodies", artist: "Curated", cover: "💿" },
   { title: "Chill Pop", artist: "Global Artists", cover: "🌊" }
 ];
 
@@ -900,746 +498,265 @@ let isPlaying = false;
 let sleepTimerId = null;
 let sleepCountdownId = null;
 let searchTimeout = null;
-let progressInterval = null;
 let deferredPrompt = null;
-let currentSong = null;
 
-let recentSongs = JSON.parse(localStorage.getItem("musicoRecent") || "[]");
-let savedSongs = JSON.parse(localStorage.getItem("musicoLibrary") || "[]");
-
-/* --------------------------------
-   PWA MANIFEST
----------------------------------- */
-
+// PWA Manifest Injector
 const manifestData = {
-  name: "Musico Music & Podcasts",
-  short_name: "Musico",
-  start_url: "./",
-  display: "standalone",
-  background_color: "#ffffff",
-  theme_color: "#2563eb",
-  icons: [{
-    src: "https://img.icons8.com/color/512/audio-wave.png",
-    sizes: "512x512",
-    type: "image/png"
+  "name": "Musico Music & Podcasts",
+  "short_name": "Musico",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [{
+    "src": "https://img.icons8.com/color/512/audio-wave.png",
+    "sizes": "512x512",
+    "type": "image/png"
   }]
 };
+document.getElementById('manifestPlaceholder').setAttribute('href', 'data:application/json;base64,' + btoa(JSON.stringify(manifestData)));
 
-document.getElementById("manifestPlaceholder").setAttribute(
-  "href",
-  "data:application/json;base64," + btoa(JSON.stringify(manifestData))
-);
+// Service Worker for Install & PWA Standalone Mode
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('data:application/javascript;base64,' + btoa(`
+    self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
+    self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
+  `));
+}
 
-/*
-  A service worker must be served from a normal same-origin HTTPS
-  JavaScript file. A data: URL cannot be registered as a service worker.
-  Add a separate service-worker.js later if you want offline support.
-*/
-
-window.addEventListener("beforeinstallprompt", (event) => {
-  event.preventDefault();
-  deferredPrompt = event;
-  document.getElementById("installBtn").style.display = "block";
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBtn').style.display = 'block';
 });
 
-async function installApp() {
-  if (!deferredPrompt) {
-    alert("Install is not available here. Try your browser's Install App option.");
-    return;
-  }
-
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  document.getElementById("installBtn").style.display = "none";
-}
-
-/* --------------------------------
-   HELPER FUNCTIONS
----------------------------------- */
-
-function escapeHTML(value) {
-  return String(value || "").replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[char]);
-}
-
-function formatTime(seconds) {
-  if (!Number.isFinite(seconds)) return "0:00";
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return mins + ":" + String(secs).padStart(2, "0");
-}
-
-function setCover(element, image, fallback = "🎵") {
-  if (!element) return;
-
-  if (image) {
-    element.innerHTML = `<img src="${escapeHTML(image)}" alt="Music artwork"
-      onerror="this.parentElement.textContent='${fallback}'">`;
-  } else {
-    element.textContent = fallback;
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      document.getElementById('installBtn').style.display = 'none';
+    });
   }
 }
 
-/* --------------------------------
-   ARTWORK FROM ITUNES SEARCH
----------------------------------- */
+// Media Session Setup (Key for screen-off/lock-screen background playback)
+function updateMediaSession(song) {
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: song.title,
+      artist: song.artist,
+      album: "Musico Stream",
+      artwork: [{ src: "https://img.icons8.com/color/512/audio-wave.png", sizes: "512x512", type: "image/png" }]
+    });
 
-async function loadArtwork(query, element) {
-  try {
-    const response = await fetch(
-      "https://itunes.apple.com/search?term=" +
-      encodeURIComponent(query) +
-      "&entity=song&limit=1"
-    );
-
-    const data = await response.json();
-
-    if (data.results && data.results.length) {
-      const artwork = data.results[0].artworkUrl100.replace(
-        "100x100bb",
-        "600x600bb"
-      );
-
-      setCover(element, artwork);
-    }
-  } catch (error) {
-    console.log("Artwork unavailable:", error);
+    navigator.mediaSession.setActionHandler('play', () => togglePlay());
+    navigator.mediaSession.setActionHandler('pause', () => togglePlay());
+    navigator.mediaSession.setActionHandler('previoustrack', () => previousSong());
+    navigator.mediaSession.setActionHandler('nexttrack', () => nextSong());
   }
 }
-
-function renderArtworkCards(containerId, items, type) {
-  const container = document.getElementById(containerId);
-
-  container.innerHTML = items.map((item, index) => `
-    <div class="card" onclick="quickSearch('${escapeHTML(item.title)}')">
-      <div class="card-cover" id="${type}Cover${index}">${item.cover}</div>
-      <h3>${escapeHTML(item.title)}</h3>
-      <p>${escapeHTML(item.count || item.artist || "")}</p>
-    </div>
-  `).join("");
-
-  items.forEach((item, index) => {
-    loadArtwork(
-      item.title,
-      document.getElementById(type + "Cover" + index)
-    );
-  });
-}
-
-/* --------------------------------
-   YOUTUBE PLAYER
----------------------------------- */
 
 function onYouTubeIframeAPIReady() {
-  player = new YT.Player("youtubePlayer", {
-    height: "100",
-    width: "100",
-    playerVars: {
-      autoplay: 0,
-      controls: 0,
-      disablekb: 1,
-      iv_load_policy: 3,
-      rel: 0,
-      enablejsapi: 1,
-      playsinline: 1
+  player = new YT.Player('youtubePlayer', {
+    height: '100',
+    width: '100',
+    playerVars: { 
+      'autoplay': 1, 
+      'controls': 0, 
+      'disablekb': 1,
+      'iv_load_policy': 3,
+      'rel': 0,
+      'enablejsapi': 1,
+      'playsinline': 1
     },
-    events: {
-      onReady: () => {
-        startProgressUpdater();
-      },
-      onStateChange: onPlayerStateChange
-    }
+    events: { 'onStateChange': onPlayerStateChange }
   });
 }
 
 function onPlayerStateChange(event) {
-  if (!window.YT) return;
-
   if (event.data === YT.PlayerState.PLAYING) {
     isPlaying = true;
-    updatePlayButtons("Ⅱ");
-
-    if ("mediaSession" in navigator) {
-      navigator.mediaSession.playbackState = "playing";
-    }
-  }
-
-  if (event.data === YT.PlayerState.PAUSED) {
+    document.getElementById('playButton').textContent = 'Ⅱ';
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
+  } else if (event.data === YT.PlayerState.PAUSED) {
     isPlaying = false;
-    updatePlayButtons("▶");
-
-    if ("mediaSession" in navigator) {
-      navigator.mediaSession.playbackState = "paused";
-    }
-  }
-
-  if (event.data === YT.PlayerState.ENDED) {
+    document.getElementById('playButton').textContent = '▶';
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
+  } else if (event.data === YT.PlayerState.ENDED) {
     nextSong();
   }
 }
 
-function updatePlayButtons(symbol) {
-  document.getElementById("playButton").textContent = symbol;
-  document.getElementById("fullPlayButton").textContent = symbol;
-}
-
-/* --------------------------------
-   MEDIA SESSION
----------------------------------- */
-
-function updateMediaSession(song) {
-  if (!("mediaSession" in navigator) || !song) return;
-
-  try {
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: song.title,
-      artist: song.artist,
-      album: "Musico",
-      artwork: song.thumbnail ? [{
-        src: song.thumbnail,
-        sizes: "512x512",
-        type: "image/jpeg"
-      }] : []
-    });
-
-    navigator.mediaSession.setActionHandler("play", () => togglePlay());
-    navigator.mediaSession.setActionHandler("pause", () => togglePlay());
-    navigator.mediaSession.setActionHandler("previoustrack", () => previousSong());
-    navigator.mediaSession.setActionHandler("nexttrack", () => nextSong());
-  } catch (error) {
-    console.log("Media Session unavailable");
-  }
-}
-
-/* --------------------------------
-   NAVIGATION
----------------------------------- */
-
 function showPage(pageId) {
-  document.querySelectorAll(".page").forEach(page => {
-    page.classList.remove("active");
-  });
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
 
-  document.querySelectorAll(".bottom-nav button").forEach(button => {
-    button.classList.remove("active");
-  });
+  const targetPage = document.getElementById(pageId + 'Page');
+  if (targetPage) targetPage.classList.add('active');
 
-  const target = document.getElementById(pageId + "Page");
-  if (target) target.classList.add("active");
+  const activeNav = document.getElementById('nav-' + pageId);
+  if (activeNav) activeNav.classList.add('active');
 
-  const nav = document.getElementById("nav-" + pageId);
-  if (nav) nav.classList.add("active");
-
-  if (pageId === "search") {
-    document.getElementById("songSearch").focus();
-  }
-
-  if (pageId === "library") {
-    renderLibrary();
-  }
+  if (pageId === 'search') document.getElementById('songSearch').focus();
 }
-
-/* --------------------------------
-   HOME DASHBOARD
----------------------------------- */
 
 function renderDashboard() {
-  renderArtworkCards("playlistGrid", playlists, "playlist");
-  renderArtworkCards("albumGrid", albums, "album");
-
-  document.getElementById("podcastGrid").innerHTML = podcasts.map(pod => `
-    <div class="card" onclick="quickSearch('${escapeHTML(pod.title + " podcast")}')">
-      <div class="card-cover">${pod.cover}</div>
-      <h3>${escapeHTML(pod.title)}</h3>
-      <p>${escapeHTML(pod.host)}</p>
+  document.getElementById('playlistGrid').innerHTML = playlists.map(p => `
+    <div class="card" onclick="quickSearch('${p.title}')">
+      <div class="card-cover">${p.cover}</div>
+      <h3>${p.title}</h3>
+      <p>${p.count}</p>
     </div>
-  `).join("");
+  `).join('');
 
-  renderRecentSongs();
-  renderLibrary();
+  document.getElementById('albumGrid').innerHTML = albums.map(a => `
+    <div class="card" onclick="quickSearch('${a.title}')">
+      <div class="card-cover">${a.cover}</div>
+      <h3>${a.title}</h3>
+      <p>${a.artist}</p>
+    </div>
+  `).join('');
+
+  document.getElementById('podcastGrid').innerHTML = podcasts.map(pod => `
+    <div class="card" onclick="quickSearch('${pod.title} podcast')">
+      <div class="card-cover" style="background: linear-gradient(135deg, #1d4ed8, #0ea5e9);">${pod.cover}</div>
+      <h3>${pod.title}</h3>
+      <p>${pod.host}</p>
+    </div>
+  `).join('');
 }
 
 function quickSearch(query) {
-  showPage("search");
-  document.getElementById("songSearch").value = query;
+  showPage('search');
+  document.getElementById('songSearch').value = query;
   filterSearch();
 }
 
-/* --------------------------------
-   YOUTUBE SEARCH
----------------------------------- */
-
 function filterSearch() {
-  const query = document.getElementById("songSearch").value.trim();
-
+  const query = document.getElementById('songSearch').value.trim();
   clearTimeout(searchTimeout);
-
+  
   if (!query) {
-    document.getElementById("searchResults").innerHTML =
-      '<p class="empty-message">Search songs, podcasts, or artists...</p>';
+    document.getElementById('searchResults').innerHTML = '<p style="color:#64748b;">Search songs, podcasts, or artists...</p>';
     return;
   }
 
   searchTimeout = setTimeout(async () => {
     try {
-      const container = document.getElementById("searchResults");
-
-      if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "YOUR_YOUTUBE_API_KEY") {
-        container.innerHTML =
-          '<p style="color:#dc2626;">Add your YouTube API key in the JavaScript configuration first.</p>';
-        return;
-      }
-
-      container.innerHTML =
-        '<p style="color:#2563eb;">Searching music...</p>';
-
-      const url =
-        "https://www.googleapis.com/youtube/v3/search" +
-        "?part=snippet&q=" + encodeURIComponent(query) +
-        "&type=video&videoCategoryId=10&maxResults=15" +
-        "&key=" + encodeURIComponent(YOUTUBE_API_KEY);
-
+      document.getElementById('searchResults').innerHTML = '<p style="color:#2563eb;">Searching...</p>';
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=10&key=${YOUTUBE_API_KEY}`;
+      
       const response = await fetch(url);
       const data = await response.json();
 
       if (data.error) {
-        container.innerHTML =
-          `<p style="color:#dc2626;">${escapeHTML(data.error.message)}</p>`;
+        document.getElementById('searchResults').innerHTML = `<p style="color:#dc2626;">Error: ${data.error.message}</p>`;
         return;
       }
 
-      currentPlaylist = (data.items || [])
-        .filter(item => item.id && item.id.videoId)
-        .map(item => ({
-          videoId: item.id.videoId,
-          title: item.snippet.title,
-          artist: item.snippet.channelTitle,
-          thumbnail:
-            item.snippet.thumbnails.high?.url ||
-            item.snippet.thumbnails.medium?.url ||
-            item.snippet.thumbnails.default?.url,
-          cover: "🎵"
-        }));
+      currentPlaylist = data.items.map(item => ({
+        videoId: item.id.videoId,
+        title: item.snippet.title,
+        artist: item.snippet.channelTitle,
+        cover: "🎵"
+      }));
 
       renderDynamicSearchResults(currentPlaylist);
-
     } catch (error) {
-      document.getElementById("searchResults").innerHTML =
-        '<p style="color:#dc2626;">Failed to search. Check your internet connection and API key.</p>';
+      document.getElementById('searchResults').innerHTML = '<p style="color:#dc2626;">Failed to search audio tracks.</p>';
     }
   }, 500);
 }
 
 function renderDynamicSearchResults(list) {
-  const container = document.getElementById("searchResults");
-
+  const container = document.getElementById('searchResults');
   if (!list.length) {
-    container.innerHTML =
-      '<p class="empty-message">No results found.</p>';
+    container.innerHTML = '<p style="color:#64748b;">No results found.</p>';
     return;
   }
-
+  
   container.innerHTML = list.map((song, index) => `
     <div class="card" onclick="playDynamicSong(${index})">
-      <div class="card-cover">
-        <img src="${escapeHTML(song.thumbnail)}" alt="Song thumbnail">
-      </div>
-      <h3>${escapeHTML(song.title)}</h3>
-      <p>${escapeHTML(song.artist)}</p>
+      <div class="card-cover">${song.cover}</div>
+      <h3>${song.title}</h3>
+      <p>${song.artist}</p>
     </div>
-  `).join("");
+  `).join('');
 }
-
-/* --------------------------------
-   PLAY SONG
----------------------------------- */
 
 function playDynamicSong(index) {
   if (index < 0 || index >= currentPlaylist.length) return;
-
+  
   currentIndex = index;
-  playSong(currentPlaylist[index]);
-}
+  const song = currentPlaylist[currentIndex];
 
-function playSong(song) {
-  if (!song || !song.videoId) return;
-
-  currentSong = song;
-
-  if (!player || typeof player.loadVideoById !== "function") {
-    alert("Music player is still loading. Please try again.");
-    return;
+  if (player && typeof player.loadVideoById === 'function') {
+    player.loadVideoById(song.videoId);
+    player.playVideo();
+    document.getElementById('nowPlaying').textContent = `🎵 ${song.title}`;
+    updateMediaSession(song);
   }
-
-  player.loadVideoById(song.videoId);
-  player.playVideo();
-
-  document.getElementById("nowPlaying").textContent =
-    "🎵 " + song.title;
-
-  document.getElementById("fullTitle").textContent = song.title;
-  document.getElementById("fullArtist").textContent = song.artist;
-
-  setCover(
-    document.getElementById("fullCover"),
-    song.thumbnail,
-    "🎵"
-  );
-
-  updateMediaSession(song);
-  addToRecent(song);
 }
 
 function togglePlay() {
-  if (!player || typeof player.getPlayerState !== "function") {
-    alert("Player is loading. Please try again.");
-    return;
-  }
-
-  if (!currentSong && currentPlaylist.length) {
+  if (currentIndex === -1 && currentPlaylist.length > 0) {
     playDynamicSong(0);
     return;
   }
-
-  const state = player.getPlayerState();
-
-  if (state === YT.PlayerState.PLAYING) {
-    player.pauseVideo();
-  } else if (currentSong) {
-    player.playVideo();
+  
+  if (player && typeof player.getPlayerState === 'function') {
+    const state = player.getPlayerState();
+    if (state === YT.PlayerState.PLAYING) {
+      player.pauseVideo();
+    } else {
+      player.playVideo();
+    }
   }
 }
 
 function nextSong() {
   if (!currentPlaylist.length) return;
-
-  let next = currentIndex + 1;
-  if (next >= currentPlaylist.length) next = 0;
-
-  playDynamicSong(next);
+  playDynamicSong((currentIndex + 1) % currentPlaylist.length);
 }
 
 function previousSong() {
   if (!currentPlaylist.length) return;
-
-  let previous = currentIndex - 1;
-  if (previous < 0) previous = currentPlaylist.length - 1;
-
-  playDynamicSong(previous);
+  playDynamicSong((currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length);
 }
 
-/* --------------------------------
-   RECENTLY PLAYED
----------------------------------- */
-
-function addToRecent(song) {
-  recentSongs = recentSongs.filter(item => item.videoId !== song.videoId);
-  recentSongs.unshift(song);
-  recentSongs = recentSongs.slice(0, 10);
-
-  localStorage.setItem("musicoRecent", JSON.stringify(recentSongs));
-  renderRecentSongs();
-}
-
-function renderRecentSongs() {
-  const container = document.getElementById("recentGrid");
-
-  if (!recentSongs.length) {
-    container.innerHTML =
-      '<p class="empty-message">Your recently played songs will appear here.</p>';
-    return;
-  }
-
-  container.innerHTML = recentSongs.map((song, index) => `
-    <div class="card" onclick="playRecentSong(${index})">
-      <div class="card-cover">
-        <img src="${escapeHTML(song.thumbnail)}" alt="Song artwork">
-      </div>
-      <h3>${escapeHTML(song.title)}</h3>
-      <p>${escapeHTML(song.artist)}</p>
-    </div>
-  `).join("");
-}
-
-function playRecentSong(index) {
-  const song = recentSongs[index];
-  if (!song) return;
-
-  currentPlaylist = recentSongs.slice();
-  currentIndex = index;
-  playSong(song);
-}
-
-/* --------------------------------
-   LIBRARY / SAVED SONGS
----------------------------------- */
-
-function saveCurrentSong() {
-  if (!currentSong) {
-    alert("Play a song first.");
-    return;
-  }
-
-  const exists = savedSongs.some(
-    song => song.videoId === currentSong.videoId
-  );
-
-  if (exists) {
-    alert("This song is already in your Library.");
-    return;
-  }
-
-  savedSongs.unshift(currentSong);
-  localStorage.setItem("musicoLibrary", JSON.stringify(savedSongs));
-
-  renderLibrary();
-  alert("Song added to your Library!");
-}
-
-function renderLibrary() {
-  const container = document.getElementById("libraryGrid");
-
-  if (!container) return;
-
-  if (!savedSongs.length) {
-    container.innerHTML =
-      '<p class="empty-message">Your saved songs will appear here. Use the Save button while playing music.</p>';
-    return;
-  }
-
-  container.innerHTML = savedSongs.map((song, index) => `
-    <div class="card" onclick="playSavedSong(${index})">
-      <div class="card-cover">
-        <img src="${escapeHTML(song.thumbnail)}" alt="Song artwork">
-      </div>
-      <h3>${escapeHTML(song.title)}</h3>
-      <p>${escapeHTML(song.artist)}</p>
-    </div>
-  `).join("");
-}
-
-function playSavedSong(index) {
-  const song = savedSongs[index];
-  if (!song) return;
-
-  currentPlaylist = savedSongs.slice();
-  currentIndex = index;
-  playSong(song);
-}
-
-/* --------------------------------
-   EXPANDABLE PLAYER
----------------------------------- */
-
-function openFullPlayer() {
-  if (!currentSong) {
-    alert("Select a song first.");
-    return;
-  }
-
-  document.getElementById("fullPlayer").classList.add("active");
-}
-
-function closeFullPlayer() {
-  document.getElementById("fullPlayer").classList.remove("active");
-}
-
-function startProgressUpdater() {
-  if (progressInterval) clearInterval(progressInterval);
-
-  progressInterval = setInterval(() => {
-    if (!player || typeof player.getCurrentTime !== "function") return;
-
-    try {
-      const current = player.getCurrentTime() || 0;
-      const duration = player.getDuration() || 0;
-
-      const percentage = duration > 0 ? (current / duration) * 100 : 0;
-
-      document.getElementById("seekBar").value = percentage;
-      document.getElementById("currentTime").textContent = formatTime(current);
-      document.getElementById("totalTime").textContent = formatTime(duration);
-
-      document.getElementById("miniProgressFill").style.width =
-        percentage + "%";
-    } catch (error) {
-      // Player may not be ready yet.
-    }
-  }, 1000);
-}
-
-function seekSong(value) {
-  if (!player || typeof player.getDuration !== "function") return;
-
-  const duration = player.getDuration();
-  if (duration > 0) {
-    player.seekTo((Number(value) / 100) * duration, true);
+function handleCredentialResponse(response) {
+  const base64Url = response.credential.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+  
+  const user = JSON.parse(jsonPayload);
+  document.getElementById('userName').textContent = user.name;
+  document.getElementById('userEmail').textContent = user.email;
+  if(user.picture) {
+    document.getElementById('userAvatar').innerHTML = `<img src="${user.picture}" style="width:100%; height:100%; border-radius:50%;">`;
   }
 }
 
-function seekFromMini(event) {
-  if (!player || typeof player.getDuration !== "function") return;
-
-  const duration = player.getDuration();
-  const rect = event.currentTarget.getBoundingClientRect();
-  const percentage = (event.clientX - rect.left) / rect.width;
-
-  if (duration > 0) {
-    player.seekTo(Math.max(0, Math.min(1, percentage)) * duration, true);
-  }
-}
-
-/* --------------------------------
-   LYRICS USING LRCLIB
----------------------------------- */
-
-async function openLyrics() {
-  if (!currentSong) {
-    alert("Play a song first.");
-    return;
-  }
-
-  document.getElementById("lyricsPanel").classList.add("active");
-  document.getElementById("lyricsTitle").textContent =
-    currentSong.title + " - Lyrics";
-
-  const lyricsBox = document.getElementById("lyricsText");
-  lyricsBox.textContent = "Searching for lyrics...";
-
-  try {
-    const url =
-      "https://lrclib.net/api/search?track_name=" +
-      encodeURIComponent(currentSong.title) +
-      "&artist_name=" +
-      encodeURIComponent(currentSong.artist);
-
-    const response = await fetch(url);
-
-    if (!response.ok) throw new Error("Lyrics unavailable");
-
-    const results = await response.json();
-
-    const match = results.find(item =>
-      item.plainLyrics || item.syncedLyrics
-    );
-
-    if (match) {
-      lyricsBox.textContent =
-        match.plainLyrics ||
-        match.syncedLyrics.replace(/\[\d+:\d+\.\d+\]/g, "");
-    } else {
-      lyricsBox.textContent =
-        "Lyrics are not available for this song right now.";
-    }
-
-  } catch (error) {
-    lyricsBox.textContent =
-      "Could not load lyrics. Try again later.";
-  }
-}
-
-function closeLyrics() {
-  document.getElementById("lyricsPanel").classList.remove("active");
-}
-
-/* --------------------------------
-   THREE DOT MENU
----------------------------------- */
-
-function openMoreMenu() {
-  if (!currentSong) {
-    alert("Play a song first.");
-    return;
-  }
-
-  document.getElementById("moreModal").style.display = "grid";
-}
-
-function closeMoreMenu() {
-  document.getElementById("moreModal").style.display = "none";
-}
-
-function openRingtoneInfo() {
-  closeMoreMenu();
-  document.getElementById("ringtoneModal").style.display = "grid";
-}
-
-function closeRingtoneInfo() {
-  document.getElementById("ringtoneModal").style.display = "none";
-}
-
-async function shareCurrentSong() {
-  if (!currentSong) return;
-
-  const url = "https://www.youtube.com/watch?v=" + currentSong.videoId;
-
-  try {
-    if (navigator.share) {
-      await navigator.share({
-        title: currentSong.title,
-        text: "Listen to this song on MUSICO",
-        url: url
-      });
-    } else if (navigator.clipboard) {
-      await navigator.clipboard.writeText(url);
-      alert("Song link copied!");
-    } else {
-      alert(url);
-    }
-  } catch (error) {
-    console.log("Share cancelled.");
-  }
-}
-
-/* --------------------------------
-   SLEEP TIMER
----------------------------------- */
-
-function openTimerModal() {
-  document.getElementById("timerModal").style.display = "grid";
-}
-
-function closeTimerModal() {
-  document.getElementById("timerModal").style.display = "none";
-}
+function openTimerModal() { document.getElementById('timerModal').style.display = 'grid'; }
+function closeTimerModal() { document.getElementById('timerModal').style.display = 'none'; }
 
 function setSleepTimer(minutes) {
   cancelSleepTimer();
-
   let duration = minutes * 60;
+  const badge = document.getElementById('timerStatus');
+  badge.style.display = 'inline-block';
 
-  const badge = document.getElementById("timerStatus");
-  badge.style.display = "inline-block";
-
-  const updateCountdown = () => {
+  sleepCountdownId = setInterval(() => {
+    duration--;
     const m = Math.floor(duration / 60);
     const s = duration % 60;
-
-    badge.textContent =
-      "⏱ " + m + ":" + String(s).padStart(2, "0");
-
-    duration--;
-
-    if (duration < 0) {
-      clearInterval(sleepCountdownId);
-    }
-  };
-
-  updateCountdown();
-
-  sleepCountdownId = setInterval(updateCountdown, 1000);
+    badge.textContent = `⏱ ${m}:${s < 10 ? '0' : ''}${s}`;
+    if (duration <= 0) clearInterval(sleepCountdownId);
+  }, 1000);
 
   sleepTimerId = setTimeout(() => {
-    if (player && typeof player.pauseVideo === "function") {
-      player.pauseVideo();
-    }
-
+    if (player && typeof player.pauseVideo === 'function') player.pauseVideo();
     cancelSleepTimer();
   }, minutes * 60 * 1000);
 
@@ -1649,52 +766,11 @@ function setSleepTimer(minutes) {
 function cancelSleepTimer() {
   if (sleepTimerId) clearTimeout(sleepTimerId);
   if (sleepCountdownId) clearInterval(sleepCountdownId);
-
-  sleepTimerId = null;
-  sleepCountdownId = null;
-
-  document.getElementById("timerStatus").style.display = "none";
+  document.getElementById('timerStatus').style.display = 'none';
   closeTimerModal();
 }
 
-/* --------------------------------
-   GOOGLE SIGN-IN
----------------------------------- */
-
-function handleCredentialResponse(response) {
-  try {
-    const base64Url = response.credential.split(".")[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-
-    const jsonPayload = decodeURIComponent(
-      window.atob(base64).split("").map(char =>
-        "%" + ("00" + char.charCodeAt(0).toString(16)).slice(-2)
-      ).join("")
-    );
-
-    const user = JSON.parse(jsonPayload);
-
-    document.getElementById("userName").textContent = user.name;
-    document.getElementById("userEmail").textContent = user.email;
-
-    if (user.picture) {
-      document.getElementById("userAvatar").innerHTML =
-        `<img src="${escapeHTML(user.picture)}" alt="Profile picture">`;
-    }
-  } catch (error) {
-    alert("Unable to sign in. Please try again.");
-  }
-}
-
-/* --------------------------------
-   INITIALIZE
----------------------------------- */
-
 renderDashboard();
-
-document.getElementById("searchResults").innerHTML =
-  '<p class="empty-message">Search for your favourite songs and artists.</p>';
-
 </script>
 
 </body>
