@@ -149,6 +149,13 @@ h2 {
   font-size: 40px;
   color: white;
   margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.card-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .card h3 {
@@ -377,10 +384,10 @@ h2 {
   <!-- Home Page -->
   <section id="homePage" class="page active">
     <h2>Playlists</h2>
-    <div class="grid-container" id="playlistGrid"></div>
+    <div class="grid-container" id="playlistGrid">Loading backend data...</div>
 
     <h2>Top Albums</h2>
-    <div class="grid-container" id="albumGrid"></div>
+    <div class="grid-container" id="albumGrid">Loading backend data...</div>
   </section>
 
   <!-- Search Page -->
@@ -399,7 +406,7 @@ h2 {
   <!-- Podcasts Page -->
   <section id="podcastsPage" class="page">
     <h2>Popular Podcasts</h2>
-    <div class="grid-container" id="podcastGrid"></div>
+    <div class="grid-container" id="podcastGrid">Loading backend data...</div>
   </section>
 
   <!-- Library Page -->
@@ -472,25 +479,9 @@ h2 {
 
 <script>
 const YOUTUBE_API_KEY = "AIzaSyDqi_eQpFxhthmtrF_pOGygTjsuCihneBI";
+const BACKEND_API_URL = "https://api.npoint.io/86675fb8ce6a181df0ae";
 
-const playlists = [
-  { title: "Telugu Hits", count: "Live Stream", cover: "🎧" },
-  { title: "Global Top 50", count: "Live Stream", cover: "🌍" },
-  { title: "Lo-Fi Beats", count: "Live Stream", cover: "☕" }
-];
-
-const albums = [
-  { title: "Trending Melodies", artist: "Curated", cover: "💿" },
-  { title: "Chill Pop", artist: "Global Artists", cover: "🌊" }
-];
-
-const podcasts = [
-  { title: "The Ranveer Show", host: "BeerBiceps", cover: "🎙️" },
-  { title: "TED Radio Hour", host: "NPR", cover: "💡" },
-  { title: "Huberman Lab", host: "Andrew Huberman", cover: "🧠" },
-  { title: "Telugu Crime Stories", host: "Podcasts", cover: "🔍" }
-];
-
+let backendData = { playlists: [], albums: [], podcasts: [] };
 let player;
 let currentPlaylist = [];
 let currentIndex = -1;
@@ -540,14 +531,30 @@ function installApp() {
   }
 }
 
+// Fetch Backend Catalog Data on Load
+async function fetchBackendData() {
+  try {
+    const response = await fetch(BACKEND_API_URL);
+    if (!response.ok) throw new Error('Network response was not ok');
+    backendData = await response.json();
+    console.log("✅ Successfully connected to Backend API!", backendData);
+    renderDashboard();
+  } catch (error) {
+    console.error("❌ Failed to connect to Backend API:", error);
+    document.getElementById('playlistGrid').innerHTML = '<p style="color:#dc2626;">Failed to load playlists from backend.</p>';
+    document.getElementById('albumGrid').innerHTML = '<p style="color:#dc2626;">Failed to load albums from backend.</p>';
+    document.getElementById('podcastGrid').innerHTML = '<p style="color:#dc2626;">Failed to load podcasts from backend.</p>';
+  }
+}
+
 // Media Session Setup (Key for screen-off/lock-screen background playback)
 function updateMediaSession(song) {
   if ('mediaSession' in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: song.title,
-      artist: song.artist,
+      artist: song.artist || song.host || "Musico Stream",
       album: "Musico Stream",
-      artwork: [{ src: "https://img.icons8.com/color/512/audio-wave.png", sizes: "512x512", type: "image/png" }]
+      artwork: [{ src: song.coverImg || "https://img.icons8.com/color/512/audio-wave.png", sizes: "512x512", type: "image/png" }]
     });
 
     navigator.mediaSession.setActionHandler('play', () => togglePlay());
@@ -602,29 +609,80 @@ function showPage(pageId) {
 }
 
 function renderDashboard() {
-  document.getElementById('playlistGrid').innerHTML = playlists.map(p => `
-    <div class="card" onclick="quickSearch('${p.title}')">
-      <div class="card-cover">${p.cover}</div>
-      <h3>${p.title}</h3>
-      <p>${p.count}</p>
-    </div>
-  `).join('');
+  // Render Playlists from Backend
+  const playlistGrid = document.getElementById('playlistGrid');
+  if (backendData.playlists && backendData.playlists.length > 0) {
+    playlistGrid.innerHTML = backendData.playlists.map((p, idx) => `
+      <div class="card" onclick="playBackendItem('playlists', ${idx})">
+        <div class="card-cover">
+          ${p.coverImg ? `<img src="${p.coverImg}" alt="${p.title}">` : (p.cover || '🎧')}
+        </div>
+        <h3>${p.title}</h3>
+        <p>${p.artist || p.count || 'Stream'}</p>
+      </div>
+    `).join('');
+  } else {
+    playlistGrid.innerHTML = '<p style="color:#64748b;">No playlists available.</p>';
+  }
 
-  document.getElementById('albumGrid').innerHTML = albums.map(a => `
-    <div class="card" onclick="quickSearch('${a.title}')">
-      <div class="card-cover">${a.cover}</div>
-      <h3>${a.title}</h3>
-      <p>${a.artist}</p>
-    </div>
-  `).join('');
+  // Render Albums from Backend
+  const albumGrid = document.getElementById('albumGrid');
+  if (backendData.albums && backendData.albums.length > 0) {
+    albumGrid.innerHTML = backendData.albums.map((a, idx) => `
+      <div class="card" onclick="playBackendItem('albums', ${idx})">
+        <div class="card-cover">
+          ${a.coverImg ? `<img src="${a.coverImg}" alt="${a.title}">` : (a.cover || '💿')}
+        </div>
+        <h3>${a.title}</h3>
+        <p>${a.artist || 'Album'}</p>
+      </div>
+    `).join('');
+  } else {
+    albumGrid.innerHTML = '<p style="color:#64748b;">No albums available.</p>';
+  }
 
-  document.getElementById('podcastGrid').innerHTML = podcasts.map(pod => `
-    <div class="card" onclick="quickSearch('${pod.title} podcast')">
-      <div class="card-cover" style="background: linear-gradient(135deg, #1d4ed8, #0ea5e9);">${pod.cover}</div>
-      <h3>${pod.title}</h3>
-      <p>${pod.host}</p>
-    </div>
-  `).join('');
+  // Render Podcasts from Backend
+  const podcastGrid = document.getElementById('podcastGrid');
+  if (backendData.podcasts && backendData.podcasts.length > 0) {
+    podcastGrid.innerHTML = backendData.podcasts.map((pod, idx) => `
+      <div class="card" onclick="playBackendItem('podcasts', ${idx})">
+        <div class="card-cover" style="background: linear-gradient(135deg, #1d4ed8, #0ea5e9);">
+          ${pod.coverImg ? `<img src="${pod.coverImg}" alt="${pod.title}">` : (pod.cover || '🎙️')}
+        </div>
+        <h3>${pod.title}</h3>
+        <p>${pod.host || 'Podcast'}</p>
+      </div>
+    `).join('');
+  } else {
+    podcastGrid.innerHTML = '<p style="color:#64748b;">No podcasts available.</p>';
+  }
+}
+
+function playBackendItem(type, index) {
+  const list = backendData[type];
+  if (!list || !list[index]) return;
+  
+  const item = list[index];
+  currentPlaylist = list;
+  currentIndex = index;
+
+  if (item.videoId) {
+    if (player && typeof player.loadVideoById === 'function') {
+      player.loadVideoById(item.videoId);
+      player.playVideo();
+    }
+  } else if (item.audioUrl) {
+    // Fallback support if using direct audio urls (like SoundHelix or mp3 links)
+    const audio = new Audio(item.audioUrl);
+    audio.play();
+  } else {
+    // Fallback: trigger quick search if no direct video/audio id is configured
+    quickSearch(item.title);
+    return;
+  }
+
+  document.getElementById('nowPlaying').textContent = `🎵 ${item.title}`;
+  updateMediaSession(item);
 }
 
 function quickSearch(query) {
@@ -659,7 +717,7 @@ function filterSearch() {
         videoId: item.id.videoId,
         title: item.snippet.title,
         artist: item.snippet.channelTitle,
-        cover: "🎵"
+        coverImg: item.snippet.thumbnails.default.url
       }));
 
       renderDynamicSearchResults(currentPlaylist);
@@ -678,7 +736,9 @@ function renderDynamicSearchResults(list) {
   
   container.innerHTML = list.map((song, index) => `
     <div class="card" onclick="playDynamicSong(${index})">
-      <div class="card-cover">${song.cover}</div>
+      <div class="card-cover">
+        <img src="${song.coverImg}" alt="${song.title}">
+      </div>
       <h3>${song.title}</h3>
       <p>${song.artist}</p>
     </div>
@@ -770,7 +830,8 @@ function cancelSleepTimer() {
   closeTimerModal();
 }
 
-renderDashboard();
+// Initialize Backend Data Fetch on Load
+fetchBackendData();
 </script>
 
 </body>
