@@ -252,10 +252,10 @@ async function loadTrending() {
     trendList = data.items.map(toSong).filter(s => s.id);
     renderGrid(el, trendList, 'trend');
   } catch (e) {
-    // Fallback static list so home always has music if quota hits
     trendList = [
       { id: "3JZ_D3ELwOQ", title: "Telugu Melodies Mix", artist: "Musico Stream", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
-      { id: "jfKfPfyJRdk", title: "Lo-Fi Beats Chill", artist: "Musico Live", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500" }
+      { id: "jfKfPfyJRdk", title: "Lo-Fi Beats Chill", artist: "Musico Live", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500" },
+      { id: "5qap5aO4i9A", title: "Telugu Mass Songs", artist: "Musico Hits", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500" }
     ];
     renderGrid(el, trendList, 'trend');
   }
@@ -271,14 +271,33 @@ async function runSearch() {
     searchList = data.items.map(toSong).filter(s => s.id);
     renderGrid(el, searchList, 'search', 'No songs found.');
   } catch (e) {
-    // Fallback local search matching query against trending/default lists when quota exceeds
+    // Fallback: If YouTube search quota is hit, query a rich local catalog or fetch direct search results safely
+    try {
+      const fallbackRes = await fetch(`https://invidious.jing.rocks/api/v1/search?q=${encodeURIComponent(q)}&type=video`);
+      const fallbackData = await fallbackRes.json();
+      searchList = fallbackData.map(i => ({
+        id: i.videoId,
+        title: decode(i.title),
+        artist: decode(i.author),
+        coverImg: i.videoThumbnails && i.videoThumbnails[0] ? i.videoThumbnails[0].url : ''
+      })).filter(s => s.id);
+
+      if (searchList.length > 0) {
+        renderGrid(el, searchList, 'search');
+        return;
+      }
+    } catch (err) {
+      console.error('Fallback search error:', err);
+    }
+
+    // Final local filter backup
     const allKnown = [...trendList, ...library, ...recent];
     searchList = allKnown.filter(s => s.title.toLowerCase().includes(q.toLowerCase()) || s.artist.toLowerCase().includes(q.toLowerCase()));
     if (searchList.length > 0) {
       renderGrid(el, searchList, 'search');
-      toast('API quota limit reached. Showing local matches.');
+      toast('Showing matching tracks from cache.');
     } else {
-      el.innerHTML = `<p class="empty">Daily YouTube search quota exceeded. Try playing from Home or Library.</p>`;
+      el.innerHTML = `<p class="empty">Unable to fetch online search results at the moment. Try selecting from Home!</p>`;
     }
   }
 }
