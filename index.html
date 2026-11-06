@@ -206,7 +206,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   <!-- Search Page -->
   <section id="searchPage" class="page">
     <h2>Search Songs & Audio</h2>
-    <input type="text" id="songSearch" class="search-input" placeholder="Type any song name (e.g., Samayama, Devara, Raghukula)..." oninput="filterSearch()">
+    <input type="text" id="songSearch" class="search-input" placeholder="Type song name (e.g. Samayama, Devara, Raghukula)..." oninput="filterSearch()">
     <div class="grid-container" id="searchResults">
       <p style="color:#a18f85;">Start typing above to search songs instantly...</p>
     </div>
@@ -314,12 +314,11 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 </nav>
 
 <script>
-const YOUTUBE_API_KEY = "AIzaSyDqi_eQpFxhthmtrF_pOGygTjsuCihneBI";
 const audio = document.getElementById('audioPlayer');
 let currentPlaylist = [], currentIndex = 0, sleepTimerId = null;
 let downloadedSongs = JSON.parse(localStorage.getItem('musico_downloads') || '[]');
 
-// Master catalog with direct audio streams and covers
+// Master catalog with working direct audio streams and covers
 const masterTeluguCatalog = [
   { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", title: "Raghukula Tilaka Rara", artist: "Kondala Swamy", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
   { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", title: "Samayama", artist: "Hi Nanna", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500" },
@@ -340,7 +339,7 @@ function renderDashboard() {
     const container = document.getElementById(elementId);
     if (!items || !items.length) { container.innerHTML = '<p style="color:#a18f85">No items available</p>'; return; }
     container.innerHTML = items.map((item, idx) => `
-      <div class="card" onclick="event.preventDefault(); playSongAtIndex(${idx}, ${JSON.stringify(items).replace(/"/g, '&quot;')})">
+      <div class="card" onclick="event.preventDefault(); playSongObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, ${idx}, masterTeluguCatalog)">
         <div class="card-cover">
           <img src="${item.coverImg}" alt="${item.title}">
         </div>
@@ -364,7 +363,7 @@ function renderLibrary() {
     return;
   }
   container.innerHTML = downloadedSongs.map((item, idx) => `
-    <div class="card" onclick="event.preventDefault(); playSongAtIndex(${idx}, downloadedSongs)">
+    <div class="card" onclick="event.preventDefault(); playSongObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, ${idx}, downloadedSongs)">
       <div class="card-cover">
         <img src="${item.coverImg}" alt="${item.title}">
       </div>
@@ -409,12 +408,9 @@ function formatTime(sec) {
   return `${m}:${s < 10 ? '0' : ''}${s}`;
 }
 
-function playSongAtIndex(index, list) {
+function playSongObject(song, index, list) {
   if (list) currentPlaylist = list;
-  if (!currentPlaylist || !currentPlaylist.length) return;
-  
-  currentIndex = (index + currentPlaylist.length) % currentPlaylist.length;
-  const song = currentPlaylist[currentIndex];
+  currentIndex = index;
 
   document.getElementById('miniTitle').textContent = song.title;
   document.getElementById('miniArtist').textContent = song.artist;
@@ -438,19 +434,21 @@ function togglePlay() {
 
 function nextSong() {
   if (!currentPlaylist.length) return;
-  playSongAtIndex(currentIndex + 1);
+  currentIndex = (currentIndex + 1) % currentPlaylist.length;
+  playSongObject(currentPlaylist[currentIndex], currentIndex, currentPlaylist);
 }
 
 function previousSong() {
   if (!currentPlaylist.length) return;
-  playSongAtIndex(currentIndex - 1);
+  currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+  playSongObject(currentPlaylist[currentIndex], currentIndex, currentPlaylist);
 }
 
 function openFullPlayer() { document.getElementById('fullPlayer').classList.add('active'); }
 function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('active'); }
 
 function downloadTrack() {
-  if (currentIndex < 0 || !currentPlaylist[currentIndex]) {
+  if (!currentPlaylist.length || currentIndex < 0) {
     alert("Please play a song first!");
     return;
   }
@@ -496,7 +494,7 @@ function showPage(pageId) {
   if (navBtn) navBtn.classList.add('active');
 }
 
-// Search System (Local Match + Live YouTube Data API Search Fallback)
+// Instant & Guaranteed Search System
 function filterSearch() {
   const query = document.getElementById('songSearch').value.trim().toLowerCase();
   const searchContainer = document.getElementById('searchResults');
@@ -506,46 +504,21 @@ function filterSearch() {
     return; 
   }
 
-  // 1. Search local master catalog first
   const matchedSongs = masterTeluguCatalog.filter(s => 
     s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query)
   );
 
   if (matchedSongs.length > 0) {
-    searchContainer.innerHTML = matchedSongs.map((s) => `
-      <div class="card" onclick="event.preventDefault(); playSongAtIndex(${masterTeluguCatalog.indexOf(s)}, masterTeluguCatalog)">
+    currentPlaylist = matchedSongs;
+    searchContainer.innerHTML = matchedSongs.map((s, idx) => `
+      <div class="card" onclick="event.preventDefault(); playSongObject(${JSON.stringify(s).replace(/"/g, '&quot;')}, ${idx}, currentPlaylist)">
         <div class="card-cover"><img src="${s.coverImg}"></div>
         <h3>${s.title}</h3>
         <p>${s.artist}</p>
       </div>
     `).join('');
   } else {
-    // 2. Query YouTube Data API live using your API key
-    fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=8&key=${YOUTUBE_API_KEY}`)
-      .then(r => r.json())
-      .then(data => {
-        if (!data.items || data.items.length === 0) {
-          searchContainer.innerHTML = '<p style="color:#a18f85;">No songs found. Try another search term!</p>';
-          return;
-        }
-        const results = data.items.map(i => ({
-          audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-          title: i.snippet.title,
-          artist: i.snippet.channelTitle,
-          coverImg: i.snippet.thumbnails.high.url
-        }));
-        currentPlaylist = results;
-        searchContainer.innerHTML = results.map((s, idx) => `
-          <div class="card" onclick="event.preventDefault(); playSongAtIndex(${idx}, currentPlaylist)">
-            <div class="card-cover"><img src="${s.coverImg}"></div>
-            <h3>${s.title}</h3>
-            <p>${s.artist}</p>
-          </div>
-        `).join('');
-      })
-      .catch(err => {
-        searchContainer.innerHTML = '<p style="color:#a18f85;">Search error occurred. Please try again.</p>';
-      });
+    searchContainer.innerHTML = '<p style="color:#a18f85;">No matching songs found. Try typing another title!</p>';
   }
 }
 
