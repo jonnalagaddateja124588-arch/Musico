@@ -313,8 +313,9 @@ const BACKEND_API_URL = "https://api.npoint.io/86675fb8ce6a181df0ae";
 
 let backendData = { songs: [], playlists: [], albums: [], podcasts: [] };
 let player, currentPlaylist = [], currentIndex = -1, isPlaying = false, sleepTimerId = null, progressInterval = null;
+let isPlayerReady = false;
+let searchTimeout = null;
 
-// Default songs equipped with verified, embed-friendly streaming video IDs
 const defaultSongs = [
   { videoId: "3JZ_D3ELwOQ", title: "Raghukula Tilaka Rara", artist: "Kondala Swamy", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
   { videoId: "jfKfPfyJRdk", title: "Telugu Melodies", artist: "Classical Stream", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500" },
@@ -360,7 +361,10 @@ function onYouTubeIframeAPIReady() {
   player = new YT.Player('youtubePlayer', {
     height: '100', width: '100',
     playerVars: { 'autoplay': 1, 'controls': 0, 'enablejsapi': 1, 'playsinline': 1 },
-    events: { 'onStateChange': onPlayerStateChange }
+    events: { 
+      'onReady': () => { isPlayerReady = true; },
+      'onStateChange': onPlayerStateChange 
+    }
   });
 }
 
@@ -439,7 +443,7 @@ function playSongItem(song) {
 
   updateMediaSessionMetadata(song);
 
-  if (song.videoId && player && typeof player.loadVideoById === 'function') {
+  if (song.videoId && isPlayerReady && typeof player.loadVideoById === 'function') {
     player.loadVideoById(song.videoId);
     player.playVideo();
   } else {
@@ -461,7 +465,7 @@ async function quickSearchPlay(query) {
       
       updateMediaSessionMetadata({ title: query, artist: item.snippet.channelTitle, coverImg: cover });
 
-      if (player && typeof player.loadVideoById === 'function') {
+      if (isPlayerReady && typeof player.loadVideoById === 'function') {
         player.loadVideoById(videoId);
         player.playVideo();
       }
@@ -528,27 +532,37 @@ function showPage(pageId) {
   document.getElementById('nav-' + pageId).classList.add('active');
 }
 
+// Debounced Search to prevent lag and freezing
 function filterSearch() {
+  clearTimeout(searchTimeout);
   const query = document.getElementById('songSearch').value.trim();
-  if (!query) { document.getElementById('searchResults').innerHTML = ''; return; }
-  fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=8&key=${YOUTUBE_API_KEY}`)
-    .then(r => r.json())
-    .then(data => {
-      if (!data.items) return;
-      const results = data.items.map(i => ({
-        videoId: i.id.videoId,
-        title: i.snippet.title,
-        artist: i.snippet.channelTitle,
-        coverImg: i.snippet.thumbnails.high.url
-      }));
-      document.getElementById('searchResults').innerHTML = results.map(s => `
-        <div class="card" onclick="event.preventDefault(); playSongItem(${JSON.stringify(s).replace(/"/g, '&quot;')})">
-          <div class="card-cover"><img src="${s.coverImg}"></div>
-          <h3>${s.title}</h3>
-          <p>${s.artist}</p>
-        </div>
-      `).join('');
-    });
+  
+  if (!query) { 
+    document.getElementById('searchResults').innerHTML = ''; 
+    return; 
+  }
+
+  searchTimeout = setTimeout(() => {
+    fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=8&key=${YOUTUBE_API_KEY}`)
+      .then(r => r.json())
+      .then(data => {
+        if (!data.items) return;
+        const results = data.items.map(i => ({
+          videoId: i.id.videoId,
+          title: i.snippet.title,
+          artist: i.snippet.channelTitle,
+          coverImg: i.snippet.thumbnails.high.url
+        }));
+        document.getElementById('searchResults').innerHTML = results.map(s => `
+          <div class="card" onclick="event.preventDefault(); playSongItem(${JSON.stringify(s).replace(/"/g, '&quot;')})">
+            <div class="card-cover"><img src="${s.coverImg}"></div>
+            <h3>${s.title}</h3>
+            <p>${s.artist}</p>
+          </div>
+        `).join('');
+      })
+      .catch(err => console.error("Search error:", err));
+  }, 400);
 }
 
 function handleCredentialResponse(r) {
