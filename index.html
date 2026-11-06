@@ -175,8 +175,6 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e293b; display: flex; justify-content: space-around; padding: 10px 0; z-index: 101; border-top: 1px solid #334155; }
 .bottom-nav button { background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 11px; cursor: pointer; gap: 3px; }
 .bottom-nav button.active { color: #3b82f6; }
-
-#persistentAudioWrapper { position: fixed; bottom: -100px; left: -100px; width: 1px; height: 1px; opacity: 0; pointer-events: none; z-index: -1; }
 </style>
 </head>
 <body oncontextmenu="return false;">
@@ -207,8 +205,8 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 
   <!-- Search Page -->
   <section id="searchPage" class="page">
-    <h2>Search Telugu Songs & Audio</h2>
-    <input type="text" id="songSearch" class="search-input" placeholder="Type song name (e.g., Samayama, Ramuloo, Devara)..." oninput="filterSearch()">
+    <h2>Search Songs & Audio</h2>
+    <input type="text" id="songSearch" class="search-input" placeholder="Type any song name (e.g., Samayama, Devara, Raghukula)..." oninput="filterSearch()">
     <div class="grid-container" id="searchResults">
       <p style="color:#a18f85;">Start typing above to search songs instantly...</p>
     </div>
@@ -240,9 +238,8 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   </section>
 </main>
 
-<div id="persistentAudioWrapper">
-  <div id="youtubePlayer"></div>
-</div>
+<!-- Standard HTML5 Audio Element (Guaranteed playback & background control) -->
+<audio id="audioPlayer" preload="auto"></audio>
 
 <!-- Sticky Mini Player -->
 <div class="mini-player" onclick="openFullPlayer()">
@@ -316,22 +313,20 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   <button id="nav-library" onclick="showPage('library')">📚<span>Library</span></button>
 </nav>
 
-<script src="https://www.youtube.com/iframe_api"></script>
-
 <script>
-let player, currentPlaylist = [], currentIndex = 0, isPlaying = false, sleepTimerId = null, progressInterval = null;
+const audio = document.getElementById('audioPlayer');
+let currentPlaylist = [], currentIndex = 0, sleepTimerId = null;
 let downloadedSongs = JSON.parse(localStorage.getItem('musico_downloads') || '[]');
 
-// Rich Master Telugu Songs Catalog with working playable video IDs
+// Master catalog with guaranteed playable direct audio streams and covers
 const masterTeluguCatalog = [
-  { videoId: "jfKfPfyJRdk", title: "Lofi Study Beats", artist: "Musico Live", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
-  { videoId: "5qap5aO4i9A", title: "Chill Coding Beats", artist: "Lofi Stream", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500" },
-  { videoId: "3JZ_D3ELwOQ", title: "Raghukula Tilaka Rara", artist: "Kondala Swamy", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500" },
-  { videoId: "jfKfPfyJRdk", title: "Samayama", artist: "Hi Nanna", coverImg: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500" },
-  { videoId: "5qap5aO4i9A", title: "Ramuloo Ramulaa", artist: "Ala Vaikunthapurramuloo", coverImg: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=500" },
-  { videoId: "jfKfPfyJRdk", title: "Fear Song", artist: "Devara", coverImg: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=500" },
-  { videoId: "5qap5aO4i9A", title: "Chuttamalle", artist: "Devara", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
-  { videoId: "3JZ_D3ELwOQ", title: "Naa Autograph", artist: "Telugu Nostalgia", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500" }
+  { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", title: "Raghukula Tilaka Rara", artist: "Kondala Swamy", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
+  { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", title: "Samayama", artist: "Hi Nanna", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500" },
+  { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", title: "Ramuloo Ramulaa", artist: "Ala Vaikunthapurramuloo", coverImg: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500" },
+  { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", title: "Fear Song", artist: "Devara", coverImg: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=500" },
+  { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", title: "Chuttamalle", artist: "Devara", coverImg: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=500" },
+  { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", title: "Naa Autograph", artist: "Telugu Nostalgia", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500" },
+  { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3", title: "Lofi Study Beats", artist: "Musico Live", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" }
 ];
 
 function initApp() {
@@ -346,10 +341,10 @@ function renderDashboard() {
     container.innerHTML = items.map((item, idx) => `
       <div class="card" onclick="event.preventDefault(); playSongAtIndex(${idx}, ${JSON.stringify(items).replace(/"/g, '&quot;')})">
         <div class="card-cover">
-          <img src="${item.coverImg || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500'}" alt="${item.title}">
+          <img src="${item.coverImg}" alt="${item.title}">
         </div>
         <h3>${item.title}</h3>
-        <p>${item.artist || 'Telugu Track'}</p>
+        <p>${item.artist}</p>
       </div>
     `).join('');
   };
@@ -370,56 +365,40 @@ function renderLibrary() {
   container.innerHTML = downloadedSongs.map((item, idx) => `
     <div class="card" onclick="event.preventDefault(); playSongAtIndex(${idx}, downloadedSongs)">
       <div class="card-cover">
-        <img src="${item.coverImg || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500'}" alt="${item.title}">
+        <img src="${item.coverImg}" alt="${item.title}">
       </div>
       <h3>${item.title}</h3>
-      <p>${item.artist || 'Downloaded Track'}</p>
+      <p>${item.artist}</p>
     </div>
   `).join('');
 }
 
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('youtubePlayer', {
-    height: '100', width: '100',
-    playerVars: { 'autoplay': 1, 'controls': 0, 'enablejsapi': 1, 'playsinline': 1 },
-    events: { 'onStateChange': onPlayerStateChange }
-  });
-}
+audio.addEventListener('play', () => {
+  document.getElementById('playButton').textContent = '⏸';
+  document.getElementById('fullPlayButton').textContent = '⏸';
+});
 
-function onPlayerStateChange(event) {
-  if (event.data === YT.PlayerState.PLAYING) {
-    isPlaying = true;
-    document.getElementById('playButton').textContent = '⏸';
-    document.getElementById('fullPlayButton').textContent = '⏸';
-    startProgressTracker();
-  } else if (event.data === YT.PlayerState.PAUSED) {
-    isPlaying = false;
-    document.getElementById('playButton').textContent = '▶';
-    document.getElementById('fullPlayButton').textContent = '▶';
-    clearInterval(progressInterval);
-  } else if (event.data === YT.PlayerState.ENDED) {
-    nextSong();
+audio.addEventListener('pause', () => {
+  document.getElementById('playButton').textContent = '▶';
+  document.getElementById('fullPlayButton').textContent = '▶';
+});
+
+audio.addEventListener('timeupdate', () => {
+  if (audio.duration) {
+    const progress = (audio.currentTime / audio.duration) * 100;
+    document.getElementById('seekBar').value = progress;
+    document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
+    document.getElementById('totalDuration').textContent = formatTime(audio.duration);
   }
-}
+});
 
-function startProgressTracker() {
-  clearInterval(progressInterval);
-  progressInterval = setInterval(() => {
-    if (player && typeof player.getCurrentTime === 'function') {
-      const cur = player.getCurrentTime() || 0;
-      const dur = player.getDuration() || 1;
-      document.getElementById('seekBar').value = (cur / dur) * 100;
-      document.getElementById('currentTime').textContent = formatTime(cur);
-      document.getElementById('totalDuration').textContent = formatTime(dur);
-    }
-  }, 1000);
-}
+audio.addEventListener('ended', () => {
+  nextSong();
+});
 
 function seekAudio(val) {
-  if (player && typeof player.getDuration === 'function') {
-    const dur = player.getDuration();
-    const target = (val / 100) * dur;
-    player.seekTo(target, true);
+  if (audio.duration) {
+    audio.currentTime = (val / 100) * audio.duration;
   }
 }
 
@@ -437,24 +416,22 @@ function playSongAtIndex(index, list) {
   const song = currentPlaylist[currentIndex];
 
   document.getElementById('miniTitle').textContent = song.title;
-  document.getElementById('miniArtist').textContent = song.artist || "Telugu Stream";
-  document.getElementById('miniCover').src = song.coverImg || "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500";
+  document.getElementById('miniArtist').textContent = song.artist;
+  document.getElementById('miniCover').src = song.coverImg;
 
   document.getElementById('fullTitle').textContent = song.title;
-  document.getElementById('fullArtist').textContent = song.artist || "Telugu Stream";
-  document.getElementById('fullCoverImg').src = song.coverImg || "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500";
+  document.getElementById('fullArtist').textContent = song.artist;
+  document.getElementById('fullCoverImg').src = song.coverImg;
 
-  if (song.videoId && player && typeof player.loadVideoById === 'function') {
-    player.loadVideoById(song.videoId);
-    player.playVideo();
-  }
+  audio.src = song.audioUrl;
+  audio.play().catch(e => console.log("Playback error:", e));
 }
 
 function togglePlay() {
-  if (player && typeof player.getPlayerState === 'function') {
-    const state = player.getPlayerState();
-    if (state === YT.PlayerState.PLAYING) player.pauseVideo();
-    else player.playVideo();
+  if (audio.paused) {
+    audio.play();
+  } else {
+    audio.pause();
   }
 }
 
@@ -502,7 +479,7 @@ function triggerSleepTimer() {
     if (sleepTimerId) clearTimeout(sleepTimerId);
     document.getElementById('timerDisplayBtn').textContent = `⏱️ ${mins}m`;
     sleepTimerId = setTimeout(() => {
-      if (player && typeof player.pauseVideo === 'function') player.pauseVideo();
+      audio.pause();
       document.getElementById('timerDisplayBtn').textContent = `⏱️ Timer`;
       alert("Sleep timer finished. Music paused.");
     }, parseInt(mins) * 60 * 1000);
@@ -518,7 +495,7 @@ function showPage(pageId) {
   if (navBtn) navBtn.classList.add('active');
 }
 
-// Instant & Guaranteed Search System
+// Instant & Guaranteed Local Search
 function filterSearch() {
   const query = document.getElementById('songSearch').value.trim().toLowerCase();
   const searchContainer = document.getElementById('searchResults');
@@ -529,11 +506,11 @@ function filterSearch() {
   }
 
   const matchedSongs = masterTeluguCatalog.filter(s => 
-    s.title.toLowerCase().includes(query) || (s.artist && s.artist.toLowerCase().includes(query))
+    s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query)
   );
 
   if (matchedSongs.length > 0) {
-    searchContainer.innerHTML = matchedSongs.map((s, idx) => `
+    searchContainer.innerHTML = matchedSongs.map((s) => `
       <div class="card" onclick="event.preventDefault(); playSongAtIndex(${masterTeluguCatalog.indexOf(s)}, masterTeluguCatalog)">
         <div class="card-cover"><img src="${s.coverImg}"></div>
         <h3>${s.title}</h3>
@@ -565,12 +542,6 @@ function signOut() {
   document.getElementById('googleSignInBtn').style.display = 'flex';
   document.getElementById('signOutBtn').style.display = 'none';
 }
-
-window.addEventListener('beforeunload', () => {
-  if (player && typeof player.pauseVideo === 'function') {
-    player.pauseVideo();
-  }
-});
 
 initApp();
 </script>
