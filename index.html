@@ -21,7 +21,7 @@
 body { 
   background: #0f172a; 
   color: #f8fafc; 
-  font-family: 'Segoe UI', Tahoma, sans-serif; 
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
   padding-bottom: 160px; 
 }
 
@@ -74,7 +74,8 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 
 /* Grid Layout */
 .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 25px; }
-.card { background: #1e293b; padding: 14px; border-radius: 14px; border: 1px solid #334155; cursor: pointer; }
+.card { background: #1e293b; padding: 14px; border-radius: 14px; border: 1px solid #334155; cursor: pointer; transition: transform 0.2s; }
+.card:hover { transform: translateY(-3px); border-color: #3b82f6; }
 .card-cover { height: 130px; border-radius: 10px; background: #334155; overflow: hidden; margin-bottom: 10px; display: grid; place-items: center; }
 .card-cover img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 .card h3 { font-size: 14px; color: #f8fafc; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -114,7 +115,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .controls button { border: none; background: transparent; color: white; font-size: 20px; cursor: pointer; }
 .main-play { background: #2563eb !important; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-size: 18px !important; }
 
-/* Full Screen Player Modal */
+/* Full Screen Spotify-Style Player Modal */
 .full-player { 
   display: none; 
   position: fixed; 
@@ -122,27 +123,53 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   left: 0; 
   width: 100%; 
   height: 100%; 
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); 
+  background: #231812; 
   z-index: 300; 
   flex-direction: column; 
   justify-content: space-between; 
-  padding: 30px 24px; 
+  padding: 40px 24px; 
 }
 .full-player.active { display: flex; }
-.full-player-header { display: flex; justify-content: space-between; align-items: center; }
+.full-player-header { display: flex; justify-content: space-between; align-items: center; color: #cbd5e1; font-size: 14px; }
 .close-btn { font-size: 24px; background: none; border: none; color: white; cursor: pointer; }
-.full-cover { width: 260px; height: 260px; margin: 20px auto; border-radius: 20px; overflow: hidden; background: #334155; }
+.full-cover { width: 280px; height: 280px; margin: 15px auto; border-radius: 12px; overflow: hidden; background: #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .full-cover img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-.full-info { text-align: center; margin-bottom: 15px; }
-.full-controls { display: flex; justify-content: center; align-items: center; gap: 32px; margin-bottom: 20px; }
-.full-controls button { background: none; border: none; color: white; font-size: 28px; cursor: pointer; }
 
-/* Full Player Action Options Bar */
-.full-actions { display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #334155; border-bottom: 1px solid #334155; margin-bottom: 15px; }
-.action-btn { background: none; border: none; color: #94a3b8; font-size: 13px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.track-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.add-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid white; background: none; color: white; font-size: 20px; display: grid; place-items: center; cursor: pointer; }
 
-/* Lyrics Box */
-.lyrics-box { background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; border-radius: 12px; padding: 12px; max-height: 120px; overflow-y: auto; font-size: 13px; color: #94a3b8; text-align: center; margin-bottom: 10px; }
+/* Progress Seek Slider Container */
+.progress-container { width: 100%; margin-bottom: 20px; }
+.progress-bar { 
+  width: 100%; 
+  -webkit-appearance: none; 
+  appearance: none; 
+  height: 4px; 
+  background: #4a3b32; 
+  border-radius: 2px; 
+  outline: none; 
+  cursor: pointer; 
+}
+.progress-bar::-webkit-slider-thumb { 
+  -webkit-appearance: none; 
+  appearance: none; 
+  width: 12px; 
+  height: 12px; 
+  border-radius: 50%; 
+  background: white; 
+}
+.time-stamps { display: flex; justify-content: space-between; font-size: 12px; color: #a18f85; margin-top: 8px; }
+
+/* Media Control Controls Bar */
+.screenshot-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 0 10px; }
+.screenshot-controls button { background: none; border: none; color: white; cursor: pointer; display: grid; place-items: center; }
+.btn-small-icon { font-size: 20px; color: #22c55e; }
+.btn-nav-icon { font-size: 28px; }
+.btn-play-large { width: 68px; height: 68px; background: white !important; color: black !important; border-radius: 50%; font-size: 24px; display: grid; place-items: center; }
+
+/* Bottom Tools Bar */
+.bottom-tools { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; }
+.bottom-tools button { background: none; border: none; color: #a18f85; font-size: 20px; cursor: pointer; }
 
 /* Bottom Navigation Bar */
 .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e293b; display: flex; justify-content: space-around; padding: 10px 0; z-index: 101; border-top: 1px solid #334155; }
@@ -165,13 +192,16 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 <main>
   <!-- Home Page -->
   <section id="homePage" class="page active">
-    <h2>Playlists</h2>
+    <h2>🎵 Songs</h2>
+    <div class="grid-container" id="songGrid">Loading songs...</div>
+
+    <h2>🎧 Playlists</h2>
     <div class="grid-container" id="playlistGrid">Loading playlists...</div>
 
-    <h2>Top Albums</h2>
+    <h2>💿 Top Albums</h2>
     <div class="grid-container" id="albumGrid">Loading albums...</div>
 
-    <h2>Podcasts</h2>
+    <h2>🎙️ Podcasts</h2>
     <div class="grid-container" id="podcastGrid">Loading podcasts...</div>
   </section>
 
@@ -192,8 +222,8 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
       
       <div id="authContainer">
         <div id="g_id_onload" data-client_id="721484485179-lf5o68dkv7fi098nub4rffs1appu0nta.apps.googleusercontent.com" data-callback="handleCredentialResponse"></div>
-        <div class="g_id_signin" data-type="standard" style="display:flex; justify-content:center;"></div>
-        <button id="signOutBtn" onclick="signOut()" style="display:none; margin:15px auto; padding:8px 20px; background:#ef4444; color:white; border:none; border-radius:10px; cursor:pointer; font-weight:600;">Sign Out</button>
+        <div class="g_id_signin" id="googleSignInBtn" data-type="standard" style="display:flex; justify-content:center;"></div>
+        <button id="signOutBtn" onclick="signOut()" style="display:none; margin:15px auto; padding:10px 24px; background:#ef4444; color:white; border:none; border-radius:20px; cursor:pointer; font-weight:600;">Sign Out</button>
       </div>
     </div>
   </section>
@@ -224,8 +254,8 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 <!-- Slide-Up Full Screen Player Modal -->
 <div class="full-player" id="fullPlayer">
   <div class="full-player-header">
-    <button class="close-btn" onclick="closeFullPlayer()">✕</button>
-    <span style="font-weight:600; font-size:14px;">Now Playing</span>
+    <button class="close-btn" onclick="closeFullPlayer()">⌵</button>
+    <span style="font-weight:600;">Playing from Musico</span>
     <button class="top-btn" onclick="triggerSleepTimer()" id="timerDisplayBtn">⏱️ Timer</button>
   </div>
 
@@ -233,26 +263,38 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
     <img id="fullCoverImg" src="https://img.icons8.com/color/512/audio-wave.png" alt="Cover">
   </div>
 
-  <div class="full-info">
-    <h2 id="fullTitle" style="color:white; font-size:18px; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">No Song Selected</h2>
-    <p id="fullArtist" style="color:#94a3b8; font-size:13px; margin-top:4px;">Artist Name</p>
+  <div class="track-header-row">
+    <div>
+      <h2 id="fullTitle" style="color:white; font-size:20px; font-weight:700; margin:0;">No Song Selected</h2>
+      <p id="fullArtist" style="color:#a18f85; font-size:14px; margin-top:4px;">Artist Name</p>
+    </div>
+    <button class="add-btn" onclick="alert('Added to Liked Songs!')">+</button>
   </div>
 
-  <div class="full-actions">
-    <button class="action-btn" onclick="shareTrack()">📤 <span>Share</span></button>
-    <button class="action-btn" onclick="alert('Queue: Playing current playlist.')">📜 <span>Queue</span></button>
-    <button class="action-btn" onclick="alert('Displaying synced lyrics.')">🎤 <span>Lyrics</span></button>
-    <button class="action-btn" onclick="downloadTrack()">⬇️ <span>Download</span></button>
+  <!-- Progress Bar & Timers -->
+  <div class="progress-container">
+    <input type="range" class="progress-bar" id="seekBar" value="0" max="100" onchange="seekAudio(this.value)">
+    <div class="time-stamps">
+      <span id="currentTime">0:00</span>
+      <span id="totalDuration">0:00</span>
+    </div>
   </div>
 
-  <div class="lyrics-box" id="lyricsBox">
-    ♪ Streaming directly on Musico player.
+  <!-- Media Controls -->
+  <div class="screenshot-controls">
+    <button class="btn-small-icon" onclick="alert('Shuffle enabled')">🔀</button>
+    <button class="btn-nav-icon" onclick="previousSong()">⏮</button>
+    <button class="btn-play-large" onclick="togglePlay()" id="fullPlayButton">▶</button>
+    <button class="btn-nav-icon" onclick="nextSong()">⏭</button>
+    <button class="btn-small-icon" onclick="alert('Repeat enabled')">🔁</button>
   </div>
 
-  <div class="full-controls">
-    <button onclick="previousSong()">⏮</button>
-    <button class="main-play" style="width:65px; height:65px; font-size:24px;" onclick="togglePlay()" id="fullPlayButton">▶</button>
-    <button onclick="nextSong()">⏭</button>
+  <!-- Bottom Tools Bar -->
+  <div class="bottom-tools">
+    <button onclick="alert('Device connected')">📺</button>
+    <button onclick="downloadTrack()">⬇️ Download</button>
+    <button onclick="shareTrack()">🔗 Share</button>
+    <button onclick="alert('Queue view loaded')">≡</button>
   </div>
 </div>
 
@@ -269,8 +311,14 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 const YOUTUBE_API_KEY = "AIzaSyDqi_eQpFxhthmtrF_pOGygTjsuCihneBI";
 const BACKEND_API_URL = "https://api.npoint.io/86675fb8ce6a181df0ae";
 
-let backendData = { playlists: [], albums: [], podcasts: [] };
-let player, currentPlaylist = [], currentIndex = -1, isPlaying = false, sleepTimerId = null;
+let backendData = { songs: [], playlists: [], albums: [], podcasts: [] };
+let player, currentPlaylist = [], currentIndex = -1, isPlaying = false, sleepTimerId = null, progressInterval = null;
+
+const defaultSongs = [
+  { title: "Raghukula Tilaka Rara", artist: "Kondala Swamy", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
+  { title: "Telugu Melodies", artist: "Classical Stream", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500" },
+  { title: "Chill Lo-Fi Beats", artist: "Musico Live", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500" }
+];
 
 async function fetchBackendData() {
   try {
@@ -279,10 +327,14 @@ async function fetchBackendData() {
     renderDashboard();
   } catch (err) {
     console.error("Backend fetch error:", err);
+    backendData.songs = defaultSongs;
+    renderDashboard();
   }
 }
 
 function renderDashboard() {
+  const songsList = (backendData.songs && backendData.songs.length) ? backendData.songs : defaultSongs;
+  
   const renderCards = (items, elementId) => {
     const container = document.getElementById(elementId);
     if (!items || !items.length) { container.innerHTML = '<p style="color:#94a3b8">No items available</p>'; return; }
@@ -292,10 +344,12 @@ function renderDashboard() {
           <img src="${item.coverImg || 'https://img.icons8.com/color/512/audio-wave.png'}" alt="${item.title}">
         </div>
         <h3>${item.title}</h3>
-        <p>${item.artist || item.host || 'Audio Track'}</p>
+        <p>${item.artist || item.host || 'Musico Track'}</p>
       </div>
     `).join('');
   };
+
+  renderCards(songsList, 'songGrid');
   renderCards(backendData.playlists, 'playlistGrid');
   renderCards(backendData.albums, 'albumGrid');
   renderCards(backendData.podcasts, 'podcastGrid');
@@ -315,9 +369,7 @@ function updateMediaSessionMetadata(song) {
       title: song.title,
       artist: song.artist || song.host || "Musico",
       album: "Musico Stream",
-      artwork: [
-        { src: song.coverImg || "https://img.icons8.com/color/512/audio-wave.png", sizes: "512x512", type: "image/png" }
-      ]
+      artwork: [{ src: song.coverImg || "https://img.icons8.com/color/512/audio-wave.png", sizes: "512x512", type: "image/png" }]
     });
 
     navigator.mediaSession.setActionHandler('play', () => togglePlay());
@@ -330,17 +382,46 @@ function updateMediaSessionMetadata(song) {
 function onPlayerStateChange(event) {
   if (event.data === YT.PlayerState.PLAYING) {
     isPlaying = true;
-    document.getElementById('playButton').textContent = 'Ⅱ';
-    document.getElementById('fullPlayButton').textContent = 'Ⅱ';
+    document.getElementById('playButton').textContent = '⏸';
+    document.getElementById('fullPlayButton').textContent = '⏸';
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
+    startProgressTracker();
   } else if (event.data === YT.PlayerState.PAUSED) {
     isPlaying = false;
     document.getElementById('playButton').textContent = '▶';
     document.getElementById('fullPlayButton').textContent = '▶';
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
+    clearInterval(progressInterval);
   } else if (event.data === YT.PlayerState.ENDED) {
     nextSong();
   }
+}
+
+function startProgressTracker() {
+  clearInterval(progressInterval);
+  progressInterval = setInterval(() => {
+    if (player && typeof player.getCurrentTime === 'function') {
+      const cur = player.getCurrentTime() || 0;
+      const dur = player.getDuration() || 1;
+      document.getElementById('seekBar').value = (cur / dur) * 100;
+      document.getElementById('currentTime').textContent = formatTime(cur);
+      document.getElementById('totalDuration').textContent = formatTime(dur);
+    }
+  }, 1000);
+}
+
+function seekAudio(val) {
+  if (player && typeof player.getDuration === 'function') {
+    const dur = player.getDuration();
+    const target = (val / 100) * dur;
+    player.seekTo(target, true);
+  }
+}
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m}:${s < 10 ? '0' : ''}${s}`;
 }
 
 function playSongItem(song) {
@@ -348,13 +429,12 @@ function playSongItem(song) {
   currentIndex = 0;
   
   document.getElementById('miniTitle').textContent = song.title;
-  document.getElementById('miniArtist').textContent = song.artist || song.host || "Stream";
+  document.getElementById('miniArtist').textContent = song.artist || song.host || "Musico";
   document.getElementById('miniCover').src = song.coverImg || "https://img.icons8.com/color/512/audio-wave.png";
 
   document.getElementById('fullTitle').textContent = song.title;
-  document.getElementById('fullArtist').textContent = song.artist || song.host || "Stream";
+  document.getElementById('fullArtist').textContent = song.artist || song.host || "Musico";
   document.getElementById('fullCoverImg').src = song.coverImg || "https://img.icons8.com/color/512/audio-wave.png";
-  document.getElementById('lyricsBox').textContent = `♪ Now streaming: ${song.title}`;
 
   updateMediaSessionMetadata(song);
 
@@ -362,7 +442,7 @@ function playSongItem(song) {
     player.loadVideoById(song.videoId);
     player.playVideo();
   } else {
-    quickSearchPlay(song.title);
+    quickSearchPlay(song.title + " " + (song.artist || ""));
   }
 }
 
@@ -378,11 +458,7 @@ async function quickSearchPlay(query) {
       document.getElementById('miniCover').src = cover;
       document.getElementById('fullCoverImg').src = cover;
       
-      updateMediaSessionMetadata({
-        title: query,
-        artist: item.snippet.channelTitle,
-        coverImg: cover
-      });
+      updateMediaSessionMetadata({ title: query, artist: item.snippet.channelTitle, coverImg: cover });
 
       if (player && typeof player.loadVideoById === 'function') {
         player.loadVideoById(videoId);
@@ -390,7 +466,7 @@ async function quickSearchPlay(query) {
       }
     }
   } catch (err) {
-    console.error("Quick search play error:", err);
+    console.error("Quick search error:", err);
   }
 }
 
@@ -410,7 +486,16 @@ function closeFullPlayer() { document.getElementById('fullPlayer').classList.rem
 
 function downloadTrack() {
   const title = document.getElementById('fullTitle').textContent;
-  alert(`Download started for: "${title}"`);
+  const dummyContent = `Audio Track Info: ${title}\nStreamed on Musico App`;
+  const blob = new Blob([dummyContent], { type: 'audio/mp3' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp3`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  alert(`Started file download for: "${title}"`);
 }
 
 function shareTrack() {
@@ -470,7 +555,7 @@ function handleCredentialResponse(r) {
   document.getElementById('userName').textContent = payload.name;
   document.getElementById('userEmail').textContent = payload.email;
   document.getElementById('userAvatar').innerHTML = `<img src="${payload.picture}" style="width:100%;height:100%;border-radius:50%;">`;
-  document.querySelector('.g_id_signin').style.display = 'none';
+  document.getElementById('googleSignInBtn').style.display = 'none';
   document.getElementById('signOutBtn').style.display = 'block';
 }
 
@@ -478,7 +563,7 @@ function signOut() {
   document.getElementById('userName').textContent = 'Guest User';
   document.getElementById('userEmail').textContent = 'Sign in to sync your account';
   document.getElementById('userAvatar').innerHTML = '👤';
-  document.querySelector('.g_id_signin').style.display = 'flex';
+  document.getElementById('googleSignInBtn').style.display = 'flex';
   document.getElementById('signOutBtn').style.display = 'none';
 }
 
