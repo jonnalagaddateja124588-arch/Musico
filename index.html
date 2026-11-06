@@ -183,6 +183,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   <div class="logo" onclick="showPage('home')"><div class="logo-icon">🎵</div><span>MUSICO</span></div>
   <div class="top-actions">
     <button class="top-btn" onclick="showPage('home')">🏠 Home</button>
+    <button class="top-btn" onclick="showPage('profile')">👤 Profile</button>
   </div>
 </header>
 
@@ -215,6 +216,22 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
     <p style="color:#a18f85; margin-bottom:15px; font-size:14px;">Songs added to your Musico Library:</p>
     <div class="grid-container" id="libraryGrid">
       <p style="color:#94a3b8;">No saved songs yet. Click Download inside the player to add songs here!</p>
+    </div>
+  </section>
+
+  <!-- Profile Page -->
+  <section id="profilePage" class="page">
+    <h2>Account Profile</h2>
+    <div style="background:#1e293b; padding:24px; border-radius:16px; text-align:center; margin-top:20px; border:1px solid #334155;">
+      <div id="userAvatar" style="font-size:48px; width:70px; height:70px; margin:0 auto 12px; display:grid; place-items:center; background:#334155; border-radius:50%;">👤</div>
+      <h3 id="userName" style="font-size:18px; margin-bottom:4px;">Guest User</h3>
+      <p id="userEmail" style="color:#94a3b8; font-size:13px; margin-bottom:20px;">Sign in to sync your account</p>
+      
+      <div id="authContainer">
+        <div id="g_id_onload" data-client_id="721484485179-lf5o68dkv7fi098nub4rffs1appu0nta.apps.googleusercontent.com" data-callback="handleCredentialResponse"></div>
+        <div class="g_id_signin" id="googleSignInBtn" data-type="standard" style="display:flex; justify-content:center;"></div>
+        <button id="signOutBtn" onclick="signOut()" style="display:none; margin:15px auto; padding:10px 24px; background:#ef4444; color:white; border:none; border-radius:20px; cursor:pointer; font-weight:600;">Sign Out</button>
+      </div>
     </div>
   </section>
 </main>
@@ -483,6 +500,27 @@ function filterSearch() {
   } else {
     searchContainer.innerHTML = '<p style="color:#94a3b8;">No matching songs found.</p>';
   }
+}
+
+function handleCredentialResponse(r) {
+  try {
+    const payload = JSON.parse(atob(r.credential.split('.')[1]));
+    document.getElementById('userName').textContent = payload.name;
+    document.getElementById('userEmail').textContent = payload.email;
+    document.getElementById('userAvatar').innerHTML = `<img src="${payload.picture}" style="width:100%;height:100%;border-radius:50%;">`;
+    document.getElementById('googleSignInBtn').style.display = 'none';
+    document.getElementById('signOutBtn').style.display = 'block';
+  } catch (err) {
+    console.error("Auth error:", err);
+  }
+}
+
+function signOut() {
+  document.getElementById('userName').textContent = 'Guest User';
+  document.getElementById('userEmail').textContent = 'Sign in to sync your account';
+  document.getElementById('userAvatar').innerHTML = '👤';
+  document.getElementById('googleSignInBtn').style.display = 'flex';
+  document.getElementById('signOutBtn').style.display = 'none';
 }
 
 initApp();
