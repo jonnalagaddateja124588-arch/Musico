@@ -208,8 +208,10 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   <!-- Search Page -->
   <section id="searchPage" class="page">
     <h2>Search Telugu Songs & Audio</h2>
-    <input type="text" id="songSearch" class="search-input" placeholder="Search Telugu tracks, artists..." oninput="filterSearch()">
-    <div class="grid-container" id="searchResults"></div>
+    <input type="text" id="songSearch" class="search-input" placeholder="Type song name (e.g. Samayama, Devara, Raghukula)..." oninput="filterSearch()">
+    <div class="grid-container" id="searchResults">
+      <p style="color:#a18f85;">Start typing above to search songs instantly...</p>
+    </div>
   </section>
 
   <!-- Library Page (Downloaded Songs) -->
@@ -327,6 +329,7 @@ let downloadedSongs = JSON.parse(localStorage.getItem('musico_downloads') || '[]
 const teluguSongsCatalog = [
   { videoId: "jfKfPfyJRdk", title: "Lofi Study Beats", artist: "Musico Live", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
   { videoId: "5qap5aO4i9A", title: "Chill Coding Beats", artist: "Lofi Stream", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500" },
+  { title: "Raghukula Tilaka Rara", artist: "Kondala Swamy", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
   { title: "Samayama", artist: "Hi Nanna", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500" },
   { title: "Ramuloo Ramulaa", artist: "Ala Vaikunthapurramuloo", coverImg: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500" },
   { title: "Fear Song", artist: "Devara", coverImg: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=500" },
@@ -554,28 +557,59 @@ function showPage(pageId) {
   if (navBtn) navBtn.classList.add('active');
 }
 
+// Instant Dual-Search System (Local + YouTube Fallback)
 function filterSearch() {
-  const query = document.getElementById('songSearch').value.trim();
-  if (!query) { document.getElementById('searchResults').innerHTML = ''; return; }
-  fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + " Telugu")}&type=video&maxResults=8&key=${YOUTUBE_API_KEY}`)
-    .then(r => r.json())
-    .then(data => {
-      if (!data.items) return;
-      const results = data.items.map(i => ({
-        videoId: i.id.videoId,
-        title: i.snippet.title,
-        artist: i.snippet.channelTitle,
-        coverImg: i.snippet.thumbnails.high.url
-      }));
-      currentPlaylist = results;
-      document.getElementById('searchResults').innerHTML = results.map((s, idx) => `
-        <div class="card" onclick="event.preventDefault(); playSongAtIndex(${idx}, currentPlaylist)">
-          <div class="card-cover"><img src="${s.coverImg}"></div>
-          <h3>${s.title}</h3>
-          <p>${s.artist}</p>
-        </div>
-      `).join('');
-    });
+  const query = document.getElementById('songSearch').value.trim().toLowerCase();
+  const searchContainer = document.getElementById('searchResults');
+  
+  if (!query) { 
+    searchContainer.innerHTML = '<p style="color:#a18f85;">Start typing above to search songs instantly...</p>'; 
+    return; 
+  }
+
+  // 1. Search locally through our catalog first (Instant & Reliable)
+  const allSongs = [...teluguSongsCatalog, ...(backendData.songs || [])];
+  const matchedSongs = allSongs.filter(s => 
+    s.title.toLowerCase().includes(query) || (s.artist && s.artist.toLowerCase().includes(query))
+  );
+
+  if (matchedSongs.length > 0) {
+    currentPlaylist = matchedSongs;
+    searchContainer.innerHTML = matchedSongs.map((s, idx) => `
+      <div class="card" onclick="event.preventDefault(); playSongAtIndex(${idx}, currentPlaylist)">
+        <div class="card-cover"><img src="${s.coverImg || 'https://img.icons8.com/color/512/audio-wave.png'}"></div>
+        <h3>${s.title}</h3>
+        <p>${s.artist || 'Telugu Track'}</p>
+      </div>
+    `).join('');
+  } else {
+    // 2. Fallback to live YouTube Search API if not found locally
+    fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + " Telugu song")}&type=video&maxResults=8&key=${YOUTUBE_API_KEY}`)
+      .then(r => r.json())
+      .then(data => {
+        if (!data.items || data.items.length === 0) {
+          searchContainer.innerHTML = '<p style="color:#a18f85;">No songs found. Try another search term!</p>';
+          return;
+        }
+        const results = data.items.map(i => ({
+          videoId: i.id.videoId,
+          title: i.snippet.title,
+          artist: i.snippet.channelTitle,
+          coverImg: i.snippet.thumbnails.high.url
+        }));
+        currentPlaylist = results;
+        searchContainer.innerHTML = results.map((s, idx) => `
+          <div class="card" onclick="event.preventDefault(); playSongAtIndex(${idx}, currentPlaylist)">
+            <div class="card-cover"><img src="${s.coverImg}"></div>
+            <h3>${s.title}</h3>
+            <p>${s.artist}</p>
+          </div>
+        `).join('');
+      })
+      .catch(err => {
+        searchContainer.innerHTML = '<p style="color:#a18f85;">Search error occurred. Please try again.</p>';
+      });
+  }
 }
 
 function handleCredentialResponse(r) {
