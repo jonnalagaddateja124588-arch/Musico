@@ -175,8 +175,6 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e293b; display: flex; justify-content: space-around; padding: 10px 0; z-index: 101; border-top: 1px solid #334155; }
 .bottom-nav button { background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 11px; cursor: pointer; gap: 3px; }
 .bottom-nav button.active { color: #3b82f6; }
-
-#persistentAudioWrapper { position: fixed; bottom: -100px; left: -100px; width: 1px; height: 1px; opacity: 0; pointer-events: none; z-index: -1; }
 </style>
 </head>
 <body oncontextmenu="return false;">
@@ -229,9 +227,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   </section>
 </main>
 
-<div id="persistentAudioWrapper">
-  <div id="youtubePlayer"></div>
-</div>
+<audio id="audioPlayer" preload="auto"></audio>
 
 <!-- Sticky Mini Player -->
 <div class="mini-player" onclick="openFullPlayer()">
@@ -305,122 +301,67 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   <button id="nav-profile" onclick="showPage('profile')">👤<span>Profile</span></button>
 </nav>
 
-<script src="https://www.youtube.com/iframe_api"></script>
-
 <script>
-const YOUTUBE_API_KEY = "AIzaSyDqi_eQpFxhthmtrF_pOGygTjsuCihneBI";
-const BACKEND_API_URL = "https://api.npoint.io/86675fb8ce6a181df0ae";
-
-let backendData = { songs: [], playlists: [], albums: [], podcasts: [] };
-let player, currentPlaylist = [], currentIndex = -1, isPlaying = false, sleepTimerId = null, progressInterval = null;
-let isPlayerReady = false;
-let searchTimeout = null;
+const audio = document.getElementById('audioPlayer');
+let currentPlaylist = [], currentIndex = 0, sleepTimerId = null;
 
 const defaultSongs = [
-  { videoId: "3JZ_D3ELwOQ", title: "Raghukula Tilaka Rara", artist: "Kondala Swamy", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
-  { videoId: "jfKfPfyJRdk", title: "Telugu Melodies", artist: "Classical Stream", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500" },
-  { videoId: "5qap5aO4i9A", title: "Chill Lo-Fi Beats", artist: "Musico Live", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500" }
+  { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", title: "Raghukula Tilaka Rara", artist: "Kondala Swamy", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
+  { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", title: "Telugu Melodies", artist: "Classical Stream", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500" },
+  { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", title: "Chill Lo-Fi Beats", artist: "Musico Live", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500" },
+  { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", title: "Samayama", artist: "Hi Nanna", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500" },
+  { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", title: "Fear Song", artist: "Devara", coverImg: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=500" }
 ];
 
-async function fetchBackendData() {
-  try {
-    const res = await fetch(BACKEND_API_URL);
-    backendData = await res.json();
-    renderDashboard();
-  } catch (err) {
-    console.error("Backend fetch error:", err);
-    backendData.songs = defaultSongs;
-    renderDashboard();
-  }
+function initApp() {
+  currentPlaylist = defaultSongs;
+  renderDashboard();
 }
 
 function renderDashboard() {
-  const songsList = (backendData.songs && backendData.songs.length) ? backendData.songs : defaultSongs;
-  
   const renderCards = (items, elementId) => {
     const container = document.getElementById(elementId);
     if (!items || !items.length) { container.innerHTML = '<p style="color:#94a3b8">No items available</p>'; return; }
-    container.innerHTML = items.map((item) => `
-      <div class="card" onclick="event.preventDefault(); playSongItem(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+    container.innerHTML = items.map((item, idx) => `
+      <div class="card" onclick="event.preventDefault(); playSongObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, ${idx})">
         <div class="card-cover">
           <img src="${item.coverImg || 'https://img.icons8.com/color/512/audio-wave.png'}" alt="${item.title}">
         </div>
         <h3>${item.title}</h3>
-        <p>${item.artist || item.host || 'Musico Track'}</p>
+        <p>${item.artist || 'Musico Track'}</p>
       </div>
     `).join('');
   };
 
-  renderCards(songsList, 'songGrid');
-  renderCards(backendData.playlists, 'playlistGrid');
-  renderCards(backendData.albums, 'albumGrid');
-  renderCards(backendData.podcasts, 'podcastGrid');
+  renderCards(defaultSongs, 'songGrid');
+  renderCards(defaultSongs.slice(0, 2), 'playlistGrid');
+  renderCards(defaultSongs.slice(1, 3), 'albumGrid');
+  renderCards(defaultSongs.slice(2, 4), 'podcastGrid');
 }
 
-function onYouTubeIframeAPIReady() {
-  player = new YT.Player('youtubePlayer', {
-    height: '100', width: '100',
-    playerVars: { 'autoplay': 1, 'controls': 0, 'enablejsapi': 1, 'playsinline': 1 },
-    events: { 
-      'onReady': () => { isPlayerReady = true; },
-      'onStateChange': onPlayerStateChange 
-    }
-  });
-}
+audio.addEventListener('play', () => {
+  document.getElementById('playButton').textContent = '⏸';
+  document.getElementById('fullPlayButton').textContent = '⏸';
+});
 
-function updateMediaSessionMetadata(song) {
-  if ('mediaSession' in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: song.title,
-      artist: song.artist || song.host || "Musico",
-      album: "Musico Stream",
-      artwork: [{ src: song.coverImg || "https://img.icons8.com/color/512/audio-wave.png", sizes: "512x512", type: "image/png" }]
-    });
+audio.addEventListener('pause', () => {
+  document.getElementById('playButton').textContent = '▶';
+  document.getElementById('fullPlayButton').textContent = '▶';
+});
 
-    navigator.mediaSession.setActionHandler('play', () => togglePlay());
-    navigator.mediaSession.setActionHandler('pause', () => togglePlay());
-    navigator.mediaSession.setActionHandler('previoustrack', () => previousSong());
-    navigator.mediaSession.setActionHandler('nexttrack', () => nextSong());
+audio.addEventListener('timeupdate', () => {
+  if (audio.duration) {
+    const progress = (audio.currentTime / audio.duration) * 100;
+    document.getElementById('seekBar').value = progress;
+    document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
+    document.getElementById('totalDuration').textContent = formatTime(audio.duration);
   }
-}
+});
 
-function onPlayerStateChange(event) {
-  if (event.data === YT.PlayerState.PLAYING) {
-    isPlaying = true;
-    document.getElementById('playButton').textContent = '⏸';
-    document.getElementById('fullPlayButton').textContent = '⏸';
-    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
-    startProgressTracker();
-  } else if (event.data === YT.PlayerState.PAUSED) {
-    isPlaying = false;
-    document.getElementById('playButton').textContent = '▶';
-    document.getElementById('fullPlayButton').textContent = '▶';
-    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
-    clearInterval(progressInterval);
-  } else if (event.data === YT.PlayerState.ENDED) {
-    nextSong();
-  }
-}
-
-function startProgressTracker() {
-  clearInterval(progressInterval);
-  progressInterval = setInterval(() => {
-    if (player && typeof player.getCurrentTime === 'function') {
-      const cur = player.getCurrentTime() || 0;
-      const dur = player.getDuration() || 1;
-      document.getElementById('seekBar').value = (cur / dur) * 100;
-      document.getElementById('currentTime').textContent = formatTime(cur);
-      document.getElementById('totalDuration').textContent = formatTime(dur);
-    }
-  }, 1000);
-}
+audio.addEventListener('ended', () => { nextSong(); });
 
 function seekAudio(val) {
-  if (player && typeof player.getDuration === 'function') {
-    const dur = player.getDuration();
-    const target = (val / 100) * dur;
-    player.seekTo(target, true);
-  }
+  if (audio.duration) { audio.currentTime = (val / 100) * audio.duration; }
 }
 
 function formatTime(sec) {
@@ -429,101 +370,39 @@ function formatTime(sec) {
   return `${m}:${s < 10 ? '0' : ''}${s}`;
 }
 
-function playSongItem(song) {
-  currentPlaylist = [song];
-  currentIndex = 0;
-  
+function playSongObject(song, index) {
+  currentIndex = index;
   document.getElementById('miniTitle').textContent = song.title;
-  document.getElementById('miniArtist').textContent = song.artist || song.host || "Musico";
+  document.getElementById('miniArtist').textContent = song.artist || "Musico";
   document.getElementById('miniCover').src = song.coverImg || "https://img.icons8.com/color/512/audio-wave.png";
 
   document.getElementById('fullTitle').textContent = song.title;
-  document.getElementById('fullArtist').textContent = song.artist || song.host || "Musico";
+  document.getElementById('fullArtist').textContent = song.artist || "Musico";
   document.getElementById('fullCoverImg').src = song.coverImg || "https://img.icons8.com/color/512/audio-wave.png";
 
-  updateMediaSessionMetadata(song);
-
-  if (song.videoId && isPlayerReady && typeof player.loadVideoById === 'function') {
-    player.loadVideoById(song.videoId);
-    player.playVideo();
-  } else {
-    quickSearchPlay(song.title + " " + (song.artist || ""));
-  }
-}
-
-async function quickSearchPlay(query) {
-  try {
-    const res = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=1&key=${YOUTUBE_API_KEY}`);
-    const data = await res.json();
-    if (data.items && data.items.length > 0) {
-      const item = data.items[0];
-      const videoId = item.id.videoId;
-      const cover = item.snippet.thumbnails.high.url;
-      
-      document.getElementById('miniCover').src = cover;
-      document.getElementById('fullCoverImg').src = cover;
-      
-      updateMediaSessionMetadata({ title: query, artist: item.snippet.channelTitle, coverImg: cover });
-
-      if (isPlayerReady && typeof player.loadVideoById === 'function') {
-        player.loadVideoById(videoId);
-        player.playVideo();
-      }
-    }
-  } catch (err) {
-    console.error("Quick search error:", err);
-  }
+  audio.src = song.audioUrl;
+  audio.play().catch(e => console.log("Playback error:", e));
 }
 
 function togglePlay() {
-  if (player && typeof player.getPlayerState === 'function') {
-    const state = player.getPlayerState();
-    if (state === YT.PlayerState.PLAYING) player.pauseVideo();
-    else player.playVideo();
-  }
+  if (audio.paused) { audio.play(); } 
+  else { audio.pause(); }
 }
 
-function nextSong() { if (currentPlaylist.length) playSongItem(currentPlaylist[0]); }
-function previousSong() { if (currentPlaylist.length) playSongItem(currentPlaylist[0]); }
+function nextSong() {
+  if (!currentPlaylist.length) return;
+  currentIndex = (currentIndex + 1) % currentPlaylist.length;
+  playSongObject(currentPlaylist[currentIndex], currentIndex);
+}
+
+function previousSong() {
+  if (!currentPlaylist.length) return;
+  currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+  playSongObject(currentPlaylist[currentIndex], currentIndex);
+}
 
 function openFullPlayer() { document.getElementById('fullPlayer').classList.add('active'); }
 function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('active'); }
-
-function downloadTrack() {
-  const title = document.getElementById('fullTitle').textContent;
-  const dummyContent = `Audio Track Info: ${title}\nStreamed on Musico App`;
-  const blob = new Blob([dummyContent], { type: 'audio/mp3' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp3`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  alert(`Started file download for: "${title}"`);
-}
-
-function shareTrack() {
-  const title = document.getElementById('fullTitle').textContent;
-  if (navigator.share) {
-    navigator.share({ title: 'Musico Song', text: `Listening to ${title} on Musico`, url: window.location.href });
-  } else {
-    alert(`Link copied to clipboard for: ${title}`);
-  }
-}
-
-function triggerSleepTimer() {
-  const mins = prompt("Enter sleep timer duration in minutes:", "30");
-  if (mins && !isNaN(mins)) {
-    if (sleepTimerId) clearTimeout(sleepTimerId);
-    document.getElementById('timerDisplayBtn').textContent = `⏱️ ${mins}m`;
-    sleepTimerId = setTimeout(() => {
-      if (player && typeof player.pauseVideo === 'function') player.pauseVideo();
-      document.getElementById('timerDisplayBtn').textContent = `⏱️ Timer`;
-      alert("Sleep timer finished. Music paused.");
-    }, parseInt(mins) * 60 * 1000);
-  }
-}
 
 function showPage(pageId) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -532,57 +411,30 @@ function showPage(pageId) {
   document.getElementById('nav-' + pageId).classList.add('active');
 }
 
-// Debounced Search to prevent lag and freezing
 function filterSearch() {
-  clearTimeout(searchTimeout);
-  const query = document.getElementById('songSearch').value.trim();
+  const query = document.getElementById('songSearch').value.trim().toLowerCase();
+  const searchContainer = document.getElementById('searchResults');
   
-  if (!query) { 
-    document.getElementById('searchResults').innerHTML = ''; 
-    return; 
+  if (!query) { searchContainer.innerHTML = ''; return; }
+
+  const matchedSongs = defaultSongs.filter(s => 
+    s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query)
+  );
+
+  if (matchedSongs.length > 0) {
+    searchContainer.innerHTML = matchedSongs.map((s, idx) => `
+      <div class="card" onclick="event.preventDefault(); playSongObject(${JSON.stringify(s).replace(/"/g, '&quot;')}, ${defaultSongs.indexOf(s)})">
+        <div class="card-cover"><img src="${s.coverImg}"></div>
+        <h3>${s.title}</h3>
+        <p>${s.artist}</p>
+      </div>
+    `).join('');
+  } else {
+    searchContainer.innerHTML = '<p style="color:#94a3b8;">No matching songs found.</p>';
   }
-
-  searchTimeout = setTimeout(() => {
-    fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=8&key=${YOUTUBE_API_KEY}`)
-      .then(r => r.json())
-      .then(data => {
-        if (!data.items) return;
-        const results = data.items.map(i => ({
-          videoId: i.id.videoId,
-          title: i.snippet.title,
-          artist: i.snippet.channelTitle,
-          coverImg: i.snippet.thumbnails.high.url
-        }));
-        document.getElementById('searchResults').innerHTML = results.map(s => `
-          <div class="card" onclick="event.preventDefault(); playSongItem(${JSON.stringify(s).replace(/"/g, '&quot;')})">
-            <div class="card-cover"><img src="${s.coverImg}"></div>
-            <h3>${s.title}</h3>
-            <p>${s.artist}</p>
-          </div>
-        `).join('');
-      })
-      .catch(err => console.error("Search error:", err));
-  }, 400);
 }
 
-function handleCredentialResponse(r) {
-  const payload = JSON.parse(atob(r.credential.split('.')[1]));
-  document.getElementById('userName').textContent = payload.name;
-  document.getElementById('userEmail').textContent = payload.email;
-  document.getElementById('userAvatar').innerHTML = `<img src="${payload.picture}" style="width:100%;height:100%;border-radius:50%;">`;
-  document.getElementById('googleSignInBtn').style.display = 'none';
-  document.getElementById('signOutBtn').style.display = 'block';
-}
-
-function signOut() {
-  document.getElementById('userName').textContent = 'Guest User';
-  document.getElementById('userEmail').textContent = 'Sign in to sync your account';
-  document.getElementById('userAvatar').innerHTML = '👤';
-  document.getElementById('googleSignInBtn').style.display = 'flex';
-  document.getElementById('signOutBtn').style.display = 'none';
-}
-
-fetchBackendData();
+initApp();
 </script>
 </body>
 </html>
