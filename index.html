@@ -496,7 +496,7 @@ function showPage(pageId) {
   if (navBtn) navBtn.classList.add('active');
 }
 
-// Live YouTube Data API Search Integration
+// Search System (Local Match + Live YouTube Data API Search Fallback)
 function filterSearch() {
   const query = document.getElementById('songSearch').value.trim().toLowerCase();
   const searchContainer = document.getElementById('searchResults');
@@ -520,7 +520,7 @@ function filterSearch() {
       </div>
     `).join('');
   } else {
-    // 2. Query YouTube Data API live using your key
+    // 2. Query YouTube Data API live using your API key
     fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=8&key=${YOUTUBE_API_KEY}`)
       .then(r => r.json())
       .then(data => {
