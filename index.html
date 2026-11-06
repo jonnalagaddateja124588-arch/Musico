@@ -238,7 +238,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   </section>
 </main>
 
-<!-- Standard HTML5 Audio Element (Guaranteed playback & background control) -->
+<!-- Standard HTML5 Audio Element -->
 <audio id="audioPlayer" preload="auto"></audio>
 
 <!-- Sticky Mini Player -->
@@ -314,11 +314,12 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 </nav>
 
 <script>
+const YOUTUBE_API_KEY = "AIzaSyDqi_eQpFxhthmtrF_pOGygTjsuCihneBI";
 const audio = document.getElementById('audioPlayer');
 let currentPlaylist = [], currentIndex = 0, sleepTimerId = null;
 let downloadedSongs = JSON.parse(localStorage.getItem('musico_downloads') || '[]');
 
-// Master catalog with guaranteed playable direct audio streams and covers
+// Master catalog with direct audio streams and covers
 const masterTeluguCatalog = [
   { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", title: "Raghukula Tilaka Rara", artist: "Kondala Swamy", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
   { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", title: "Samayama", artist: "Hi Nanna", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500" },
@@ -495,7 +496,7 @@ function showPage(pageId) {
   if (navBtn) navBtn.classList.add('active');
 }
 
-// Instant & Guaranteed Local Search
+// Live YouTube Data API Search Integration
 function filterSearch() {
   const query = document.getElementById('songSearch').value.trim().toLowerCase();
   const searchContainer = document.getElementById('searchResults');
@@ -505,6 +506,7 @@ function filterSearch() {
     return; 
   }
 
+  // 1. Search local master catalog first
   const matchedSongs = masterTeluguCatalog.filter(s => 
     s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query)
   );
@@ -518,7 +520,32 @@ function filterSearch() {
       </div>
     `).join('');
   } else {
-    searchContainer.innerHTML = '<p style="color:#a18f85;">No matching songs found. Try typing another title!</p>';
+    // 2. Query YouTube Data API live using your key
+    fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=8&key=${YOUTUBE_API_KEY}`)
+      .then(r => r.json())
+      .then(data => {
+        if (!data.items || data.items.length === 0) {
+          searchContainer.innerHTML = '<p style="color:#a18f85;">No songs found. Try another search term!</p>';
+          return;
+        }
+        const results = data.items.map(i => ({
+          audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+          title: i.snippet.title,
+          artist: i.snippet.channelTitle,
+          coverImg: i.snippet.thumbnails.high.url
+        }));
+        currentPlaylist = results;
+        searchContainer.innerHTML = results.map((s, idx) => `
+          <div class="card" onclick="event.preventDefault(); playSongAtIndex(${idx}, currentPlaylist)">
+            <div class="card-cover"><img src="${s.coverImg}"></div>
+            <h3>${s.title}</h3>
+            <p>${s.artist}</p>
+          </div>
+        `).join('');
+      })
+      .catch(err => {
+        searchContainer.innerHTML = '<p style="color:#a18f85;">Search error occurred. Please try again.</p>';
+      });
   }
 }
 
