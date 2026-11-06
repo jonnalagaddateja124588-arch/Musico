@@ -160,7 +160,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 }
 .time-stamps { display: flex; justify-content: space-between; font-size: 12px; color: #a18f85; margin-top: 8px; }
 
-/* Media Control Controls Bar */
+/* Media Control Bar */
 .screenshot-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 0 10px; }
 .screenshot-controls button { background: none; border: none; color: white; cursor: pointer; display: grid; place-items: center; }
 .btn-small-icon { font-size: 20px; color: #22c55e; }
@@ -168,7 +168,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .btn-play-large { width: 68px; height: 68px; background: white !important; color: black !important; border-radius: 50%; font-size: 24px; display: grid; place-items: center; }
 
 /* Bottom Tools Bar */
-.bottom-tools { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; }
+.bottom-tools { display: flex; justify-content: space-around; align-items: center; padding-top: 10px; }
 .bottom-tools button { background: none; border: none; color: #a18f85; font-size: 20px; cursor: pointer; }
 
 /* Bottom Navigation Bar */
@@ -192,24 +192,31 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 <main>
   <!-- Home Page -->
   <section id="homePage" class="page active">
-    <h2>🎵 Songs</h2>
+    <h2>🔥 Top Telugu Songs</h2>
     <div class="grid-container" id="songGrid">Loading songs...</div>
 
-    <h2>🎧 Playlists</h2>
+    <h2>🎧 Telugu Playlists</h2>
     <div class="grid-container" id="playlistGrid">Loading playlists...</div>
 
-    <h2>💿 Top Albums</h2>
+    <h2>💿 Trending Albums</h2>
     <div class="grid-container" id="albumGrid">Loading albums...</div>
 
-    <h2>🎙️ Podcasts</h2>
+    <h2>🎙️ Telugu Podcasts</h2>
     <div class="grid-container" id="podcastGrid">Loading podcasts...</div>
   </section>
 
   <!-- Search Page -->
   <section id="searchPage" class="page">
-    <h2>Search Songs & Podcasts</h2>
-    <input type="text" id="songSearch" class="search-input" placeholder="Search tracks, artists..." oninput="filterSearch()">
+    <h2>Search Telugu Songs & Audio</h2>
+    <input type="text" id="songSearch" class="search-input" placeholder="Search Telugu tracks, artists..." oninput="filterSearch()">
     <div class="grid-container" id="searchResults"></div>
+  </section>
+
+  <!-- Library Page -->
+  <section id="libraryPage" class="page">
+    <h2>📚 Your Library</h2>
+    <p style="color:#94a3b8; margin-bottom:15px; font-size:14px;">Your saved and recent Telugu tracks:</p>
+    <div class="grid-container" id="libraryGrid"></div>
   </section>
 
   <!-- Profile Page -->
@@ -298,11 +305,11 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   </div>
 </div>
 
-<!-- Bottom Navigation Bar -->
+<!-- Bottom Navigation Bar (Profile replaced with Library) -->
 <nav class="bottom-nav">
   <button id="nav-home" class="active" onclick="showPage('home')">🏠<span>Home</span></button>
   <button id="nav-search" onclick="showPage('search')">🔍<span>Search</span></button>
-  <button id="nav-profile" onclick="showPage('profile')">👤<span>Profile</span></button>
+  <button id="nav-library" onclick="showPage('library')">🎵<span>Library</span></button>
 </nav>
 
 <script src="https://www.youtube.com/iframe_api"></script>
@@ -314,10 +321,14 @@ const BACKEND_API_URL = "https://api.npoint.io/86675fb8ce6a181df0ae";
 let backendData = { songs: [], playlists: [], albums: [], podcasts: [] };
 let player, currentPlaylist = [], currentIndex = -1, isPlaying = false, sleepTimerId = null, progressInterval = null;
 
-const defaultSongs = [
+// Rich Telugu Songs Catalog
+const teluguSongsCatalog = [
   { title: "Raghukula Tilaka Rara", artist: "Kondala Swamy", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
-  { title: "Telugu Melodies", artist: "Classical Stream", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500" },
-  { title: "Chill Lo-Fi Beats", artist: "Musico Live", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500" }
+  { title: "Samayama", artist: "Hi Nanna", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500" },
+  { title: "Ramuloo Ramulaa", artist: "Ala Vaikunthapurramuloo", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500" },
+  { title: "Fear Song", artist: "Devara", coverImg: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=500" },
+  { title: "Naa Autograph", artist: "Telugu Nostalgia", coverImg: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=500" },
+  { title: "Chuttamalle", artist: "Devara", coverImg: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=500" }
 ];
 
 async function fetchBackendData() {
@@ -327,37 +338,39 @@ async function fetchBackendData() {
     renderDashboard();
   } catch (err) {
     console.error("Backend fetch error:", err);
-    backendData.songs = defaultSongs;
+    backendData.songs = teluguSongsCatalog;
     renderDashboard();
   }
 }
 
 function renderDashboard() {
-  const songsList = (backendData.songs && backendData.songs.length) ? backendData.songs : defaultSongs;
+  const songsList = (backendData.songs && backendData.songs.length) ? backendData.songs : teluguSongsCatalog;
+  currentPlaylist = songsList;
   
   const renderCards = (items, elementId) => {
     const container = document.getElementById(elementId);
     if (!items || !items.length) { container.innerHTML = '<p style="color:#94a3b8">No items available</p>'; return; }
-    container.innerHTML = items.map((item) => `
-      <div class="card" onclick="event.preventDefault(); playSongItem(${JSON.stringify(item).replace(/"/g, '&quot;')})">
+    container.innerHTML = items.map((item, idx) => `
+      <div class="card" onclick="event.preventDefault(); playSongAtIndex(${idx}, ${JSON.stringify(items).replace(/"/g, '&quot;')})">
         <div class="card-cover">
           <img src="${item.coverImg || 'https://img.icons8.com/color/512/audio-wave.png'}" alt="${item.title}">
         </div>
         <h3>${item.title}</h3>
-        <p>${item.artist || item.host || 'Musico Track'}</p>
+        <p>${item.artist || item.host || 'Telugu Track'}</p>
       </div>
     `).join('');
   };
 
   renderCards(songsList, 'songGrid');
-  renderCards(backendData.playlists, 'playlistGrid');
-  renderCards(backendData.albums, 'albumGrid');
-  renderCards(backendData.podcasts, 'podcastGrid');
+  renderCards(songsList, 'libraryGrid');
+  renderCards(backendData.playlists && backendData.playlists.length ? backendData.playlists : songsList.slice(0, 3), 'playlistGrid');
+  renderCards(backendData.albums && backendData.albums.length ? backendData.albums : songsList.slice(2, 5), 'albumGrid');
+  renderCards(backendData.podcasts && backendData.podcasts.length ? backendData.podcasts : songsList.slice(1, 4), 'podcastGrid');
 }
 
 function onYouTubeIframeAPIReady() {
   player = new YT.Player('youtubePlayer', {
-    height: '100', width: '100',
+    height: '10', width: '10',
     playerVars: { 'autoplay': 1, 'controls': 0, 'enablejsapi': 1, 'playsinline': 1 },
     events: { 'onStateChange': onPlayerStateChange }
   });
@@ -367,7 +380,7 @@ function updateMediaSessionMetadata(song) {
   if ('mediaSession' in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: song.title,
-      artist: song.artist || song.host || "Musico",
+      artist: song.artist || song.host || "Musico Telugu",
       album: "Musico Stream",
       artwork: [{ src: song.coverImg || "https://img.icons8.com/color/512/audio-wave.png", sizes: "512x512", type: "image/png" }]
     });
@@ -384,13 +397,11 @@ function onPlayerStateChange(event) {
     isPlaying = true;
     document.getElementById('playButton').textContent = '⏸';
     document.getElementById('fullPlayButton').textContent = '⏸';
-    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
     startProgressTracker();
   } else if (event.data === YT.PlayerState.PAUSED) {
     isPlaying = false;
     document.getElementById('playButton').textContent = '▶';
     document.getElementById('fullPlayButton').textContent = '▶';
-    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
     clearInterval(progressInterval);
   } else if (event.data === YT.PlayerState.ENDED) {
     nextSong();
@@ -424,16 +435,19 @@ function formatTime(sec) {
   return `${m}:${s < 10 ? '0' : ''}${s}`;
 }
 
-function playSongItem(song) {
-  currentPlaylist = [song];
-  currentIndex = 0;
+function playSongAtIndex(index, list) {
+  if (list) currentPlaylist = list;
+  if (!currentPlaylist || !currentPlaylist.length) return;
   
+  currentIndex = (index + currentPlaylist.length) % currentPlaylist.length;
+  const song = currentPlaylist[currentIndex];
+
   document.getElementById('miniTitle').textContent = song.title;
-  document.getElementById('miniArtist').textContent = song.artist || song.host || "Musico";
+  document.getElementById('miniArtist').textContent = song.artist || "Telugu Stream";
   document.getElementById('miniCover').src = song.coverImg || "https://img.icons8.com/color/512/audio-wave.png";
 
   document.getElementById('fullTitle').textContent = song.title;
-  document.getElementById('fullArtist').textContent = song.artist || song.host || "Musico";
+  document.getElementById('fullArtist').textContent = song.artist || "Telugu Stream";
   document.getElementById('fullCoverImg').src = song.coverImg || "https://img.icons8.com/color/512/audio-wave.png";
 
   updateMediaSessionMetadata(song);
@@ -442,7 +456,7 @@ function playSongItem(song) {
     player.loadVideoById(song.videoId);
     player.playVideo();
   } else {
-    quickSearchPlay(song.title + " " + (song.artist || ""));
+    quickSearchPlay(song.title + " Telugu song " + (song.artist || ""));
   }
 }
 
@@ -457,8 +471,6 @@ async function quickSearchPlay(query) {
       
       document.getElementById('miniCover').src = cover;
       document.getElementById('fullCoverImg').src = cover;
-      
-      updateMediaSessionMetadata({ title: query, artist: item.snippet.channelTitle, coverImg: cover });
 
       if (player && typeof player.loadVideoById === 'function') {
         player.loadVideoById(videoId);
@@ -478,8 +490,15 @@ function togglePlay() {
   }
 }
 
-function nextSong() { if (currentPlaylist.length) playSongItem(currentPlaylist[0]); }
-function previousSong() { if (currentPlaylist.length) playSongItem(currentPlaylist[0]); }
+function nextSong() {
+  if (!currentPlaylist.length) return;
+  playSongAtIndex(currentIndex + 1);
+}
+
+function previousSong() {
+  if (!currentPlaylist.length) return;
+  playSongAtIndex(currentIndex - 1);
+}
 
 function openFullPlayer() { document.getElementById('fullPlayer').classList.add('active'); }
 function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('active'); }
@@ -524,13 +543,15 @@ function showPage(pageId) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
   document.getElementById(pageId + 'Page').classList.add('active');
-  document.getElementById('nav-' + pageId).classList.add('active');
+  
+  const navBtn = document.getElementById('nav-' + pageId);
+  if (navBtn) navBtn.classList.add('active');
 }
 
 function filterSearch() {
   const query = document.getElementById('songSearch').value.trim();
   if (!query) { document.getElementById('searchResults').innerHTML = ''; return; }
-  fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=8&key=${YOUTUBE_API_KEY}`)
+  fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query + " Telugu")}&type=video&maxResults=8&key=${YOUTUBE_API_KEY}`)
     .then(r => r.json())
     .then(data => {
       if (!data.items) return;
@@ -540,8 +561,9 @@ function filterSearch() {
         artist: i.snippet.channelTitle,
         coverImg: i.snippet.thumbnails.high.url
       }));
-      document.getElementById('searchResults').innerHTML = results.map(s => `
-        <div class="card" onclick="event.preventDefault(); playSongItem(${JSON.stringify(s).replace(/"/g, '&quot;')})">
+      currentPlaylist = results;
+      document.getElementById('searchResults').innerHTML = results.map((s, idx) => `
+        <div class="card" onclick="event.preventDefault(); playSongAtIndex(${idx}, currentPlaylist)">
           <div class="card-cover"><img src="${s.coverImg}"></div>
           <h3>${s.title}</h3>
           <p>${s.artist}</p>
@@ -566,6 +588,13 @@ function signOut() {
   document.getElementById('googleSignInBtn').style.display = 'flex';
   document.getElementById('signOutBtn').style.display = 'none';
 }
+
+// Clean exit stop playback when app/window is closed
+window.addEventListener('beforeunload', () => {
+  if (player && typeof player.pauseVideo === 'function') {
+    player.pauseVideo();
+  }
+});
 
 fetchBackendData();
 </script>
