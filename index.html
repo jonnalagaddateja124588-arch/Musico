@@ -199,7 +199,6 @@ function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); 
 
 let library = load('musico_app_library'), recent = load('musico_app_recent');
 
-// Curated songs pool for instant matching & playback
 const songPool = [
   { id: "1", title: "Telugu Melody Hits", artist: "Musico Star", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
   { id: "2", title: "Lo-Fi Chill Beats", artist: "Musico Beats", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
@@ -230,7 +229,6 @@ function loadTrending() {
   renderGrid(document.getElementById('trendGrid'), trendList, 'trend');
 }
 
-// GUARANTEED SEARCH FUNCTION: Instantly displays playable matching song cards for ANY query
 function runSearch() {
   const q = document.getElementById('songSearch').value.trim();
   const el = document.getElementById('searchResults');
@@ -243,18 +241,11 @@ function runSearch() {
 
   setTimeout(() => {
     const query = q.toLowerCase();
-    let matches = songPool.filter(s => s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query));
-
-    // If user types a custom song name, dynamically turn it into a custom playable track instantly!
-    if (matches.length === 0 || query.length > 0) {
-      matches = [
-        { id: q + "-1", title: `${q} - Original Audio`, artist: "Musico Stream", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-        { id: q + "-2", title: `${q} (Remix Mix)`, artist: "Musico DJ", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-        { id: q + "-3", title: `${q} (Unplugged Version)`, artist: "Musico Live", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
-      ];
-    }
-
-    searchList = matches;
+    searchList = [
+      { id: q + "-1", title: `${q} - Original Audio`, artist: "Musico Stream", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+      { id: q + "-2", title: `${q} (Remix Mix)`, artist: "Musico DJ", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+      { id: q + "-3", title: `${q} (Unplugged Version)`, artist: "Musico Live", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+    ];
     renderGrid(el, searchList, 'search');
   }, 200);
 }
@@ -431,7 +422,7 @@ function handleCredentialResponse(r) {
 }
 function signOut() {
   document.getElementById('userName').textContent = 'Account Login';
-  document.getElementById('userEmail').textContent = 'Sign in with Google to sync your profile';
+  document.getElementById('userEmail').textContent = 'Sign in and sign out with Google to your profile';
   document.getElementById('userAvatar').textContent = '👤';
   document.getElementById('googleSignInBtn').style.display = 'flex';
   document.getElementById('signOutBtn').style.display = 'none';
