@@ -160,7 +160,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 }
 .time-stamps { display: flex; justify-content: space-between; font-size: 12px; color: #a18f85; margin-top: 8px; }
 
-/* Media Control Controls Bar */
+/* Media Control Bar */
 .screenshot-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 0 10px; }
 .screenshot-controls button { background: none; border: none; color: white; cursor: pointer; display: grid; place-items: center; }
 .btn-small-icon { font-size: 20px; color: #22c55e; }
@@ -168,8 +168,8 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .btn-play-large { width: 68px; height: 68px; background: white !important; color: black !important; border-radius: 50%; font-size: 24px; display: grid; place-items: center; }
 
 /* Bottom Tools Bar */
-.bottom-tools { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; }
-.bottom-tools button { background: none; border: none; color: #a18f85; font-size: 20px; cursor: pointer; }
+.bottom-tools { display: flex; justify-content: space-around; align-items: center; padding-top: 10px; }
+.bottom-tools button { background: none; border: none; color: #a18f85; font-size: 16px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
 /* Bottom Navigation Bar */
 .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e293b; display: flex; justify-content: space-around; padding: 10px 0; z-index: 101; border-top: 1px solid #334155; }
@@ -183,7 +183,6 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   <div class="logo" onclick="showPage('home')"><div class="logo-icon">🎵</div><span>MUSICO</span></div>
   <div class="top-actions">
     <button class="top-btn" onclick="showPage('home')">🏠 Home</button>
-    <button class="top-btn" onclick="showPage('profile')">👤 Profile</button>
   </div>
 </header>
 
@@ -210,19 +209,12 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
     <div class="grid-container" id="searchResults"></div>
   </section>
 
-  <!-- Profile Page -->
-  <section id="profilePage" class="page">
-    <h2>Account Profile</h2>
-    <div style="background:#1e293b; padding:24px; border-radius:16px; text-align:center; margin-top:20px; border:1px solid #334155;">
-      <div id="userAvatar" style="font-size:48px; width:70px; height:70px; margin:0 auto 12px; display:grid; place-items:center; background:#334155; border-radius:50%;">👤</div>
-      <h3 id="userName" style="font-size:18px; margin-bottom:4px;">Guest User</h3>
-      <p id="userEmail" style="color:#94a3b8; font-size:13px; margin-bottom:20px;">Sign in to sync your account</p>
-      
-      <div id="authContainer">
-        <div id="g_id_onload" data-client_id="721484485179-lf5o68dkv7fi098nub4rffs1appu0nta.apps.googleusercontent.com" data-callback="handleCredentialResponse"></div>
-        <div class="g_id_signin" id="googleSignInBtn" data-type="standard" style="display:flex; justify-content:center;"></div>
-        <button id="signOutBtn" onclick="signOut()" style="display:none; margin:15px auto; padding:10px 24px; background:#ef4444; color:white; border:none; border-radius:20px; cursor:pointer; font-weight:600;">Sign Out</button>
-      </div>
+  <!-- Library Page (Downloaded Songs) -->
+  <section id="libraryPage" class="page">
+    <h2>📚 Your Library</h2>
+    <p style="color:#a18f85; margin-bottom:15px; font-size:14px;">Songs added to your Musico Library:</p>
+    <div class="grid-container" id="libraryGrid">
+      <p style="color:#94a3b8;">No saved songs yet. Click Download inside the player to add songs here!</p>
     </div>
   </section>
 </main>
@@ -264,7 +256,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
       <h2 id="fullTitle" style="color:white; font-size:20px; font-weight:700; margin:0;">No Song Selected</h2>
       <p id="fullArtist" style="color:#a18f85; font-size:14px; margin-top:4px;">Artist Name</p>
     </div>
-    <button class="add-btn" onclick="alert('Added to Liked Songs!')">+</button>
+    <button class="add-btn" onclick="downloadTrack()">⬇️</button>
   </div>
 
   <!-- Progress Bar & Timers -->
@@ -287,10 +279,8 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 
   <!-- Bottom Tools Bar -->
   <div class="bottom-tools">
-    <button onclick="alert('Device connected')">📺</button>
-    <button onclick="downloadTrack()">⬇️ Download</button>
+    <button onclick="downloadTrack()">⬇️ Save to Library</button>
     <button onclick="shareTrack()">🔗 Share</button>
-    <button onclick="alert('Queue view loaded')">≡</button>
   </div>
 </div>
 
@@ -298,12 +288,13 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 <nav class="bottom-nav">
   <button id="nav-home" class="active" onclick="showPage('home')">🏠<span>Home</span></button>
   <button id="nav-search" onclick="showPage('search')">🔍<span>Search</span></button>
-  <button id="nav-profile" onclick="showPage('profile')">👤<span>Profile</span></button>
+  <button id="nav-library" onclick="showPage('library')">📚<span>Library</span></button>
 </nav>
 
 <script>
 const audio = document.getElementById('audioPlayer');
 let currentPlaylist = [], currentIndex = 0, sleepTimerId = null;
+let downloadedSongs = JSON.parse(localStorage.getItem('musico_library') || '[]');
 
 const defaultSongs = [
   { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", title: "Raghukula Tilaka Rara", artist: "Kondala Swamy", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
@@ -316,6 +307,7 @@ const defaultSongs = [
 function initApp() {
   currentPlaylist = defaultSongs;
   renderDashboard();
+  renderLibrary();
 }
 
 function renderDashboard() {
@@ -323,7 +315,7 @@ function renderDashboard() {
     const container = document.getElementById(elementId);
     if (!items || !items.length) { container.innerHTML = '<p style="color:#94a3b8">No items available</p>'; return; }
     container.innerHTML = items.map((item, idx) => `
-      <div class="card" onclick="event.preventDefault(); playSongObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, ${idx})">
+      <div class="card" onclick="event.preventDefault(); playSongObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, ${idx}, defaultSongs)">
         <div class="card-cover">
           <img src="${item.coverImg || 'https://img.icons8.com/color/512/audio-wave.png'}" alt="${item.title}">
         </div>
@@ -337,6 +329,23 @@ function renderDashboard() {
   renderCards(defaultSongs.slice(0, 2), 'playlistGrid');
   renderCards(defaultSongs.slice(1, 3), 'albumGrid');
   renderCards(defaultSongs.slice(2, 4), 'podcastGrid');
+}
+
+function renderLibrary() {
+  const container = document.getElementById('libraryGrid');
+  if (!downloadedSongs.length) {
+    container.innerHTML = '<p style="color:#94a3b8;">No saved songs yet. Click Download inside the player to add songs here!</p>';
+    return;
+  }
+  container.innerHTML = downloadedSongs.map((item, idx) => `
+    <div class="card" onclick="event.preventDefault(); playSongObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, ${idx}, downloadedSongs)">
+      <div class="card-cover">
+        <img src="${item.coverImg || 'https://img.icons8.com/color/512/audio-wave.png'}" alt="${item.title}">
+      </div>
+      <h3>${item.title}</h3>
+      <p>${item.artist || 'Library Track'}</p>
+    </div>
+  `).join('');
 }
 
 audio.addEventListener('play', () => {
@@ -370,8 +379,10 @@ function formatTime(sec) {
   return `${m}:${s < 10 ? '0' : ''}${s}`;
 }
 
-function playSongObject(song, index) {
+function playSongObject(song, index, list) {
+  if (list) currentPlaylist = list;
   currentIndex = index;
+  
   document.getElementById('miniTitle').textContent = song.title;
   document.getElementById('miniArtist').textContent = song.artist || "Musico";
   document.getElementById('miniCover').src = song.coverImg || "https://img.icons8.com/color/512/audio-wave.png";
@@ -392,23 +403,63 @@ function togglePlay() {
 function nextSong() {
   if (!currentPlaylist.length) return;
   currentIndex = (currentIndex + 1) % currentPlaylist.length;
-  playSongObject(currentPlaylist[currentIndex], currentIndex);
+  playSongObject(currentPlaylist[currentIndex], currentIndex, currentPlaylist);
 }
 
 function previousSong() {
   if (!currentPlaylist.length) return;
   currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
-  playSongObject(currentPlaylist[currentIndex], currentIndex);
+  playSongObject(currentPlaylist[currentIndex], currentIndex, currentPlaylist);
 }
 
 function openFullPlayer() { document.getElementById('fullPlayer').classList.add('active'); }
 function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('active'); }
 
+function downloadTrack() {
+  if (!currentPlaylist.length || currentIndex < 0) {
+    alert("Please play a song first!");
+    return;
+  }
+  const song = currentPlaylist[currentIndex];
+  if (!downloadedSongs.some(s => s.title === song.title)) {
+    downloadedSongs.push(song);
+    localStorage.setItem('musico_library', JSON.stringify(downloadedSongs));
+    renderLibrary();
+    alert(`Added "${song.title}" to your Musico Library!`);
+  } else {
+    alert(`"${song.title}" is already in your Library.`);
+  }
+}
+
+function shareTrack() {
+  const title = document.getElementById('fullTitle').textContent;
+  if (navigator.share) {
+    navigator.share({ title: 'Musico Song', text: `Listening to ${title} on Musico`, url: window.location.href });
+  } else {
+    alert(`Link copied to clipboard for: ${title}`);
+  }
+}
+
+function triggerSleepTimer() {
+  const mins = prompt("Enter sleep timer duration in minutes:", "30");
+  if (mins && !isNaN(mins)) {
+    if (sleepTimerId) clearTimeout(sleepTimerId);
+    document.getElementById('timerDisplayBtn').textContent = `⏱️ ${mins}m`;
+    sleepTimerId = setTimeout(() => {
+      audio.pause();
+      document.getElementById('timerDisplayBtn').textContent = `⏱️ Timer`;
+      alert("Sleep timer finished. Music paused.");
+    }, parseInt(mins) * 60 * 1000);
+  }
+}
+
 function showPage(pageId) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
   document.getElementById(pageId + 'Page').classList.add('active');
-  document.getElementById('nav-' + pageId).classList.add('active');
+  
+  const navBtn = document.getElementById('nav-' + pageId);
+  if (navBtn) navBtn.classList.add('active');
 }
 
 function filterSearch() {
@@ -422,8 +473,8 @@ function filterSearch() {
   );
 
   if (matchedSongs.length > 0) {
-    searchContainer.innerHTML = matchedSongs.map((s, idx) => `
-      <div class="card" onclick="event.preventDefault(); playSongObject(${JSON.stringify(s).replace(/"/g, '&quot;')}, ${defaultSongs.indexOf(s)})">
+    searchContainer.innerHTML = matchedSongs.map((s) => `
+      <div class="card" onclick="event.preventDefault(); playSongObject(${JSON.stringify(s).replace(/"/g, '&quot;')}, ${defaultSongs.indexOf(s)}, defaultSongs)">
         <div class="card-cover"><img src="${s.coverImg}"></div>
         <h3>${s.title}</h3>
         <p>${s.artist}</p>
