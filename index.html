@@ -35,9 +35,9 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .chip { background: #334155; color: #fff; border: none; padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; }
 
 /* Lyrics Modal Overlay */
-.lyrics-modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.92); z-index: 400; flex-direction: column; padding: 30px 20px; overflow-y: auto; text-align: center; }
+.lyrics-modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 400; flex-direction: column; padding: 20px; overflow-y: auto; text-align: center; }
 .lyrics-modal.active { display: flex; }
-.lyrics-content { max-width: 600px; margin: auto; white-space: pre-line; line-height: 2; font-size: 16px; color: #e2e8f0; }
+.lyrics-content { max-width: 600px; margin: 0 auto; white-space: pre-line; line-height: 1.8; font-size: 15px; color: #e2e8f0; }
 
 .mini-player { display: none; position: fixed; bottom: calc(60px + env(safe-area-inset-bottom, 0px)); left: 0; width: 100%; background: #1e293b; border-top: 1px solid #334155; padding: 10px 20px; z-index: 100; cursor: pointer; }
 .mini-player.visible { display: block; }
@@ -60,7 +60,6 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .track-header-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .track-header-row h2 { color: #fff; font-size: 18px; margin: 0; }
 .track-header-row p { color: #94a3b8; font-size: 14px; margin-top: 4px; }
-.add-btn { width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; border: 2px solid #fff; background: none; color: #fff; font-size: 18px; display: grid; place-items: center; cursor: pointer; }
 .progress-bar { width: 100%; -webkit-appearance: none; appearance: none; height: 4px; background: #334155; border-radius: 2px; cursor: pointer; }
 .progress-bar::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; }
 .time-stamps { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-top: 8px; }
@@ -131,9 +130,9 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 
 <!-- Lyrics Modal -->
 <div class="lyrics-modal" id="lyricsModal">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-    <h2 style="color:#60a5fa; margin:0;" id="lyricsTitle">Song Lyrics</h2>
-    <button class="close-btn" onclick="closeLyrics()">✕</button>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+    <h2 style="color:#60a5fa; margin:0; font-size:18px;" id="lyricsTitle">Song Lyrics</h2>
+    <button class="close-btn" onclick="closeLyrics()" style="font-size:20px;">✕</button>
   </div>
   <div class="lyrics-content" id="lyricsBox">Loading lyrics...</div>
 </div>
@@ -161,7 +160,6 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   <div class="full-cover-box"><img id="fullCover" src="" alt=""></div>
   <div class="track-header-row">
     <div style="min-width:0"><h2 id="fullTitle">No song selected</h2><p id="fullArtist"></p></div>
-    <button class="add-btn" onclick="downloadTrack()" aria-label="Download Track">⬇️</button>
   </div>
   <div>
     <input type="range" class="progress-bar" id="seekBar" value="0" min="0" max="100" step="0.1" aria-label="Seek"
@@ -271,7 +269,6 @@ async function runSearch() {
     searchList = data.items.map(toSong).filter(s => s.id);
     renderGrid(el, searchList, 'search', 'No songs found.');
   } catch (e) {
-    // Fallback: If YouTube search quota is hit, query a rich local catalog or fetch direct search results safely
     try {
       const fallbackRes = await fetch(`https://invidious.jing.rocks/api/v1/search?q=${encodeURIComponent(q)}&type=video`);
       const fallbackData = await fallbackRes.json();
@@ -290,7 +287,6 @@ async function runSearch() {
       console.error('Fallback search error:', err);
     }
 
-    // Final local filter backup
     const allKnown = [...trendList, ...library, ...recent];
     searchList = allKnown.filter(s => s.title.toLowerCase().includes(q.toLowerCase()) || s.artist.toLowerCase().includes(q.toLowerCase()));
     if (searchList.length > 0) {
@@ -321,17 +317,22 @@ function renderLibrary() { renderGrid(document.getElementById('libraryGrid'), li
 
 document.addEventListener('click', e => {
   const card = e.target.closest('.card[data-list]');
-  if (card) playFromList(card.dataset.list, Number(card.dataset.idx));
+  if (card) {
+    playFromList(card.dataset.list, Number(card.dataset.idx));
+  }
 });
 document.addEventListener('keydown', e => {
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.card[data-list]')) {
-    e.preventDefault(); playFromList(e.target.dataset.list, Number(e.target.dataset.idx));
+    e.preventDefault(); 
+    playFromList(e.target.dataset.list, Number(e.target.dataset.idx));
   }
 });
 
 function playFromList(name, idx) {
-  const list = lists[name]().slice();
-  if (list[idx]) playSong(list[idx], idx, list);
+  const list = lists[name]();
+  if (list && list[idx]) {
+    playSong(list[idx], idx, list.slice());
+  }
 }
 
 const tag = document.createElement('script');
@@ -390,7 +391,7 @@ function seekAudio(val) {
 }
 
 function playSong(song, index, list) {
-  if (list) currentPlaylist = list;
+  if (list && list.length > 0) currentPlaylist = list;
   currentIndex = index; current = song;
   const cover = song.coverImg || FALLBACK;
   
@@ -417,7 +418,17 @@ function playSong(song, index, list) {
   else { pendingId = song.id; }
 
   if ('mediaSession' in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({ title: song.title, artist: song.artist, artwork: cover ? [{ src: cover }] : [] });
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: song.title,
+      artist: song.artist,
+      album: "Musico Stream",
+      artwork: cover ? [{ src: cover, sizes: "512x512", type: "image/jpeg" }] : []
+    });
+
+    navigator.mediaSession.setActionHandler('play', togglePlay);
+    navigator.mediaSession.setActionHandler('pause', togglePlay);
+    navigator.mediaSession.setActionHandler('previoustrack', previousSong);
+    navigator.mediaSession.setActionHandler('nexttrack', nextSong);
   }
 }
 
@@ -458,13 +469,6 @@ function previousSong() {
 }
 function toggleShuffle() { shuffleOn = !shuffleOn; document.getElementById('shuffleBtn').classList.toggle('on', shuffleOn); toast(shuffleOn ? 'Shuffle on' : 'Shuffle off'); }
 function toggleRepeat() { repeatOn = !repeatOn; document.getElementById('repeatBtn').classList.toggle('on', repeatOn); toast(repeatOn ? 'Repeat on' : 'Repeat off'); }
-
-if ('mediaSession' in navigator) {
-  navigator.mediaSession.setActionHandler('play', togglePlay);
-  navigator.mediaSession.setActionHandler('pause', togglePlay);
-  navigator.mediaSession.setActionHandler('previoustrack', previousSong);
-  navigator.mediaSession.setActionHandler('nexttrack', nextSong);
-}
 
 function openFullPlayer() { document.getElementById('fullPlayer').classList.add('active'); }
 function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('active'); }
