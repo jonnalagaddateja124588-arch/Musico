@@ -5,22 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Musico - Stream Music & Podcasts</title>
 
-<link rel="manifest" id="manifestPlaceholder">
 <meta name="theme-color" content="#0f172a">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <style>
-/* Strict app-like behavior: disable text selection and highlight rings */
 * { 
   box-sizing: border-box; 
   margin: 0; 
   padding: 0; 
   -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
 }
 
 body { 
@@ -154,7 +149,6 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .bottom-nav button { background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 11px; cursor: pointer; gap: 3px; }
 .bottom-nav button.active { color: #3b82f6; }
 
-/* Persistent Audio Container - stays independent of page rendering */
 #persistentAudioWrapper { position: fixed; bottom: -100px; left: -100px; width: 1px; height: 1px; opacity: 0; pointer-events: none; z-index: -1; }
 </style>
 </head>
@@ -205,7 +199,6 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   </section>
 </main>
 
-<!-- Persistent Audio Container (Separated from main view so navigation never kills audio) -->
 <div id="persistentAudioWrapper">
   <div id="youtubePlayer"></div>
 </div>
@@ -245,7 +238,6 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
     <p id="fullArtist" style="color:#94a3b8; font-size:13px; margin-top:4px;">Artist Name</p>
   </div>
 
-  <!-- Action Bar -->
   <div class="full-actions">
     <button class="action-btn" onclick="shareTrack()">📤 <span>Share</span></button>
     <button class="action-btn" onclick="alert('Queue: Playing current playlist.')">📜 <span>Queue</span></button>
@@ -253,7 +245,6 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
     <button class="action-btn" onclick="downloadTrack()">⬇️ <span>Download</span></button>
   </div>
 
-  <!-- Lyrics Box -->
   <div class="lyrics-box" id="lyricsBox">
     ♪ Streaming directly on Musico player.
   </div>
