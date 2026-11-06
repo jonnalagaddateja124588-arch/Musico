@@ -182,7 +182,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 <header>
   <div class="logo" onclick="showPage('home')"><div class="logo-icon">🎵</div><span>MUSICO</span></div>
   <div class="top-actions">
-    <button class="top-btn" onclick="showPage('home')">🏠 Home</button>
+    <button class="top-btn" onclick="showPage('recent')">🕒 Recent</button>
     <button class="top-btn" onclick="showPage('profile')">👤 Profile</button>
   </div>
 </header>
@@ -201,6 +201,15 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 
     <h2>🎙️ Podcasts</h2>
     <div class="grid-container" id="podcastGrid">Loading podcasts...</div>
+  </section>
+
+  <!-- Recent Songs Page -->
+  <section id="recentPage" class="page">
+    <h2>🕒 Recently Played Songs</h2>
+    <p style="color:#a18f85; margin-bottom:15px; font-size:14px;">Tracks you recently listened to:</p>
+    <div class="grid-container" id="recentGrid">
+      <p style="color:#94a3b8;">No recently played songs yet. Start listening to build your history!</p>
+    </div>
   </section>
 
   <!-- Search Page -->
@@ -224,8 +233,8 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
     <h2>Account Profile</h2>
     <div style="background:#1e293b; padding:24px; border-radius:16px; text-align:center; margin-top:20px; border:1px solid #334155;">
       <div id="userAvatar" style="font-size:48px; width:70px; height:70px; margin:0 auto 12px; display:grid; place-items:center; background:#334155; border-radius:50%;">👤</div>
-      <h3 id="userName" style="font-size:18px; margin-bottom:4px;">Guest User</h3>
-      <p id="userEmail" style="color:#94a3b8; font-size:13px; margin-bottom:20px;">Sign in to sync your account</p>
+      <h3 id="userName" style="font-size:18px; margin-bottom:4px;">Account Login</h3>
+      <p id="userEmail" style="color:#94a3b8; font-size:13px; margin-bottom:20px;">Sign in with Google to sync your profile</p>
       
       <div id="authContainer">
         <div id="g_id_onload" data-client_id="721484485179-lf5o68dkv7fi098nub4rffs1appu0nta.apps.googleusercontent.com" data-callback="handleCredentialResponse"></div>
@@ -312,6 +321,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 const audio = document.getElementById('audioPlayer');
 let currentPlaylist = [], currentIndex = 0, sleepTimerId = null;
 let downloadedSongs = JSON.parse(localStorage.getItem('musico_library') || '[]');
+let recentSongs = JSON.parse(localStorage.getItem('musico_recent') || '[]');
 
 const defaultSongs = [
   { audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", title: "Raghukula Tilaka Rara", artist: "Kondala Swamy", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" },
@@ -325,6 +335,7 @@ function initApp() {
   currentPlaylist = defaultSongs;
   renderDashboard();
   renderLibrary();
+  renderRecent();
 }
 
 function renderDashboard() {
@@ -332,7 +343,7 @@ function renderDashboard() {
     const container = document.getElementById(elementId);
     if (!items || !items.length) { container.innerHTML = '<p style="color:#94a3b8">No items available</p>'; return; }
     container.innerHTML = items.map((item, idx) => `
-      <div class="card" onclick="event.preventDefault(); playSongObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, ${idx}, defaultSongs)">
+      <div class="card" onclick="event.preventDefault(); playSongFromList(${idx}, defaultSongs)">
         <div class="card-cover">
           <img src="${item.coverImg || 'https://img.icons8.com/color/512/audio-wave.png'}" alt="${item.title}">
         </div>
@@ -355,7 +366,7 @@ function renderLibrary() {
     return;
   }
   container.innerHTML = downloadedSongs.map((item, idx) => `
-    <div class="card" onclick="event.preventDefault(); playSongObject(${JSON.stringify(item).replace(/"/g, '&quot;')}, ${idx}, downloadedSongs)">
+    <div class="card" onclick="event.preventDefault(); playSongFromList(${idx}, downloadedSongs)">
       <div class="card-cover">
         <img src="${item.coverImg || 'https://img.icons8.com/color/512/audio-wave.png'}" alt="${item.title}">
       </div>
@@ -363,6 +374,31 @@ function renderLibrary() {
       <p>${item.artist || 'Library Track'}</p>
     </div>
   `).join('');
+}
+
+function renderRecent() {
+  const container = document.getElementById('recentGrid');
+  if (!recentSongs.length) {
+    container.innerHTML = '<p style="color:#94a3b8;">No recently played songs yet. Start listening to build your history!</p>';
+    return;
+  }
+  container.innerHTML = recentSongs.map((item, idx) => `
+    <div class="card" onclick="event.preventDefault(); playSongFromList(${idx}, recentSongs)">
+      <div class="card-cover">
+        <img src="${item.coverImg || 'https://img.icons8.com/color/512/audio-wave.png'}" alt="${item.title}">
+      </div>
+      <h3>${item.title}</h3>
+      <p>${item.artist || 'Recent Track'}</p>
+    </div>
+  `).join('');
+}
+
+function addToRecent(song) {
+  recentSongs = recentSongs.filter(s => s.title !== song.title);
+  recentSongs.unshift(song);
+  if (recentSongs.length > 20) recentSongs.pop();
+  localStorage.setItem('musico_recent', JSON.stringify(recentSongs));
+  renderRecent();
 }
 
 audio.addEventListener('play', () => {
@@ -396,10 +432,15 @@ function formatTime(sec) {
   return `${m}:${s < 10 ? '0' : ''}${s}`;
 }
 
-function playSongObject(song, index, list) {
-  if (list) currentPlaylist = list;
+function playSongFromList(index, list) {
+  if (list && list.length > 0) {
+    currentPlaylist = list;
+  }
   currentIndex = index;
+  const song = currentPlaylist[currentIndex];
   
+  if (!song) return;
+
   document.getElementById('miniTitle').textContent = song.title;
   document.getElementById('miniArtist').textContent = song.artist || "Musico";
   document.getElementById('miniCover').src = song.coverImg || "https://img.icons8.com/color/512/audio-wave.png";
@@ -408,6 +449,7 @@ function playSongObject(song, index, list) {
   document.getElementById('fullArtist').textContent = song.artist || "Musico";
   document.getElementById('fullCoverImg').src = song.coverImg || "https://img.icons8.com/color/512/audio-wave.png";
 
+  addToRecent(song);
   audio.src = song.audioUrl;
   audio.play().catch(e => console.log("Playback error:", e));
 }
@@ -418,15 +460,15 @@ function togglePlay() {
 }
 
 function nextSong() {
-  if (!currentPlaylist.length) return;
+  if (!currentPlaylist || currentPlaylist.length === 0) return;
   currentIndex = (currentIndex + 1) % currentPlaylist.length;
-  playSongObject(currentPlaylist[currentIndex], currentIndex, currentPlaylist);
+  playSongFromList(currentIndex, currentPlaylist);
 }
 
 function previousSong() {
-  if (!currentPlaylist.length) return;
+  if (!currentPlaylist || currentPlaylist.length === 0) return;
   currentIndex = (currentIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
-  playSongObject(currentPlaylist[currentIndex], currentIndex, currentPlaylist);
+  playSongFromList(currentIndex, currentPlaylist);
 }
 
 function openFullPlayer() { document.getElementById('fullPlayer').classList.add('active'); }
@@ -490,8 +532,8 @@ function filterSearch() {
   );
 
   if (matchedSongs.length > 0) {
-    searchContainer.innerHTML = matchedSongs.map((s) => `
-      <div class="card" onclick="event.preventDefault(); playSongObject(${JSON.stringify(s).replace(/"/g, '&quot;')}, ${defaultSongs.indexOf(s)}, defaultSongs)">
+    searchContainer.innerHTML = matchedSongs.map((s, idx) => `
+      <div class="card" onclick="event.preventDefault(); playSongFromList(${idx}, matchedSongs)">
         <div class="card-cover"><img src="${s.coverImg}"></div>
         <h3>${s.title}</h3>
         <p>${s.artist}</p>
@@ -516,8 +558,8 @@ function handleCredentialResponse(r) {
 }
 
 function signOut() {
-  document.getElementById('userName').textContent = 'Guest User';
-  document.getElementById('userEmail').textContent = 'Sign in to sync your account';
+  document.getElementById('userName').textContent = 'Account Login';
+  document.getElementById('userEmail').textContent = 'Sign in with Google to sync your profile';
   document.getElementById('userAvatar').innerHTML = '👤';
   document.getElementById('googleSignInBtn').style.display = 'flex';
   document.getElementById('signOutBtn').style.display = 'none';
