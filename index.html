@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Musico - Stream Music & Podcasts</title>
 <meta name="theme-color" content="#0f172a">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -57,8 +57,9 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .full-player.active { transform: none; }
 .full-player-header { display: flex; justify-content: space-between; align-items: center; color: #cbd5e1; font-size: 14px; }
 .close-btn { font-size: 24px; background: none; border: none; color: #fff; cursor: pointer; }
-.video-box { width: min(100%, 360px); aspect-ratio: 16/10; min-height: 200px; margin: 0 auto; border-radius: 12px; overflow: hidden; background: #000; flex-shrink: 0; }
-.video-box iframe, .video-box > div { width: 100%; height: 100%; }
+.video-box { position: relative; width: min(100%, 260px); aspect-ratio: 1/1; margin: 0 auto; border-radius: 16px; overflow: hidden; background: #334155; flex-shrink: 0; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+.video-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; }
+.video-box #ytPlayer, .video-box iframe { position: absolute; top: 0; left: 0; width: 200px; height: 200px; opacity: 0; pointer-events: none; z-index: 1; }
 .track-header-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .track-header-row h2 { color: #fff; font-size: 18px; margin: 0; }
 .track-header-row p { color: #94a3b8; font-size: 14px; margin-top: 4px; }
@@ -82,6 +83,10 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .profile-box { background: #1e293b; padding: 24px; border-radius: 16px; text-align: center; margin-top: 20px; border: 1px solid #334155; }
 #userAvatar { font-size: 40px; width: 70px; height: 70px; margin: 0 auto 12px; display: grid; place-items: center; background: #334155; border-radius: 50%; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+html, body { touch-action: manipulation; }
+.full-player, .full-player * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.lyrics-box { touch-action: pan-y; }
+.lyric-line { cursor: default; }
 </style>
 </head>
 <body>
@@ -153,7 +158,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
     <span style="font-weight:600">Playing from YouTube</span>
     <button class="top-btn" onclick="triggerSleepTimer()" id="timerDisplayBtn">⏱️ Timer</button>
   </div>
-  <div class="video-box"><div id="ytPlayer"></div></div>
+  <div class="video-box"><img id="fullCover" src="" alt=""><div id="ytPlayer"></div></div>
   <div class="track-header-row">
     <div style="min-width:0"><h2 id="fullTitle">No song selected</h2><p id="fullArtist"></p></div>
     <button class="add-btn" onclick="saveTrack()" aria-label="Save to library">＋</button>
@@ -317,7 +322,7 @@ document.head.appendChild(tag);
 
 window.onYouTubeIframeAPIReady = function () {
   player = new YT.Player('ytPlayer', {
-    width: '100%', height: '100%',
+    width: '200', height: '200',
     playerVars: { playsinline: 1, controls: 0, disablekb: 1, rel: 0, modestbranding: 1 },
     events: {
       onReady: () => { playerReady = true; if (pendingId) { player.loadVideoById(pendingId); pendingId = null; } },
@@ -349,7 +354,7 @@ function startTick() {
       document.getElementById('currentTime').textContent = formatTime(t);
       document.getElementById('totalDuration').textContent = formatTime(d);
     }
-  }, 200);
+  }, 100);
 }
 function stopTick() { clearInterval(tick); }
 
@@ -381,6 +386,7 @@ function playSong(song, index, list) {
   document.getElementById('miniCover').src = cover;
   document.getElementById('fullTitle').textContent = song.title;
   document.getElementById('fullArtist').textContent = song.artist;
+  document.getElementById('fullCover').src = (song.coverImg || FALLBACK).replace('mqdefault', 'hqdefault');
   document.getElementById('seekBar').value = 0;
   document.getElementById('currentTime').textContent = '0:00';
   document.getElementById('totalDuration').textContent = '0:00';
@@ -525,6 +531,7 @@ async function fetchLRC(q, dur) {
   const close = data.find(d => d.syncedLyrics && diff(d) <= 30);
   const pick = good || close;
   const plain = data.find(d => d.plainLyrics);
+  console.log('Matched:', pick && pick.trackName, '|', pick && pick.artistName, '| LRC length:', pick && pick.duration, '| video length:', dur);
   return {
     synced: pick ? pick.syncedLyrics : '',
     approx: !good && !!close,
@@ -613,7 +620,7 @@ function renderLyrics() {
 
 function updateLyrics(t) {
   if (!lyrics.length) return;
-  const i = activeIndex(lyrics, t - lyricsOffset);
+  const i = activeIndex(lyrics, t - lyricsOffset + 0.3);
   if (i === lyricIdx) return;
   lyricIdx = i;
   const lines = document.querySelectorAll('#lyricsBody .lyric-line');
@@ -659,28 +666,26 @@ function addCustomLRC() {
 
 /* tap a line to jump there; pause auto-scroll while the user scrolls manually */
 document.getElementById('lyricsBody').addEventListener('click', e => {
+  if (!alignMode || !playerReady) return;
   const line = e.target.closest('.lyric-line');
-  if (!line || !playerReady) return;
+  if (!line) return;
   const l = lyrics[+line.dataset.i];
-  if (alignMode) {
-    alignMode = false;
-    lyricsOffset = Math.round((player.getCurrentTime() - l.time) * 10) / 10;
-    try {
-      const all = JSON.parse(localStorage.getItem('musico_lyric_offsets') || '{}');
-      all[current.id] = lyricsOffset;
-      localStorage.setItem('musico_lyric_offsets', JSON.stringify(all));
-    } catch (err) {}
-    lyricIdx = -2;
-    updateLyrics(player.getCurrentTime());
-    toast(`Aligned. Offset ${lyricsOffset}s (saved for this song)`);
-    return;
-  }
-  player.seekTo(l.time + lyricsOffset, true);
-  userScrollUntil = 0;
+  alignMode = false;
+  lyricsOffset = Math.round((player.getCurrentTime() - l.time) * 10) / 10;
+  try {
+    const all = JSON.parse(localStorage.getItem('musico_lyric_offsets') || '{}');
+    all[current.id] = lyricsOffset;
+    localStorage.setItem('musico_lyric_offsets', JSON.stringify(all));
+  } catch (err) {}
+  lyricIdx = -2;
+  updateLyrics(player.getCurrentTime());
+  toast(`Aligned. Offset ${lyricsOffset}s (saved for this song)`);
 });
 ['wheel', 'touchstart'].forEach(ev =>
   document.getElementById('lyricsBox').addEventListener(ev, () => { userScrollUntil = Date.now() + 4000; }, { passive: true }));
-
+['gesturestart', 'gesturechange', 'gestureend'].forEach(ev =>
+  document.addEventListener(ev, e => e.preventDefault()));
+document.addEventListener('contextmenu', e => { if (e.target.closest('.full-player')) e.preventDefault(); });
 /* ---------- start ---------- */
 document.getElementById('chips').innerHTML = ['Telugu songs', 'Hindi songs', 'Lo-fi beats', 'Podcasts', 'Devotional']
   .map(c => `<button class="chip" onclick="quickSearch('${c}')">${c}</button>`).join('');
