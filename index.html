@@ -544,7 +544,7 @@ async function loadLyrics(song) {
     if (!result) {
       result = { synced: getCustomLRC(id), plain: '' };       // your own LRC wins
       if (!result.synced) {
-        const dur = await waitForDuration();
+        const dur = 0; 
         for (const q of titleVariants(song.title)) {
           console.log('Lyrics search:', q);
           const r = await fetchLRC(q, dur);
