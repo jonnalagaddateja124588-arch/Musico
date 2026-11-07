@@ -46,7 +46,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .controls .main-play { background: #2563eb; width: 42px; height: 42px; border-radius: 50%; font-size: 18px; }
 
 /* Full Player Layout */
-.full-player { position: fixed; inset: 0; background: #0f172a; z-index: 300; display: flex; flex-direction: column; gap: 12px; padding: calc(20px + env(safe-area-inset-top, 0px)) 20px calc(20px + env(safe-area-inset-bottom, 0px)); overflow-y: auto; transform: translateY(100%); transition: transform .25s; }
+.full-player { position: fixed; inset: 0; background: #0f172a; z-index: 300; display: flex; flex-direction: column; gap: 10px; padding: calc(16px + env(safe-area-inset-top, 0px)) 20px calc(16px + env(safe-area-inset-bottom, 0px)); overflow-y: auto; transform: translateY(100%); transition: transform .25s; }
 .full-player.active { transform: none; }
 .full-player-header { display: flex; justify-content: space-between; align-items: center; color: #cbd5e1; font-size: 14px; flex-shrink: 0; }
 .close-btn { font-size: 24px; background: none; border: none; color: #fff; cursor: pointer; }
@@ -55,33 +55,27 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 #ytPlayerContainer { display: none; }
 
 /* Artwork View */
-.artwork-box { width: min(220px, 55vw); aspect-ratio: 1; margin: 4px auto; border-radius: 50%; overflow: hidden; background: #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); flex-shrink: 0; border: 4px solid #334155; }
+.artwork-box { width: min(190px, 48vw); aspect-ratio: 1; margin: 2px auto; border-radius: 50%; overflow: hidden; background: #1e293b; box-shadow: 0 8px 24px rgba(0,0,0,0.5); flex-shrink: 0; border: 4px solid #334155; }
 .artwork-box img { width: 100%; height: 100%; object-fit: cover; }
 
 .track-header-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-shrink: 0; }
-.track-header-row h2 { color: #fff; font-size: 18px; margin: 0; }
-.track-header-row p { color: #94a3b8; font-size: 14px; margin-top: 2px; }
-
-/* Mid Controls Bar (Queue, Like, Menu spacing) */
-.mid-actions-row { display: flex; justify-content: space-between; align-items: center; padding: 0 4px; flex-shrink: 0; }
-.mid-actions-row button { background: none; border: none; color: #94a3b8; font-size: 22px; cursor: pointer; display: grid; place-items: center; transition: color 0.2s; }
-.mid-actions-row button.liked { color: #ef4444; }
+.track-header-row h2 { color: #fff; font-size: 17px; margin: 0; }
+.track-header-row p { color: #94a3b8; font-size: 13px; margin-top: 2px; }
 
 .progress-bar { width: 100%; -webkit-appearance: none; appearance: none; height: 4px; background: #334155; border-radius: 2px; cursor: pointer; }
 .progress-bar::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; }
 .progress-bar::-moz-range-thumb { width: 14px; height: 14px; border: none; border-radius: 50%; background: #fff; }
 .time-stamps { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
 .media-controls { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; flex-shrink: 0; }
-.media-controls button { background: none; border: none; color: #fff; cursor: pointer; display: grid; place-items: center; font-size: 26px; }
-.media-controls .toggle { font-size: 20px; opacity: .5; }
-.media-controls .toggle.on { opacity: 1; color: #22c55e; }
-.media-controls .btn-play-large { width: 60px; height: 60px; background: #fff; color: #000; border-radius: 50%; font-size: 22px; }
+.media-controls button { background: none; border: none; color: #fff; cursor: pointer; display: grid; place-items: center; font-size: 24px; }
+.media-controls .btn-play-large { width: 56px; height: 56px; background: #fff; color: #000; border-radius: 50%; font-size: 20px; }
 
 /* Lyrics Panel inside Full Player */
-.lyrics-container { flex: 1; background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px; overflow-y: auto; text-align: center; display: flex; flex-direction: column; gap: 12px; min-height: 120px; max-height: 220px; }
-.lyrics-container h3 { font-size: 14px; color: #60a5fa; margin-bottom: 4px; text-align: left; }
-.lyrics-line { font-size: 14px; color: #94a3b8; line-height: 1.6; transition: all 0.2s; }
-.lyrics-line.active-line { color: #fff; font-weight: 700; transform: scale(1.03); }
+.lyrics-container { flex: 1; background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px 16px; overflow-y: auto; text-align: center; display: flex; flex-direction: column; gap: 8px; min-height: 100px; max-height: 180px; }
+.lyrics-container h3 { font-size: 13px; color: #60a5fa; margin-bottom: 2px; text-align: left; }
+.lyrics-line { font-size: 13px; color: #94a3b8; line-height: 1.5; transition: all 0.2s; }
+.lyrics-line.active-line { color: #fff; font-weight: 700; transform: scale(1.02); }
 
 /* Action Popup Modal */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
@@ -182,25 +176,19 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
     <div style="min-width:0"><h2 id="fullTitle">No song selected</h2><p id="fullArtist"></p></div>
   </div>
 
-  <!-- Middle Controls Row: Queue, Like, and More Actions -->
-  <div class="mid-actions-row">
-    <button onclick="openQueueModal()" aria-label="Queue" title="Queue">📜</button>
-    <button id="likeBtn" onclick="toggleLikeCurrent()" aria-label="Like" title="Like">❤️</button>
-    <button onclick="openActionSheet()" aria-label="More options" title="More options">⋮</button>
-  </div>
-
   <div>
     <input type="range" class="progress-bar" id="seekBar" value="0" min="0" max="100" step="0.1" aria-label="Seek"
       oninput="seeking = true; previewSeek(this.value)" onchange="seekAudio(this.value)">
     <div class="time-stamps"><span id="currentTime">0:00</span><span id="totalDuration">0:00</span></div>
   </div>
 
+  <!-- Media Controls: Queue replaces Shuffle, Menu replaces Repeat -->
   <div class="media-controls">
-    <button class="toggle" id="shuffleBtn" onclick="toggleShuffle()" aria-label="Shuffle">🔀</button>
+    <button onclick="openQueueModal()" aria-label="Queue" title="Playback Queue">📜</button>
     <button onclick="previousSong()" aria-label="Previous">⏮</button>
     <button class="btn-play-large" onclick="togglePlay()" id="fullPlayButton" aria-label="Play or pause">▶</button>
     <button onclick="nextSong()" aria-label="Next">⏭</button>
-    <button class="toggle" id="repeatBtn" onclick="toggleRepeat()" aria-label="Repeat">🔁</button>
+    <button onclick="openActionSheet()" aria-label="More options" title="More Options">⋮</button>
   </div>
 
   <!-- Synchronized Line-by-Line Lyrics Panel -->
@@ -255,7 +243,7 @@ function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); 
 let library = load('musico_yt_library'), recent = load('musico_yt_recent');
 let trendList = [], searchList = [];
 let currentPlaylist = [], currentIndex = -1, current = null;
-let sleepTimerId = null, seeking = false, shuffleOn = false, repeatOn = false;
+let sleepTimerId = null, seeking = false;
 let player = null, playerReady = false, pendingId = null, tick = null;
 
 const lists = { trend: () => trendList, search: () => searchList, recent: () => recent, library: () => library };
@@ -371,7 +359,7 @@ function onPlayerState(e) {
   const S = YT.PlayerState;
   setPlayIcons(e.data === S.PLAYING || e.data === S.BUFFERING);
   if (e.data === S.PLAYING) startTick();
-  if (e.data === S.ENDED) { stopTick(); if (repeatOn) { player.seekTo(0); player.playVideo(); } else nextSong(); }
+  if (e.data === S.ENDED) { stopTick(); nextSong(); }
 }
 function onPlayerError() {
   toast('Stream unavailable. Skipping to next.');
@@ -424,7 +412,6 @@ function playSong(song, index, list) {
   document.getElementById('currentTime').textContent = '0:00';
   document.getElementById('totalDuration').textContent = '0:00';
 
-  updateLikeButtonUI();
   generateSimulatedLyrics(song.title);
 
   recent = [song, ...recent.filter(s => s.id !== song.id)].slice(0, 20);
@@ -449,8 +436,7 @@ function togglePlay() {
 function nextSong() {
   const n = currentPlaylist.length;
   if (!n) return;
-  let i = (currentIndex + 1) % n;
-  if (shuffleOn && n > 1) { do { i = Math.floor(Math.random() * n); } while (i === currentIndex); }
+  const i = (currentIndex + 1) % n;
   playSong(currentPlaylist[i], i);
 }
 function previousSong() {
@@ -460,8 +446,6 @@ function previousSong() {
   const i = (currentIndex - 1 + n) % n;
   playSong(currentPlaylist[i], i);
 }
-function toggleShuffle() { shuffleOn = !shuffleOn; document.getElementById('shuffleBtn').classList.toggle('on', shuffleOn); toast(shuffleOn ? 'Shuffle on' : 'Shuffle off'); }
-function toggleRepeat() { repeatOn = !repeatOn; document.getElementById('repeatBtn').classList.toggle('on', repeatOn); toast(repeatOn ? 'Repeat on' : 'Repeat off'); }
 
 if ('mediaSession' in navigator) {
   navigator.mediaSession.setActionHandler('play', togglePlay);
@@ -510,27 +494,7 @@ function updateLyricsHighlight(currentTime) {
   });
 }
 
-/* ---------- Like, Queue, and Menu Actions ---------- */
-function isTrackLiked(id) { return library.some(s => s.id === id); }
-function toggleLikeCurrent() {
-  if (!current) { toast('Play a song first'); return; }
-  if (isTrackLiked(current.id)) {
-    library = library.filter(s => s.id !== current.id);
-    toast('Removed from Library');
-  } else {
-    library.push(current);
-    toast('Added to Library (Liked)');
-  }
-  save('musico_yt_library', library);
-  renderLibrary();
-  updateLikeButtonUI();
-}
-function updateLikeButtonUI() {
-  const btn = document.getElementById('likeBtn');
-  if (current && isTrackLiked(current.id)) btn.classList.add('liked');
-  else btn.classList.remove('liked');
-}
-
+/* ---------- Modals & Menu Actions ---------- */
 function openActionSheet() { document.getElementById('actionSheetModal').classList.add('active'); }
 function closeActionSheet(e) { if (!e || e.target === document.getElementById('actionSheetModal')) document.getElementById('actionSheetModal').classList.remove('active'); }
 
@@ -548,14 +512,12 @@ function openQueueModal() {
 }
 function closeQueueModal(e) { if (!e || e.target === document.getElementById('queueModal')) document.getElementById('queueModal').classList.remove('active'); }
 
-/* ---------- Menu Feature Actions ---------- */
 function saveTrack() {
   if (!current) { toast('Play a song first'); return; }
-  if (isTrackLiked(current.id)) { toast('Already in your Library'); return; }
+  if (library.some(s => s.id === current.id)) { toast('Already in your Library'); return; }
   library.push(current);
   save('musico_yt_library', library);
   renderLibrary();
-  updateLikeButtonUI();
   toast('Saved to your Library');
 }
 function setAsJioTune() {
