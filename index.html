@@ -87,6 +87,12 @@ html, body { touch-action: manipulation; }
 .full-player, .full-player * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .lyrics-box { touch-action: pan-y; }
 .lyric-line { cursor: default; }
+.suggest { display: none; background: #1e293b; border: 1px solid #334155; border-radius: 14px; margin: -6px 0 14px; overflow: hidden; }
+.suggest.show { display: block; }
+.sug { display: flex; gap: 10px; align-items: center; padding: 12px 16px; font-size: 15px; color: #e2e8f0; cursor: pointer; border-bottom: 1px solid #334155; }
+.sug:last-child { border-bottom: none; }
+.lyrics-status { font-size: 11px; color: #64748b; padding: 6px 12px 0; text-align: center; min-height: 18px; }
+.full-player input { -webkit-user-select: text; user-select: text; }
 </style>
 </head>
 <body>
@@ -107,11 +113,13 @@ html, body { touch-action: manipulation; }
   </section>
 
   <section id="searchPage" class="page">
-    <h2>Search YouTube</h2>
+    <h2>Search your song bro</h2>
     <div class="search-row">
-      <input type="search" id="songSearch" class="search-input" placeholder="Search songs, artists, podcasts..." aria-label="Search" onkeydown="if(event.key==='Enter')runSearch()">
+      <input type="search" id="songSearch" class="search-input" placeholder="Search songs, artists, podcasts..." aria-label="Search" autocomplete="off"
+    oninput="onSearchInput(this.value)" onfocus="onSearchInput(this.value)" onkeydown="if(event.key==='Enter')runSearch()">
       <button class="search-btn" onclick="runSearch()">Search</button>
     </div>
+<div class="suggest" id="suggestBox"></div>
     <div class="grid-container" id="searchResults"></div>
   </section>
 
@@ -173,6 +181,7 @@ html, body { touch-action: manipulation; }
       <button onclick="startAlign()">Align</button>
     </span>
   </div>
+  <div class="lyrics-status" id="lyricsStatus"></div>
   <div class="lyrics-box" id="lyricsBox"><div id="lyricsBody"><p class="lyrics-msg">Play a song to see lyrics</p></div></div>
 </div>
   <div>
@@ -271,10 +280,16 @@ async function runSearch() {
   const q = document.getElementById('songSearch').value.trim();
   const el = document.getElementById('searchResults');
   if (!q) return;
+  hideSuggestions();
+  addHistory(q);
+  document.getElementById('songSearch').blur();
   el.innerHTML = '<p class="empty">Searching...</p>';
   try {
     const data = await ytFetch('search', { part: 'snippet', type: 'video', videoEmbeddable: 'true', maxResults: 20, q });
     searchList = data.items.map(toSong).filter(s => s.id);
+    /* studio-audio uploads ("Artist - Topic") first: their length matches the lyrics best */
+    const topic = s => (/- topic$/i.test(s.artist) ? 1 : 0);
+    searchList.sort((a, b) => topic(b) - topic(a));
     renderGrid(el, searchList, 'search', 'No results found.');
   } catch (e) {
     el.innerHTML = `<p class="empty">${esc(e.message)}</p>`;
@@ -502,87 +517,223 @@ function signOut() {
   document.getElementById('signOutBtn').style.display = 'none';
   if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
 }
+/* ---------- search suggestions ---------- */
+let suggestTimer = null, suggestSeq = 0;
+
+function getHistory() {
+  try { const h = JSON.parse(localStorage.getItem('musico_search_history') || '[]'); return Array.isArray(h) ? h : []; }
+  catch (e) { return []; }
+}
+function addHistory(q) {
+  const h = [q, ...getHistory().filter(x => x.toLowerCase() !== q.toLowerCase())].slice(0, 8);
+  try { localStorage.setItem('musico_search_history', JSON.stringify(h)); } catch (e) {}
+}
+function fetchSuggestions(q) {
+  return new Promise(resolve => {
+    const cb = 'ytSuggest' + Date.now() + Math.floor(Math.random() * 1000);
+    const s = document.createElement('script');
+    const timer = setTimeout(() => done([]), 3000);
+    function done(list) { clearTimeout(timer); delete window[cb]; s.remove(); resolve(list); }
+    window[cb] = data => {
+      try { done((data[1] || []).map(x => (Array.isArray(x) ? x[0] : x)).filter(Boolean)); }
+      catch (e) { done([]); }
+    };
+    s.onerror = () => done([]);
+    s.src = 'https://suggestqueries.google.com/complete/search?client=youtube&ds=yt&hl=en&q=' + encodeURIComponent(q) + '&callback=' + cb;
+    document.head.appendChild(s);
+  });
+}
+function renderSuggestions(items, fromHistory) {
+  const box = document.getElementById('suggestBox');
+  if (!items.length) { box.classList.remove('show'); box.innerHTML = ''; return; }
+  box.innerHTML = items.map(t =>
+    `<div class="sug" data-q="${esc(t)}"><span>${fromHistory ? '🕘' : '🔍'}</span><span>${esc(t)}</span></div>`).join('');
+  box.classList.add('show');
+}
+function hideSuggestions() { suggestSeq++; clearTimeout(suggestTimer); renderSuggestions([]); }
+function onSearchInput(v) {
+  clearTimeout(suggestTimer);
+  const q = v.trim();
+  if (!q) { suggestSeq++; renderSuggestions(getHistory(), true); return; }   // empty box: show recent searches
+  const seq = ++suggestSeq;
+  suggestTimer = setTimeout(async () => {
+    const local = getHistory().filter(h => h.toLowerCase().includes(q.toLowerCase()));
+    renderSuggestions(local, true);
+    const remote = await fetchSuggestions(q);
+    if (seq !== suggestSeq) return;                                           // user kept typing
+    renderSuggestions([...new Set([...local, ...remote])].slice(0, 8));
+  }, 250);
+}
+document.getElementById('suggestBox').addEventListener('click', e => {
+  const el = e.target.closest('.sug');
+  if (!el) return;
+  document.getElementById('songSearch').value = el.dataset.q;
+  runSearch();
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-row') && !e.target.closest('#suggestBox')) hideSuggestions();
+});
+
 /* ---------- synced lyrics (LRCLIB) ---------- */
 let lyrics = [], lyricIdx = -2, lyricsOffset = 0, userScrollUntil = 0;
-const lyricsCache = {};
+let lyricsReq = 0;          // increases on every song change; old loads are discarded
+let lyricsSongId = null;    // song the lyrics on screen belong to
+let alignMode = false;
+const lyricsCache = {}, durCache = {};
 
-function titleVariants(title) {
-  const junk = /\b(official|lyrical|lyric|lyrics|video song|full video song|full video|full song|video|song|audio|4k|hd|telugu|hindi|tamil|new|latest)\b/gi;
-  const parts = title.replace(/[\(\[\{].*?[\)\]\}]/g, ' ')
-    .split(/[|\-–]/)
-    .map(p => p.replace(junk, ' ').replace(/\s+/g, ' ').trim())
-    .filter(Boolean);
-  const main = parts[0] || title;
-  const out = [main];
-  if (parts[1]) out.push(`${main} ${parts[1]}`);          // song + movie
-  const words = main.split(' ');
-  if (words.length > 2) out.push(words.slice(0, 2).join(' ')); // first two words only
-  return [...new Set(out)];
+const JUNK = /\b(official|lyrical|lyric|lyrics|video song|full video song|full video|full song|video|song|audio|4k|hd|hq|telugu|hindi|tamil|kannada|malayalam|new|latest|promo|jukebox)\b/gi;
+
+function normWords(s) {
+  return (s || '').toLowerCase()
+    .replace(/[\(\[\{].*?[\)\]\}]/g, ' ')
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .split(/\s+/).filter(Boolean);
+}
+/* spelling-tolerant form of a word (kurchi / kurchee) */
+function skel(w) {
+  if (!/^[a-z]+$/.test(w)) return w;
+  return w.replace(/[aeiou]/g, '').replace(/(.)\1+/g, '$1') || w;
+}
+/* "Song Lyrical Video | Movie | Singer" -> ["Song", "Movie", "Singer"] */
+function titleParts(title) {
+  return title.replace(/[\(\[\{].*?[\)\]\}]/g, ' ')
+    .split(/[|\-–—:]/)
+    .map(p => p.replace(JUNK, ' ').replace(/\s+/g, ' ').trim())
+    .filter(p => p.length > 1)
+    .slice(0, 3);
+}
+/* does this LRCLIB result have the same song name as the YouTube title? (0 to 1) */
+function nameScore(cand, titleSet, titleSkel, partWordLists) {
+  const cw = normWords(cand.trackName);
+  if (!cw.length) return 0;
+  const candCover = cw.filter(w => titleSet.has(w) || titleSkel.has(skel(w))).length / cw.length;
+  const cSet = new Set(cw), cSkel = new Set(cw.map(skel));
+  let best = 0;
+  for (const words of partWordLists) {
+    if (!words.length) continue;
+    const cover = words.filter(w => cSet.has(w) || cSkel.has(skel(w))).length / words.length;
+    best = Math.max(best, Math.min(candCover, cover));
+  }
+  return best;
+}
+function setStatus(t) { const el = document.getElementById('lyricsStatus'); if (el) el.textContent = t; }
+
+/* ---- video length, taken from YouTube's data (not from the player) ---- */
+function isoToSec(iso) {
+  const m = /^P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/.exec(iso || '');
+  if (!m) return 0;
+  return (+m[1] || 0) * 86400 + (+m[2] || 0) * 3600 + (+m[3] || 0) * 60 + (+m[4] || 0);
+}
+async function getVideoSeconds(id, stale) {
+  if (durCache[id]) return durCache[id];
+  let sec = 0;
+  try {
+    const data = await ytFetch('videos', { part: 'contentDetails', id });
+    const item = data.items && data.items[0];
+    sec = isoToSec(item && item.contentDetails && item.contentDetails.duration);
+  } catch (e) { console.warn('Duration lookup failed:', e.message); }
+  for (let i = 0; !sec && i < 40 && !stale(); i++) {           // fallback: ask the player
+    try { if (playerReady && player.getVideoData().video_id === id && player.getDuration() > 0) sec = player.getDuration(); } catch (e) {}
+    if (!sec) await new Promise(r => setTimeout(r, 200));
+  }
+  if (sec) durCache[id] = sec;
+  return sec;
 }
 
-async function fetchLRC(q, dur) {
-  const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(q)}`);
+async function lrclibSearch(params) {
+  const res = await fetch('https://lrclib.net/api/search?' + new URLSearchParams(params));
   if (!res.ok) throw new Error('HTTP ' + res.status);
-  let data = await res.json();
-  data = (Array.isArray(data) ? data : []).filter(d => d.syncedLyrics || d.plainLyrics);
-  if (dur) data.sort((a, b) => Math.abs((a.duration || 0) - dur) - Math.abs((b.duration || 0) - dur));
-  const diff = d => (dur ? Math.abs((d.duration || 0) - dur) : 0);
-  const good = data.find(d => d.syncedLyrics && diff(d) <= 10);
-  const close = data.find(d => d.syncedLyrics && diff(d) <= 30);
-  const pick = good || close;
-  const plain = data.find(d => d.plainLyrics);
-  console.log('Matched:', pick && pick.trackName, '|', pick && pick.artistName, '| LRC length:', pick && pick.duration, '| video length:', dur);
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
+}
+
+/* find lyrics whose song name AND length match the YouTube video */
+async function findLyrics(song, dur, stale) {
+  const parts = titleParts(song.title);
+  const titleSet = new Set(normWords(song.title));
+  const titleSkel = new Set([...titleSet].map(skel));
+  const partWordLists = (parts.length ? parts : [song.title]).map(normWords);
+
+  const queries = [];
+  parts.forEach(p => queries.push({ track_name: p }));
+  if (parts[0]) queries.push({ q: parts[0] });
+  if (parts[0] && parts[1]) queries.push({ q: parts[0] + ' ' + parts[1] });
+
+  const MAX_DIFF = 15;                  // seconds; a longer difference means another version
+  const seen = new Set(), tried = [];
+  let bestSynced = null, bestPlain = null;
+
+  for (const params of queries.slice(0, 5)) {
+    tried.push(params.track_name || params.q);
+    let data;
+    try { data = await lrclibSearch(params); } catch (e) { console.warn(e); continue; }
+    if (stale()) return null;
+    for (const d of data) {
+      if (seen.has(d.id)) continue;
+      seen.add(d.id);
+      if (nameScore(d, titleSet, titleSkel, partWordLists) < 0.7) continue;     // different song
+      const diff = dur ? Math.abs((d.duration || 0) - dur) : 0;
+      if (d.syncedLyrics && (!dur || diff <= MAX_DIFF) && (!bestSynced || diff < bestSynced.diff)) bestSynced = { d, diff };
+      if (d.plainLyrics && !bestPlain) bestPlain = d;
+    }
+    if (bestSynced && bestSynced.diff <= 6) break;                               // length matches well, stop
+  }
   return {
-    synced: pick ? pick.syncedLyrics : '',
-    approx: !good && !!close,
-    plain: plain ? plain.plainLyrics : ''
+    synced: bestSynced ? bestSynced.d.syncedLyrics : '',
+    approx: bestSynced ? bestSynced.diff > 6 : false,
+    info: bestSynced ? `${bestSynced.d.trackName} - ${bestSynced.d.artistName} (${formatTime(bestSynced.d.duration)})` : '',
+    plain: bestPlain ? bestPlain.plainLyrics : '',
+    tried: tried.join(' | ')
   };
 }
 
-async function waitForDuration(id) {
-  for (let i = 0; i < 50; i++) {
-    try {
-      if (playerReady && player.getVideoData && player.getVideoData().video_id === id && player.getDuration() > 0) {
-        return player.getDuration();
-      }
-    } catch (e) {}
-    await new Promise(r => setTimeout(r, 200));
-  }
-  return 0;
-}
 function getCustomLRC(id) { try { return JSON.parse(localStorage.getItem('musico_custom_lrc') || '{}')[id] || ''; } catch (e) { return ''; } }
+function load_offset(id) { try { return (JSON.parse(localStorage.getItem('musico_lyric_offsets') || '{}'))[id] || 0; } catch (e) { return 0; } }
 
 async function loadLyrics(song) {
   const id = song.id;
+  const req = ++lyricsReq;
+  const stale = () => req !== lyricsReq;
+
+  /* clear the previous song's lyrics immediately */
+  lyrics = []; lyricIdx = -2; lyricsSongId = null; alignMode = false;
   lyricsOffset = Number(load_offset(id));
+  setStatus('');
   showLyricsMsg('Loading lyrics...');
+
   try {
     let result = lyricsCache[id];
+    let dur = durCache[id] || 0;
     if (!result) {
-      result = { synced: getCustomLRC(id), plain: '' };       // your own LRC wins
+      result = { synced: getCustomLRC(id), plain: '', approx: false, info: '', tried: '' };
       if (!result.synced) {
-        const dur = await waitForDuration(id);
-        for (const q of titleVariants(song.title)) {
-          console.log('Lyrics search:', q);
-          const r = await fetchLRC(q, dur);
-	  if (r.synced || (!result.plain && r.plain)) result = { synced: r.synced, approx: r.approx, plain: r.plain || result.plain };          
-	    if (result.synced) break;
-        }
+        dur = await getVideoSeconds(id, stale);
+        if (stale()) return;
+        result = await findLyrics(song, dur, stale);
+        if (stale() || !result) return;
       }
-      lyricsCache[id] = result;
+      if (result.synced || result.plain || dur) lyricsCache[id] = result;
     }
-    if (!current || current.id !== id) return;
-    if (result.synced) { lyrics = parseLRC(result.synced); renderLyrics(); 
-	if (result.approx) toast('Lyrics may be slightly off. Use the Sync buttons.');
-	}
-    else if (result.plain) {
-      lyrics = []; lyricIdx = -2;
+    if (stale() || !current || current.id !== id) return;
+
+    const lenTxt = dur ? 'Video ' + formatTime(dur) + ' · ' : '';
+    if (result.synced) {
+      lyrics = parseLRC(result.synced);
+      lyricsSongId = id;
+      renderLyrics();
+      setStatus(lenTxt + (getCustomLRC(id) ? 'Using lyrics you added' : 'Matched: ' + result.info));
+      if (result.approx) toast('Length is slightly different. Use Align or the ± buttons.');
+    } else if (result.plain) {
+      setStatus(lenTxt + 'Only unsynced lyrics found');
       document.getElementById('lyricsBody').innerHTML =
-        `<p class="lyrics-msg" style="padding-top:0;white-space:pre-line;text-align:center">${esc(result.plain)}</p>`;
-    } else showLyricsMsg('Lyrics not available. Tap "Add LRC" to add them.');
+        `<p class="lyrics-msg" style="padding-top:0;white-space:pre-line">${esc(result.plain)}</p>`;
+    } else {
+      setStatus(lenTxt + 'Searched: ' + (result.tried || 'nothing'));
+      showLyricsMsg('No lyrics found that match this song and length. Tap "Add LRC" to add them.');
+    }
   } catch (e) {
     console.error('Lyrics error:', e);
-    if (current && current.id === id) showLyricsMsg('Could not load lyrics');
+    if (!stale()) showLyricsMsg('Could not load lyrics');
   }
 }
 
@@ -595,7 +746,6 @@ function parseLRC(lrc) {
   }
   return out.sort((a, b) => a.time - b.time);
 }
-
 function activeIndex(arr, t) {
   let lo = 0, hi = arr.length - 1, ans = -1;
   while (lo <= hi) {
@@ -604,12 +754,11 @@ function activeIndex(arr, t) {
   }
   return ans;
 }
-
 function showLyricsMsg(msg) {
-  lyrics = []; lyricIdx = -2;
+  lyrics = []; lyricIdx = -2; lyricsSongId = null;
   document.getElementById('lyricsBody').innerHTML = `<p class="lyrics-msg">${esc(msg)}</p>`;
+  document.getElementById('lyricsBox').scrollTop = 0;
 }
-
 function renderLyrics() {
   document.getElementById('lyricsBody').innerHTML = lyrics
     .map((l, i) => `<div class="lyric-line" data-i="${i}">${esc(l.text) || '♪'}</div>`).join('');
@@ -617,35 +766,35 @@ function renderLyrics() {
   lyricIdx = -2;
 }
 
-
+/* highlight the line that is being sung and keep it centered */
 function updateLyrics(t) {
-  if (!lyrics.length) return;
+  if (!lyrics.length || !current || lyricsSongId !== current.id) return;   // never use another song's lyrics
   const i = activeIndex(lyrics, t - lyricsOffset + 0.3);
   if (i === lyricIdx) return;
   lyricIdx = i;
   const lines = document.querySelectorAll('#lyricsBody .lyric-line');
   lines.forEach((el, n) => el.classList.toggle('active', n === i));
-  if (i >= 0 && Date.now() > userScrollUntil) {
+  if (i >= 0 && lines[i] && Date.now() > userScrollUntil) {
     const box = document.getElementById('lyricsBox'), el = lines[i];
     box.scrollTo({ top: el.offsetTop - box.clientHeight / 2 + el.clientHeight / 2, behavior: 'smooth' });
   }
 }
 
-/* per-song sync offset, remembered */
-function load_offset(id) { try { return (JSON.parse(localStorage.getItem('musico_lyric_offsets') || '{}'))[id] || 0; } catch (e) { return 0; } }
-function shiftLyrics(delta) {
-  if (!current) return;
-  lyricsOffset = Math.round((lyricsOffset + delta) * 10) / 10;
+function saveOffset() {
   try {
     const all = JSON.parse(localStorage.getItem('musico_lyric_offsets') || '{}');
     all[current.id] = lyricsOffset;
     localStorage.setItem('musico_lyric_offsets', JSON.stringify(all));
   } catch (e) {}
+}
+function shiftLyrics(delta) {
+  if (!current) return;
+  lyricsOffset = Math.round((lyricsOffset + delta) * 10) / 10;
+  saveOffset();
   lyricIdx = -2;
   if (playerReady) updateLyrics(player.getCurrentTime());
   toast(`Lyrics offset: ${lyricsOffset > 0 ? '+' : ''}${lyricsOffset}s`);
 }
-let alignMode = false;
 function startAlign() {
   if (!lyrics.length) { toast('No synced lyrics to align'); return; }
   alignMode = true;
@@ -664,7 +813,7 @@ function addCustomLRC() {
   loadLyrics(current);
 }
 
-/* tap a line to jump there; pause auto-scroll while the user scrolls manually */
+/* tapping a lyric never changes the audio; it only works right after pressing Align */
 document.getElementById('lyricsBody').addEventListener('click', e => {
   if (!alignMode || !playerReady) return;
   const line = e.target.closest('.lyric-line');
@@ -672,11 +821,7 @@ document.getElementById('lyricsBody').addEventListener('click', e => {
   const l = lyrics[+line.dataset.i];
   alignMode = false;
   lyricsOffset = Math.round((player.getCurrentTime() - l.time) * 10) / 10;
-  try {
-    const all = JSON.parse(localStorage.getItem('musico_lyric_offsets') || '{}');
-    all[current.id] = lyricsOffset;
-    localStorage.setItem('musico_lyric_offsets', JSON.stringify(all));
-  } catch (err) {}
+  saveOffset();
   lyricIdx = -2;
   updateLyrics(player.getCurrentTime());
   toast(`Aligned. Offset ${lyricsOffset}s (saved for this song)`);
