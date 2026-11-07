@@ -164,6 +164,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
     <span>Sync:
       <button onclick="shiftLyrics(-0.5)">−0.5s</button>
       <button onclick="shiftLyrics(0.5)">+0.5s</button>
+      <button onclick="addCustomLRC()">Add LRC</button>
     </span>
   </div>
   <div class="lyrics-box" id="lyricsBox"><div id="lyricsBody"><p class="lyrics-msg">Play a song to see lyrics</p></div></div>
@@ -498,14 +499,72 @@ function signOut() {
 let lyrics = [], lyricIdx = -2, lyricsOffset = 0, userScrollUntil = 0;
 const lyricsCache = {};
 
-function cleanTitle(title, channel) {
-  let t = title.split('|')[0]                       // "Song | Movie | Singer" -> "Song"
-    .replace(/[\(\[\{].*?[\)\]\}]/g, ' ')           // remove (Official Video), [HD] etc.
-    .replace(/official|lyrical|lyric video|lyrics|video song|full video|audio|4k|hd/gi, ' ')
-    .replace(/\s+/g, ' ').trim();
-  let artist = channel.replace(/vevo|official|music|- topic/gi, '').trim();
-  if (t.includes(' - ')) { const [a, b] = t.split(' - '); artist = a.trim(); t = b.trim(); }
-  return { track: t, artist };
+function titleVariants(title) {
+  const junk = /\b(official|lyrical|lyric|lyrics|video song|full video song|full video|full song|video|song|audio|4k|hd|telugu|hindi|tamil|new|latest)\b/gi;
+  const parts = title.replace(/[\(\[\{].*?[\)\]\}]/g, ' ')
+    .split(/[|\-–]/)
+    .map(p => p.replace(junk, ' ').replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+  const main = parts[0] || title;
+  const out = [main];
+  if (parts[1]) out.push(`${main} ${parts[1]}`);          // song + movie
+  const words = main.split(' ');
+  if (words.length > 2) out.push(words.slice(0, 2).join(' ')); // first two words only
+  return [...new Set(out)];
+}
+
+async function fetchLRC(q, videoDuration) {
+  const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(q)}`);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  let data = await res.json();
+  if (!Array.isArray(data)) data = [];
+  // closest duration to the YouTube video comes first
+  if (videoDuration) data.sort((a, b) => Math.abs((a.duration || 0) - videoDuration) - Math.abs((b.duration || 0) - videoDuration));
+  const synced = data.find(d => d.syncedLyrics && (!videoDuration || Math.abs(d.duration - videoDuration) < 25));
+  const plain = data.find(d => d.plainLyrics && (!videoDuration || Math.abs(d.duration - videoDuration) < 25));
+  return { synced: synced ? synced.syncedLyrics : '', plain: plain ? plain.plainLyrics : '' };
+}
+
+async function waitForDuration() {
+  for (let i = 0; i < 15; i++) {
+    if (playerReady && player.getDuration && player.getDuration() > 0) return player.getDuration();
+    await new Promise(r => setTimeout(r, 200));
+  }
+  return 0;
+}
+
+function getCustomLRC(id) { try { return JSON.parse(localStorage.getItem('musico_custom_lrc') || '{}')[id] || ''; } catch (e) { return ''; } }
+
+async function loadLyrics(song) {
+  const id = song.id;
+  lyricsOffset = Number(load_offset(id));
+  showLyricsMsg('Loading lyrics...');
+  try {
+    let result = lyricsCache[id];
+    if (!result) {
+      result = { synced: getCustomLRC(id), plain: '' };       // your own LRC wins
+      if (!result.synced) {
+        const dur = await waitForDuration();
+        for (const q of titleVariants(song.title)) {
+          console.log('Lyrics search:', q);
+          const r = await fetchLRC(q, dur);
+          if (r.synced || (!result.plain && r.plain)) result = { synced: r.synced, plain: r.plain || result.plain };
+          if (result.synced) break;
+        }
+      }
+      lyricsCache[id] = result;
+    }
+    if (!current || current.id !== id) return;
+    if (result.synced) { lyrics = parseLRC(result.synced); renderLyrics(); }
+    else if (result.plain) {
+      lyrics = []; lyricIdx = -2;
+      document.getElementById('lyricsBody').innerHTML =
+        `<p class="lyrics-msg" style="padding-top:0;white-space:pre-line;text-align:center">${esc(result.plain)}</p>`;
+    } else showLyricsMsg('Lyrics not available. Tap "Add LRC" to add them.');
+  } catch (e) {
+    console.error('Lyrics error:', e);
+    if (current && current.id === id) showLyricsMsg('Could not load lyrics');
+  }
 }
 
 function parseLRC(lrc) {
@@ -539,28 +598,6 @@ function renderLyrics() {
   lyricIdx = -2;
 }
 
-async function loadLyrics(song) {
-  const id = song.id;
-  lyricsOffset = Number(load_offset(id));
-  showLyricsMsg('Loading lyrics...');
-  try {
-    let lrc = lyricsCache[id];
-    if (lrc === undefined) {
-      const { track, artist } = cleanTitle(song.title, song.artist);
-      const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(track + ' ' + artist)}`);
-      const data = await res.json();
-      const synced = (Array.isArray(data) ? data : []).filter(d => d.syncedLyrics);
-      lrc = synced.length ? synced[0].syncedLyrics : '';
-      lyricsCache[id] = lrc;
-    }
-    if (!current || current.id !== id) return;       // user already switched songs
-    if (!lrc) return showLyricsMsg('Lyrics not available for this song');
-    lyrics = parseLRC(lrc);
-    renderLyrics();
-  } catch (e) {
-    if (current && current.id === id) showLyricsMsg('Could not load lyrics');
-  }
-}
 
 function updateLyrics(t) {
   if (!lyrics.length) return;
@@ -588,6 +625,18 @@ function shiftLyrics(delta) {
   lyricIdx = -2;
   if (playerReady) updateLyrics(player.getCurrentTime());
   toast(`Lyrics offset: ${lyricsOffset > 0 ? '+' : ''}${lyricsOffset}s`);
+}
+function addCustomLRC() {
+  if (!current) return;
+  const text = prompt('Paste the LRC lyrics for this song (lines like [00:12.50] lyric text):');
+  if (!text || !/\[\d+:\d+/.test(text)) { if (text) toast('That does not look like LRC format'); return; }
+  try {
+    const all = JSON.parse(localStorage.getItem('musico_custom_lrc') || '{}');
+    all[current.id] = text;
+    localStorage.setItem('musico_custom_lrc', JSON.stringify(all));
+  } catch (e) {}
+  delete lyricsCache[current.id];
+  loadLyrics(current);
 }
 
 /* tap a line to jump there; pause auto-scroll while the user scrolls manually */
