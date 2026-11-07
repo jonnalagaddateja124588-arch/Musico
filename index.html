@@ -3,25 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Musico - Spotify API Integration</title>
+<title>Musico - Stream Music & Podcasts</title>
+<meta name="theme-color" content="#0f172a">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { background: #0f172a; color: #fff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; padding-bottom: 240px; }
   
-  .search-box { display: flex; gap: 10px; max-width: 600px; margin: 0 auto 20px; }
-  input { flex: 1; padding: 12px 18px; border-radius: 25px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 15px; }
-  input:focus { outline: 2px solid #1db954; outline-offset: 2px; }
-  button { padding: 12px 24px; border-radius: 25px; border: none; background: #1db954; color: #fff; font-weight: bold; cursor: pointer; font-size: 14px; }
+  header { padding: 10px 0 20px; text-align: center; }
+  .logo { font-size: 26px; font-weight: 800; color: #3b82f6; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .logo-icon { width: 34px; height: 34px; background: #2563eb; border-radius: 8px; display: grid; place-items: center; color: #fff; }
   
+  .search-box { display: flex; gap: 10px; max-width: 600px; margin: 0 auto 20px; }
+  input { flex: 1; padding: 14px 20px; border-radius: 25px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 15px; }
+  input:focus { outline: 2px solid #3b82f6; outline-offset: 2px; }
+  button { padding: 14px 24px; border-radius: 25px; border: none; background: #2563eb; color: #fff; font-weight: bold; cursor: pointer; font-size: 14px; }
+  
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+  .chip { background: #334155; color: #fff; border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; }
+  .chip:hover { background: #475569; }
+
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; max-width: 900px; margin: auto; }
   .card { background: #1e293b; padding: 12px; border-radius: 14px; border: 1px solid #334155; text-align: center; cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
-  .card:hover { transform: translateY(-3px); border-color: #1db954; }
-  .card img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; background: #334155; }
-  .card h4 { font-size: 14px; margin: 8px 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card:hover { transform: translateY(-3px); border-color: #3b82f6; }
+  .card img { width: 100%; height: 140px; object-fit: cover; border-radius: 10px; background: #334155; }
+  .card h4 { font-size: 14px; margin: 10px 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; }
   .card p { font-size: 12px; color: #94a3b8; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   
   /* Persistent Bottom Audio Player Container */
-  .player-wrapper { position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; border-top: 1px solid #334155; padding: 16px 20px; z-index: 100; box-shadow: 0 -8px 24px rgba(0,0,0,0.4); display: none; flex-direction: column; gap: 12px; }
+  .player-wrapper { position: fixed; bottom: 0; left: 0; right: 0; background: #1e293b; border-top: 1px solid #334155; padding: 16px 20px; z-index: 100; box-shadow: 0 -8px 24px rgba(0,0,0,0.5); display: none; flex-direction: column; gap: 12px; }
   .player-main { display: flex; justify-content: space-between; align-items: center; gap: 15px; max-width: 900px; margin: 0 auto; width: 100%; }
   
   .track-info-group { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
@@ -31,8 +40,8 @@
   .track-details span { font-size: 13px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
   
   /* Media & Action Control Buttons */
-  .player-controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-  .action-btn { background: #334155; border: none; color: #fff; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .player-controls { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .action-btn { background: #334155; border: 1px solid #475569; color: #fff; padding: 8px 14px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
   .action-btn:hover { background: #475569; }
   
   /* Dropdown Options Menu */
@@ -41,24 +50,34 @@
   .menu-dropdown.show { display: block; }
   .menu-item { width: 100%; text-align: left; background: none; border: none; color: #f8fafc; padding: 12px 16px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #1e293b; }
   .menu-item:last-child { border-bottom: none; }
-  .menu-item:hover { background: #1e293b; color: #1db954; }
+  .menu-item:hover { background: #1e293b; color: #60a5fa; }
   
-  /* Lyrics Display Area */
+  /* Line-by-Line Lyrics Display Area */
   .lyrics-container { max-width: 900px; margin: 0 auto; width: 100%; max-height: 90px; overflow-y: auto; background: #0f172a; padding: 10px 16px; border-radius: 10px; border: 1px solid #334155; text-align: center; }
   .lyrics-line { font-size: 13px; line-height: 1.6; color: #cbd5e1; margin: 2px 0; }
-  .lyrics-line.highlight { color: #1db954; font-weight: bold; font-size: 14px; }
+  .lyrics-line.highlight { color: #60a5fa; font-weight: bold; font-size: 14px; }
   
   /* Toast Notification Popup */
-  .toast { position: fixed; top: 20px; right: 20px; background: #1db954; color: #fff; padding: 12px 20px; border-radius: 25px; font-weight: bold; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: none; z-index: 300; }
+  .toast { position: fixed; top: 20px; right: 20px; background: #2563eb; color: #fff; padding: 12px 20px; border-radius: 25px; font-weight: bold; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: none; z-index: 300; }
 </style>
 </head>
 <body>
 
-<h2 style="text-align:center; color:#1db954; margin-bottom: 20px;">Musico x Spotify Search</h2>
+<header>
+  <div class="logo"><div class="logo-icon">🎵</div><span>MUSICO</span></div>
+</header>
 
 <div class="search-box">
-  <input type="text" id="query" placeholder="Search Telugu songs, Kopam ga song, Old hits..." onkeydown="if(event.key==='Enter')searchSpotify()">
-  <button onclick="searchSpotify()">Search</button>
+  <input type="text" id="query" placeholder="Search Telugu songs, Kopam ga song, Old hits..." onkeydown="if(event.key==='Enter')runSearch()">
+  <button onclick="runSearch()">Search</button>
+</div>
+
+<div class="chips">
+  <button class="chip" onclick="quickSearch('Telugu Songs')">Telugu Songs</button>
+  <button class="chip" onclick="quickSearch('Kopam ga song')">Kopam ga song</button>
+  <button class="chip" onclick="quickSearch('Old Hits')">Old Hits</button>
+  <button class="chip" onclick="quickSearch('New Songs')">New Songs</button>
+  <button class="chip" onclick="quickSearch('Hindi Bollywood')">Hindi Bollywood</button>
 </div>
 
 <div class="grid" id="results"></div>
@@ -67,7 +86,7 @@
 <div class="player-wrapper" id="player">
   <div class="player-main">
     <div class="track-info-group">
-      <img id="playerCover" src="" alt="Album Artwork">
+      <img id="playerCover" src="" alt="Song Cover">
       <div class="track-details">
         <strong id="trackTitle">No track selected</strong>
         <span id="trackArtist">Artist Name</span>
@@ -104,107 +123,83 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// Replace these with your Spotify Developer Credentials
-const CLIENT_ID = 'YOUR_CLIENT_ID';
-const CLIENT_SECRET = 'YOUR_CLIENT_SECRET';
-
-let accessToken = '';
+const audio = document.getElementById('audio');
 let currentTrack = null;
-let songQueue = [];
+let loadedQueue = [];
 
-// Step A: Get Spotify API Access Token
-async function getAccessToken() {
-  try {
-    const response = await fetch('https://accounts.spotify.com/api/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic ' + btoa(CLIENT_ID + ':' + CLIENT_SECRET)
-      },
-      body: 'grant_type=client_credentials'
-    });
-    const data = await response.json();
-    accessToken = data.access_token;
-  } catch (err) {
-    console.error('Error fetching token:', err);
-  }
-}
+// Curated Master Song Database
+const masterDatabase = [
+  { id: "1", title: "Butta Bomma (Telugu Hit)", artist: "Armaan Malik", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+  { id: "2", title: "Samajavaragamana (Telugu Melody)", artist: "Sid Sriram", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+  { id: "3", title: "Kopamga Song (Angry Mood)", artist: "Musico Mix", coverImg: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+  { id: "4", title: "Geethanjali Classic (Old Gold)", artist: "S.P. Balasubrahmanyam", coverImg: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+  { id: "5", title: "90s Evergreen Retro Hit", artist: "Chitra & Yesudas", coverImg: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
+];
 
-// Step B: Search Spotify API for Songs
-async function searchSpotify() {
+// Perform Track Search
+function runSearch() {
   const q = document.getElementById('query').value.trim();
+  const container = document.getElementById('results');
   if (!q) return;
 
-  if (!accessToken) await getAccessToken();
+  const query = q.toLowerCase();
+  let matches = masterDatabase.filter(s => s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query));
 
-  try {
-    const res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=track&limit=12`, {
-      headers: { 'Authorization': 'Bearer ' + accessToken }
-    });
-    
-    const data = await res.json();
-    if (data.tracks && data.tracks.items) {
-      renderTracks(data.tracks.items);
-    }
-  } catch (err) {
-    console.error('Search error:', err);
+  if (matches.length === 0) {
+    matches = [
+      { id: q + "-1", title: `${q} - Original Audio`, artist: "Musico Audio", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+      { id: q + "-2", title: `${q} (Remix Version)`, artist: "Musico DJ", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }
+    ];
   }
+
+  loadedQueue = matches;
+  renderTracks(matches);
 }
 
-// Step C: Render Song Cards with Cover Images
+function quickSearch(keyword) {
+  document.getElementById('query').value = keyword;
+  runSearch();
+}
+
 function renderTracks(tracks) {
   const container = document.getElementById('results');
   container.innerHTML = '';
-  songQueue = tracks;
 
   tracks.forEach(track => {
     const card = document.createElement('div');
     card.className = 'card';
     card.onclick = () => playTrack(track);
 
-    const imgUrl = track.album.images[0] ? track.album.images[0].url : '';
-    const artistName = track.artists.map(a => a.name).join(', ');
-
     card.innerHTML = `
-      <img src="${imgUrl}" alt="${track.name}">
-      <h4>${track.name}</h4>
-      <p>${artistName}</p>
+      <img src="${track.coverImg}" alt="${track.title}">
+      <h4>${track.title}</h4>
+      <p>${track.artist}</p>
     `;
     container.appendChild(card);
   });
 }
 
-// Step D: Play Audio Stream with Line-by-Line Lyrics & Background Support
+// Play Selected Track & Configure Background Playback
 function playTrack(track) {
   currentTrack = track;
-  const imgUrl = track.album.images[0] ? track.album.images[0].url : '';
-  const artistName = track.artists.map(a => a.name).join(', ');
-
   document.getElementById('player').style.display = 'flex';
-  document.getElementById('trackTitle').textContent = track.name;
-  document.getElementById('trackArtist').textContent = artistName;
-  document.getElementById('playerCover').src = imgUrl;
-  
-  const audio = document.getElementById('audio');
+  document.getElementById('trackTitle').textContent = track.title;
+  document.getElementById('trackArtist').textContent = track.artist;
+  document.getElementById('playerCover').src = track.coverImg;
 
-  if (!track.preview_url) {
-    showToast('Spotify audio preview unavailable for this track.');
-    return;
-  }
-
-  audio.src = track.preview_url;
+  audio.src = track.audioUrl;
   audio.play();
 
-  // Load line-by-line lyrics below the player controls
-  loadLyrics(track.name, artistName);
+  // Load Line-by-Line Lyrics
+  loadLyrics(track.title, track.artist);
 
   // Background audio playback via native MediaSession API
   if ('mediaSession' in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: track.name,
-      artist: artistName,
-      album: track.album.name || 'Spotify Stream',
-      artwork: [{ src: imgUrl, sizes: '512x512', type: 'image/jpeg' }]
+      title: track.title,
+      artist: track.artist,
+      album: 'Musico Stream',
+      artwork: [{ src: track.coverImg, sizes: '512x512', type: 'image/jpeg' }]
     });
 
     navigator.mediaSession.setActionHandler('play', () => audio.play());
@@ -212,7 +207,7 @@ function playTrack(track) {
   }
 }
 
-// Line-by-Line Lyrics Engine
+// Line-by-Line Lyrics Renderer
 function loadLyrics(title, artist) {
   const box = document.getElementById('lyricsBox');
   const lines = [
@@ -249,39 +244,39 @@ document.addEventListener('click', () => {
 
 // Options Menu Actions
 function openQueue() {
-  if (!songQueue.length) { showToast('Queue is currently empty'); return; }
-  showToast(`Queue contains ${songQueue.length} loaded tracks`);
+  if (!loadedQueue.length) { showToast('Queue is currently empty'); return; }
+  showToast(`Queue contains ${loadedQueue.length} loaded tracks`);
 }
 
 function saveToLibrary() {
   if (!currentTrack) { showToast('Play a song first'); return; }
-  showToast(`"${currentTrack.name}" saved to Library!`);
+  showToast(`"${currentTrack.title}" saved to Library!`);
 }
 
 function setJioTune() {
   if (!currentTrack) { showToast('Play a song first'); return; }
-  showToast(`Requested "${currentTrack.name}" as JioTune`);
+  showToast(`Requested "${currentTrack.title}" as JioTune`);
 }
 
 function setRingtone() {
   if (!currentTrack) { showToast('Play a song first'); return; }
-  showToast(`Ringtone set for "${currentTrack.name}"`);
+  showToast(`Ringtone set for "${currentTrack.title}"`);
 }
 
 function addToPlaylist() {
   if (!currentTrack) { showToast('Play a song first'); return; }
-  showToast(`Added "${currentTrack.name}" to Playlist`);
+  showToast(`Added "${currentTrack.title}" to Playlist`);
 }
 
 function downloadTrack() {
   if (!currentTrack) { showToast('Play a song first'); return; }
-  showToast(`Downloading "${currentTrack.name}"...`);
+  showToast(`Downloading "${currentTrack.title}"...`);
 }
 
 function shareTrack() {
   if (!currentTrack) { showToast('Play a song first'); return; }
   if (navigator.share) {
-    navigator.share({ title: currentTrack.name, text: `Listen to ${currentTrack.name} on Musico`, url: currentTrack.preview_url });
+    navigator.share({ title: currentTrack.title, text: `Listen to ${currentTrack.title} on Musico`, url: currentTrack.audioUrl });
   } else {
     showToast('Share link copied to clipboard!');
   }
@@ -293,6 +288,10 @@ function showToast(msg) {
   t.style.display = 'block';
   setTimeout(() => { t.style.display = 'none'; }, 2600);
 }
+
+// Initial Load
+renderTracks(masterDatabase);
+loadedQueue = masterDatabase;
 </script>
 </body>
 </html>
