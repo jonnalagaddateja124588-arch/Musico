@@ -7,564 +7,514 @@
 <title>MUSICO - Music Player</title>
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+*{box-sizing:border-box}
+body{
+ background:#0f172a;color:white;font-family:sans-serif;
+ padding:20px;margin:0;padding-bottom:130px
 }
-
-body {
-    background: #10121c;
-    color: white;
-    font-family: Arial, sans-serif;
-    padding-bottom: 110px;
+h2{text-align:center;color:#1db954}
+.search-box{
+ display:flex;gap:10px;max-width:600px;
+ margin:0 auto 20px
 }
-
-header {
-    padding: 22px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+input{
+ flex:1;padding:12px;border-radius:20px;
+ border:1px solid #334155;background:#1e293b;color:white
 }
-
-.logo {
-    font-size: 27px;
-    font-weight: bold;
-    letter-spacing: 3px;
+button{
+ padding:12px 18px;border-radius:20px;border:none;
+ background:#1db954;color:white;font-weight:bold;cursor:pointer
 }
-
-.logo span {
-    color: #8b7cff;
+.grid{
+ display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+ gap:16px;max-width:900px;margin:auto
 }
-
-.container {
-    max-width: 650px;
-    margin: auto;
-    padding: 15px;
+.card{
+ background:#1e293b;padding:12px;border-radius:12px;
+ border:1px solid #334155;text-align:center;cursor:pointer
 }
-
-.cover {
-    width: 100%;
-    max-width: 330px;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border-radius: 20px;
-    display: block;
-    margin: 20px auto;
-    box-shadow: 0 10px 40px #0008;
+.card img{
+ width:100%;height:140px;object-fit:cover;border-radius:8px
 }
-
-.song-info {
-    text-align: center;
-    margin: 20px 0;
+.card h4{
+ font-size:14px;margin:8px 0 4px;white-space:nowrap;
+ overflow:hidden;text-overflow:ellipsis
 }
+.card p{font-size:12px;color:#94a3b8;margin:0}
 
-.song-info h2 {
-    font-size: 25px;
-    margin-bottom: 8px;
+.player{
+ position:fixed;bottom:0;left:0;right:0;
+ background:#1e293b;padding:14px 20px;
+ border-top:1px solid #334155;z-index:10
 }
-
-.song-info p {
-    color: #aaa;
+.player-top{
+ display:flex;align-items:center;gap:15px;
+ max-width:800px;margin:auto
 }
-
-.controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 32px;
-    margin: 25px 0;
+.player-cover{
+ width:65px;height:65px;object-fit:cover;border-radius:9px
 }
-
-.controls button {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 25px;
-    cursor: pointer;
+.song-details{flex:1;min-width:0}
+.song-details strong{display:block;overflow:hidden;text-overflow:ellipsis}
+.song-details p{font-size:12px;color:#94a3b8;margin:5px 0}
+.player-actions{display:flex;align-items:center;gap:12px}
+.icon-btn{
+ background:transparent;color:white;font-size:22px;
+ padding:8px;border:none
 }
-
-.controls .play {
-    background: #8b7cff;
-    color: white;
-    width: 62px;
-    height: 62px;
-    border-radius: 50%;
-    font-size: 27px;
+.play-btn{
+ background:#1db954;color:white;border-radius:50%;
+ width:43px;height:43px;font-size:19px;padding:0
 }
-
-.progress-area {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #aaa;
-    font-size: 12px;
+.progress-row{
+ max-width:800px;margin:8px auto 0;
+ display:flex;align-items:center;gap:10px;
+ font-size:11px;color:#94a3b8
 }
+.progress-row input{padding:0;accent-color:#1db954}
+.volume{max-width:800px;margin:5px auto}
+.volume input{accent-color:#1db954}
 
-input[type="range"] {
-    flex: 1;
-    accent-color: #8b7cff;
-    cursor: pointer;
+.panel{
+ background:#1e293b;padding:18px;border-radius:14px;
+ max-width:800px;margin:20px auto;border:1px solid #334155
 }
-
-.actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 25px 0;
+.panel h3{margin-top:0}
+.lyrics-preview{
+ white-space:pre-line;line-height:2;color:#cbd5e1;
+ max-height:130px;overflow:auto
 }
-
-.actions button {
-    background: #222536;
-    color: white;
-    border: 1px solid #34384d;
-    padding: 12px 17px;
-    border-radius: 12px;
-    cursor: pointer;
+.text-btn{
+ background:transparent;color:#1db954;padding:5px 0
 }
-
-.section {
-    background: #191c2a;
-    padding: 20px;
-    border-radius: 16px;
-    margin-top: 20px;
+.page{display:none;max-width:800px;margin:auto}
+.page.active{display:block}
+.back-btn{background:#334155;margin-bottom:20px}
+.full-lyrics{
+ text-align:center;white-space:pre-line;line-height:2.5;
+ font-size:17px;color:#e2e8f0;padding:20px
 }
-
-.section h3 {
-    margin-bottom: 15px;
+.menu{
+ display:none;position:fixed;bottom:115px;right:20px;
+ width:220px;background:#263449;border:1px solid #475569;
+ border-radius:13px;overflow:hidden;z-index:20;
+ box-shadow:0 8px 25px #0008
 }
-
-.lyrics {
-    color: #c8c8d2;
-    line-height: 2;
-    white-space: pre-line;
-    max-height: 220px;
-    overflow-y: auto;
+.menu button{
+ display:block;width:100%;text-align:left;
+ background:transparent;color:white;border-radius:0;
+ padding:14px;border-bottom:1px solid #334155
 }
-
-.lyrics-page {
-    display: none;
-    padding: 20px;
-    text-align: center;
+.menu button:hover{background:#334155}
+.queue-item{
+ display:flex;align-items:center;gap:12px;padding:10px;
+ border-bottom:1px solid #334155;cursor:pointer
 }
-
-.lyrics-page .full-lyrics {
-    white-space: pre-line;
-    line-height: 2.3;
-    margin-top: 25px;
-    color: #ddd;
-}
-
-.menu {
-    display: none;
-    position: absolute;
-    right: 20px;
-    background: #282b3b;
-    border-radius: 12px;
-    width: 210px;
-    overflow: hidden;
-    z-index: 5;
-    box-shadow: 0 8px 25px #0008;
-}
-
-.menu button {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 14px;
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-}
-
-.menu button:hover {
-    background: #41445a;
-}
-
-.queue-item {
-    padding: 12px;
-    border-bottom: 1px solid #333;
-    cursor: pointer;
-    color: #ddd;
-}
-
-.queue-item:hover {
-    color: #a99cff;
-}
-
-.bottom-player {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #191c2a;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid #303347;
-}
-
-.bottom-player button {
-    background: none;
-    color: white;
-    border: none;
-    font-size: 22px;
-    cursor: pointer;
-}
-
-.page {
-    display: none;
-}
-
-.page.active {
-    display: block;
-}
-
-.back {
-    background: #292c3c;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 10px;
-    cursor: pointer;
-    margin-bottom: 15px;
-}
-
-@media(max-width: 500px) {
-    .controls {
-        gap: 22px;
-    }
-    .cover {
-        max-width: 280px;
-    }
+.queue-item img{width:45px;height:45px;object-fit:cover;border-radius:7px}
+.queue-item p{font-size:12px;color:#94a3b8;margin:4px 0}
+.queue-item.active{color:#1db954}
+@media(max-width:550px){
+ body{padding:12px;padding-bottom:140px}
+ .player{padding:10px}
+ .player-actions{gap:3px}
+ .player-cover{width:48px;height:48px}
+ .icon-btn{font-size:18px;padding:6px}
+ .play-btn{width:38px;height:38px}
 }
 </style>
 </head>
 
 <body>
 
-<header>
-    <div class="logo">MUSI<span>CO</span></div>
-    <button onclick="showPage('home')" style="background:none;color:white;border:none;font-size:20px;">⌂</button>
-</header>
+<h2>🎵 MUSICO</h2>
 
-<div class="container">
-
-    <main id="home" class="page active">
-
-        <img id="cover" class="cover"
-        src="https://placehold.co/500x500/29243d/ffffff?text=MUSICO"
-        alt="Song artwork">
-
-        <div class="song-info">
-            <h2 id="songTitle">Select a Song</h2>
-            <p id="artist">MUSICO Artist</p>
-        </div>
-
-        <div class="progress-area">
-            <span id="currentTime">0:00</span>
-            <input type="range" id="progress" value="0" min="0" max="100">
-            <span id="duration">0:00</span>
-        </div>
-
-        <div class="controls">
-            <button onclick="previousSong()">⏮</button>
-            <button class="play" id="playBtn" onclick="togglePlay()">▶</button>
-            <button onclick="nextSong()">⏭</button>
-        </div>
-
-        <div class="actions">
-            <button onclick="showQueue()">☷ Queue</button>
-            <button onclick="toggleMenu()">⋮ More</button>
-        </div>
-
-        <div class="menu" id="menu">
-            <button onclick="saveLibrary()">♡ Save to Library</button>
-            <button onclick="showMessage('JioTune requires Jio service support.')">♪ Set as JioTune</button>
-            <button onclick="showMessage('Ringtone setting requires device support.')">♬ Set as ringtone</button>
-            <button onclick="addPlaylist()">＋ Add to playlist</button>
-            <button onclick="downloadSong()">↓ Download</button>
-            <button onclick="shareSong()">↗ Share</button>
-        </div>
-
-        <div class="section">
-            <h3>♪ Lyrics</h3>
-            <div class="lyrics" id="lyricsPreview">
-                Lyrics will appear here.
-            </div>
-            <button class="back" style="margin-top:15px;"
-            onclick="showPage('lyricsPage')">View Full Lyrics →</button>
-        </div>
-
-        <div class="section" id="queueSection" style="display:none;">
-            <h3>Up Next - Queue</h3>
-            <div id="queueList"></div>
-        </div>
-
-        <div class="section">
-            <h3>My Library</h3>
-            <div id="libraryList">No saved songs yet.</div>
-        </div>
-
-        <div class="section">
-            <h3>My Playlist</h3>
-            <div id="playlistList">No playlists yet.</div>
-        </div>
-
-        <div class="section">
-            <h3>Add Your Music</h3>
-            <p style="color:#aaa;margin:12px 0;">
-                Select audio files from your device.
-            </p>
-            <input type="file" id="fileInput" accept="audio/*" multiple>
-        </div>
-
-    </main>
-
-    <main id="lyricsPage" class="page lyrics-page">
-        <button class="back" onclick="showPage('home')">← Back</button>
-        <h2 id="lyricsTitle">Song Lyrics</h2>
-        <p id="lyricsArtist" style="color:#aaa;margin-top:10px;"></p>
-        <div class="full-lyrics" id="fullLyrics">
-            Lyrics will appear here.
-        </div>
-    </main>
-
+<div class="search-box">
+ <input id="query" placeholder="Search songs...">
+ <button onclick="searchSpotify()">Search</button>
 </div>
 
-<div class="bottom-player">
-    <div>
-        <strong id="miniTitle">MUSICO</strong>
-        <p id="miniArtist" style="color:#aaa;font-size:12px;">Your music</p>
-    </div>
-    <button onclick="togglePlay()" id="miniPlay">▶</button>
+<div id="homePage" class="page active">
+ <div class="grid" id="results"></div>
+
+ <div class="panel">
+  <h3>☷ Queue</h3>
+  <div id="queueList">Your queue is empty.</div>
+ </div>
+
+ <div class="panel">
+  <h3>♡ My Library</h3>
+  <div id="libraryList">No saved songs yet.</div>
+ </div>
+
+ <div class="panel">
+  <h3>🎵 My Playlist</h3>
+  <div id="playlistList">No playlists yet.</div>
+ </div>
+
+ <div class="panel">
+  <h3>♪ Lyrics</h3>
+  <div id="lyricsPreview" class="lyrics-preview">
+   Select a song to view its lyrics.
+  </div>
+  <button class="text-btn" onclick="openLyrics()">View Full Lyrics →</button>
+ </div>
+</div>
+
+<div id="lyricsPage" class="page">
+ <button class="back-btn" onclick="showPage('homePage')">← Back</button>
+ <h2 id="lyricsSongTitle">Song Lyrics</h2>
+ <p id="lyricsArtist" style="text-align:center;color:#94a3b8"></p>
+ <div id="fullLyrics" class="full-lyrics">
+  Lyrics are not available yet.
+ </div>
+</div>
+
+<div class="menu" id="moreMenu">
+ <button onclick="saveLibrary()">♡ Save to Library</button>
+ <button onclick="jioTune()">♪ Set as JioTune</button>
+ <button onclick="ringtone()">♬ Set as ringtone</button>
+ <button onclick="addPlaylist()">＋ Add to playlist</button>
+ <button onclick="downloadSong()">↓ Download</button>
+ <button onclick="shareSong()">↗ Share</button>
+</div>
+
+<div class="player" id="player" style="display:none">
+ <div class="player-top">
+  <img id="playerCover" class="player-cover"
+  src="https://placehold.co/100x100/1e293b/ffffff?text=M">
+  <div class="song-details">
+   <strong id="trackTitle">Song title</strong>
+   <p id="trackArtist">Artist</p>
+  </div>
+  <div class="player-actions">
+   <button class="icon-btn" onclick="previousSong()">⏮</button>
+   <button class="play-btn" id="playButton" onclick="togglePlay()">▶</button>
+   <button class="icon-btn" onclick="nextSong()">⏭</button>
+   <button class="icon-btn" onclick="showQueue()">☷</button>
+   <button class="icon-btn" onclick="toggleMenu()">⋮</button>
+  </div>
+ </div>
+
+ <div class="progress-row">
+  <span id="currentTime">0:00</span>
+  <input type="range" id="progress" min="0" max="100" value="0">
+  <span id="duration">0:00</span>
+ </div>
 </div>
 
 <audio id="audio" preload="metadata"></audio>
 
 <script>
-const audio = document.getElementById("audio");
+// Spotify search configuration
+const CLIENT_ID = 'YOUR_CLIENT_ID';
+const CLIENT_SECRET = 'YOUR_CLIENT_SECRET';
 
+let accessToken = '';
 let songs = [];
-let currentIndex = 0;
+let currentIndex = -1;
 let library = [];
-let playlist = [];
+let playlists = [];
 
-const demoLyrics = `Add your own lyrics here.
-Each line will appear separately.
-You can display the complete lyrics
-on the full lyrics page.`;
+const audio = document.getElementById('audio');
 
-function formatTime(seconds) {
-    if (!Number.isFinite(seconds)) return "0:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return mins + ":" + String(secs).padStart(2, "0");
+function escapeHTML(value){
+ return String(value ?? '').replace(/[&<>"']/g,c=>({
+ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+ })[c]);
 }
 
-function updateSongInfo() {
-    const song = songs[currentIndex];
-    if (!song) return;
-
-    document.getElementById("songTitle").textContent = song.title;
-    document.getElementById("artist").textContent = song.artist;
-    document.getElementById("cover").src = song.cover;
-    document.getElementById("miniTitle").textContent = song.title;
-    document.getElementById("miniArtist").textContent = song.artist;
-
-    document.getElementById("lyricsPreview").textContent = song.lyrics;
-    document.getElementById("lyricsTitle").textContent = song.title + " - Lyrics";
-    document.getElementById("lyricsArtist").textContent = song.artist;
-    document.getElementById("fullLyrics").textContent = song.lyrics;
-
-    renderQueue();
+async function getAccessToken(){
+ const response = await fetch('https://accounts.spotify.com/api/token',{
+  method:'POST',
+  headers:{
+   'Content-Type':'application/x-www-form-urlencoded',
+   'Authorization':'Basic '+btoa(CLIENT_ID+':'+CLIENT_SECRET)
+  },
+  body:'grant_type=client_credentials'
+ });
+ const data=await response.json();
+ if(!response.ok) throw new Error(data.error_description || 'Spotify authentication failed');
+ accessToken=data.access_token;
 }
 
-function playSong(index) {
-    if (!songs.length) return;
-    currentIndex = (index + songs.length) % songs.length;
-    updateSongInfo();
-    audio.src = songs[currentIndex].src;
-    audio.play().then(() => updatePlayButtons()).catch(() => {
-        showMessage("Unable to play this audio file.");
-    });
+async function searchSpotify(){
+ const q=document.getElementById('query').value.trim();
+ if(!q)return;
+
+ try{
+  if(!accessToken)await getAccessToken();
+
+  const response=await fetch(
+   `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=track&limit=12`,
+   {headers:{'Authorization':'Bearer '+accessToken}}
+  );
+
+  if(!response.ok)throw new Error('Spotify search failed. Check your API access.');
+
+  const data=await response.json();
+  renderTracks(data.tracks.items);
+ }catch(error){
+  alert(error.message);
+ }
 }
 
-function togglePlay() {
-    if (!songs.length) {
-        showMessage("First add songs from your device.");
-        return;
-    }
+function renderTracks(tracks){
+ const container=document.getElementById('results');
+ container.innerHTML='';
 
-    if (audio.paused) {
-        audio.play().then(updatePlayButtons).catch(() => {});
-    } else {
-        audio.pause();
-        updatePlayButtons();
-    }
+ tracks.forEach(track=>{
+  const cover=track.album.images[0]?.url || 'https://placehold.co/300';
+  const artist=track.artists.map(a=>a.name).join(', ');
+
+  const card=document.createElement('div');
+  card.className='card';
+
+  const img=document.createElement('img');
+  img.src=cover;
+  img.alt='Album artwork';
+
+  const title=document.createElement('h4');
+  title.textContent=track.name;
+
+  const artistText=document.createElement('p');
+  artistText.textContent=artist;
+
+  card.append(img,title,artistText);
+  card.onclick=()=>playTrack({
+   id:track.id,
+   title:track.name,
+   artist,
+   cover,
+   preview:track.preview_url,
+   lyrics:'Lyrics are not available for this song yet.',
+   spotifyUrl:track.external_urls.spotify
+  });
+
+  container.appendChild(card);
+ });
 }
 
-function updatePlayButtons() {
-    const symbol = audio.paused ? "▶" : "Ⅱ";
-    document.getElementById("playBtn").textContent = symbol;
-    document.getElementById("miniPlay").textContent = symbol;
+function playTrack(song){
+ if(!song.preview){
+  alert('No playable 30-second preview is available for this song.');
+  return;
+ }
+
+ const existing=songs.findIndex(s=>s.id===song.id);
+ if(existing>=0){
+  currentIndex=existing;
+ }else{
+  songs.push(song);
+  currentIndex=songs.length-1;
+ }
+
+ audio.src=song.preview;
+ document.getElementById('player').style.display='block';
+
+ updatePlayer();
+ audio.play().catch(()=>alert('Press Play to start the song.'));
 }
 
-function nextSong() {
-    if (songs.length) playSong((currentIndex + 1) % songs.length);
+function updatePlayer(){
+ const song=songs[currentIndex];
+ if(!song)return;
+
+ document.getElementById('trackTitle').textContent=song.title;
+ document.getElementById('trackArtist').textContent=song.artist;
+ document.getElementById('playerCover').src=song.cover;
+
+ document.getElementById('lyricsPreview').textContent=song.lyrics;
+ document.getElementById('lyricsSongTitle').textContent=song.title+' - Lyrics';
+ document.getElementById('lyricsArtist').textContent=song.artist;
+ document.getElementById('fullLyrics').textContent=song.lyrics;
+
+ renderQueue();
+
+ if('mediaSession' in navigator){
+  navigator.mediaSession.metadata=new MediaMetadata({
+   title:song.title,
+   artist:song.artist,
+   artwork:[{src:song.cover,sizes:'512x512',type:'image/jpeg'}]
+  });
+ }
 }
 
-function previousSong() {
-    if (songs.length) playSong((currentIndex - 1 + songs.length) % songs.length);
+function togglePlay(){
+ if(!audio.src)return;
+ if(audio.paused)audio.play();
+ else audio.pause();
 }
 
-audio.addEventListener("ended", nextSong);
-audio.addEventListener("play", updatePlayButtons);
-audio.addEventListener("pause", updatePlayButtons);
+audio.addEventListener('play',()=>document.getElementById('playButton').textContent='Ⅱ');
+audio.addEventListener('pause',()=>document.getElementById('playButton').textContent='▶');
 
-audio.addEventListener("timeupdate", () => {
-    document.getElementById("currentTime").textContent = formatTime(audio.currentTime);
-    document.getElementById("duration").textContent = formatTime(audio.duration);
+function nextSong(){
+ if(!songs.length)return;
+ const next=(currentIndex+1)%songs.length;
+ currentIndex=next;
+ audio.src=songs[currentIndex].preview;
+ updatePlayer();
+ audio.play().catch(()=>{});
+}
 
-    if (audio.duration) {
-        document.getElementById("progress").value =
-            (audio.currentTime / audio.duration) * 100;
-    }
+function previousSong(){
+ if(!songs.length)return;
+ currentIndex=(currentIndex-1+songs.length)%songs.length;
+ audio.src=songs[currentIndex].preview;
+ updatePlayer();
+ audio.play().catch(()=>{});
+}
+
+audio.addEventListener('ended',nextSong);
+
+function formatTime(time){
+ if(!Number.isFinite(time))return '0:00';
+ return Math.floor(time/60)+':'+String(Math.floor(time%60)).padStart(2,'0');
+}
+
+audio.addEventListener('timeupdate',()=>{
+ document.getElementById('currentTime').textContent=formatTime(audio.currentTime);
+ document.getElementById('duration').textContent=formatTime(audio.duration);
+ if(audio.duration){
+  document.getElementById('progress').value=audio.currentTime/audio.duration*100;
+ }
 });
 
-document.getElementById("progress").addEventListener("input", e => {
-    if (audio.duration) {
-        audio.currentTime = (e.target.value / 100) * audio.duration;
-    }
+document.getElementById('progress').addEventListener('input',e=>{
+ if(audio.duration)audio.currentTime=e.target.value/100*audio.duration;
 });
 
-document.getElementById("fileInput").addEventListener("change", e => {
-    const files = Array.from(e.target.files);
-
-    files.forEach(file => {
-        const url = URL.createObjectURL(file);
-        songs.push({
-            title: file.name.replace(/\.[^/.]+$/, ""),
-            artist: "Local Music",
-            src: url,
-            cover: "https://placehold.co/500x500/29243d/ffffff?text=MUSICO",
-            lyrics: "Lyrics are not available for this song yet."
-        });
-    });
-
-    renderQueue();
-
-    if (songs.length && audio.paused && !audio.src) {
-        playSong(0);
-    }
-
-    showMessage(files.length + " song(s) added!");
-});
-
-function toggleMenu() {
-    const menu = document.getElementById("menu");
-    menu.style.display = menu.style.display === "block" ? "none" : "block";
+function toggleMenu(){
+ const menu=document.getElementById('moreMenu');
+ menu.style.display=menu.style.display==='block'?'none':'block';
 }
 
-function saveLibrary() {
-    if (!songs.length) return;
-    const song = songs[currentIndex];
-
-    if (!library.includes(song)) library.push(song);
-
-    document.getElementById("libraryList").textContent =
-        library.map(s => s.title).join(" • ");
-
-    toggleMenu();
-    showMessage("Saved to Library!");
+function closeMenu(){
+ document.getElementById('moreMenu').style.display='none';
 }
 
-function addPlaylist() {
-    if (!songs.length) return;
-    const name = prompt("Enter playlist name:");
-    if (!name) return;
-
-    playlist.push({name, song: songs[currentIndex]});
-    document.getElementById("playlistList").textContent =
-        playlist.map(p => p.name + ": " + p.song.title).join(" | ");
-
-    toggleMenu();
+function getCurrentSong(){
+ if(currentIndex<0)return null;
+ return songs[currentIndex];
 }
 
-function downloadSong() {
-    if (!songs.length) return;
-    const song = songs[currentIndex];
-    const a = document.createElement("a");
-    a.href = song.src;
-    a.download = song.title + ".mp3";
-    a.click();
-    toggleMenu();
+function saveLibrary(){
+ const song=getCurrentSong();
+ if(!song)return;
+ if(!library.some(s=>s.id===song.id))library.push(song);
+ document.getElementById('libraryList').textContent=library.map(s=>s.title).join(' • ');
+ closeMenu();
+ alert('Saved to Library!');
 }
 
-function shareSong() {
-    if (!songs.length) return;
-    const song = songs[currentIndex];
-
-    if (navigator.share) {
-        navigator.share({title: song.title, text: "Listen to " + song.title})
-            .catch(() => {});
-    } else {
-        showMessage("Sharing is not supported on this browser.");
-    }
-    toggleMenu();
+function jioTune(){
+ closeMenu();
+ alert('JioTune requires Jio service support. This website cannot set it directly.');
 }
 
-function showQueue() {
-    const section = document.getElementById("queueSection");
-    section.style.display =
-        section.style.display === "none" ? "block" : "none";
-    renderQueue();
+function ringtone(){
+ closeMenu();
+ alert('Setting a ringtone requires device-specific permission or a native app.');
 }
 
-function renderQueue() {
-    const list = document.getElementById("queueList");
-    list.innerHTML = "";
+function addPlaylist(){
+ const song=getCurrentSong();
+ if(!song)return;
 
-    songs.forEach((song, index) => {
-        const item = document.createElement("div");
-        item.className = "queue-item";
-        item.textContent = (index === currentIndex ? "▶ " : "") + song.title;
-        item.onclick = () => playSong(index);
-        list.appendChild(item);
-    });
+ const name=prompt('Enter playlist name:');
+ if(!name)return;
+
+ let p=playlists.find(x=>x.name===name);
+ if(!p){
+  p={name,songs:[]};
+  playlists.push(p);
+ }
+ if(!p.songs.some(s=>s.id===song.id))p.songs.push(song);
+
+ document.getElementById('playlistList').innerHTML=playlists.map(p=>
+  '<p>'+escapeHTML(p.name)+': '+p.songs.map(s=>escapeHTML(s.title)).join(', ')+'</p>'
+ ).join('');
+
+ closeMenu();
 }
 
-function showPage(pageId) {
-    document.querySelectorAll(".page").forEach(page => {
-        page.classList.remove("active");
-    });
-    document.getElementById(pageId).classList.add("active");
+function downloadSong(){
+ const song=getCurrentSong();
+ closeMenu();
+ if(!song)return;
+
+ alert('Spotify previews are not available as downloadable full songs. Download is only available for audio files you own or have permission to distribute.');
 }
 
-function showMessage(message) {
-    alert(message);
+async function shareSong(){
+ const song=getCurrentSong();
+ closeMenu();
+ if(!song)return;
+
+ try{
+  if(navigator.share){
+   await navigator.share({title:song.title,text:'Listen to '+song.title,url:song.spotifyUrl});
+  }else{
+   await navigator.clipboard.writeText(song.spotifyUrl);
+   alert('Song link copied!');
+  }
+ }catch(e){}
 }
 
-// Media controls and lock-screen metadata where supported.
-if ("mediaSession" in navigator) {
-    navigator.mediaSession.setActionHandler("play", () => audio.play());
-    navigator.mediaSession.setActionHandler("pause", () => audio.pause());
-    navigator.mediaSession.setActionHandler("previoustrack", previousSong);
-    navigator.mediaSession.setActionHandler("nexttrack", nextSong);
+function showQueue(){
+ document.getElementById('queueList').scrollIntoView({behavior:'smooth'});
 }
 
-audio.addEventListener("loadedmetadata", () => {
-    if ("mediaSession" in navigator && songs[currentIndex]) {
-        const song = songs[currentIndex];
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: song.title,
-            artist: song.artist,
-            artwork: [{src: song.cover, sizes: "512x512", type: "image/jpeg"}]
-        });
-    }
-});
+function renderQueue(){
+ const list=document.getElementById('queueList');
+ list.innerHTML='';
+
+ if(!songs.length){
+  list.textContent='Your queue is empty.';
+  return;
+ }
+
+ songs.forEach((song,index)=>{
+  const item=document.createElement('div');
+  item.className='queue-item'+(index===currentIndex?' active':'');
+
+  const img=document.createElement('img');
+  img.src=song.cover;
+
+  const details=document.createElement('div');
+  const title=document.createElement('strong');
+  title.textContent=song.title;
+  const artist=document.createElement('p');
+  artist.textContent=song.artist;
+
+  details.append(title,artist);
+  item.append(img,details);
+  item.onclick=()=>{
+   currentIndex=index;
+   audio.src=songs[index].preview;
+   updatePlayer();
+   audio.play().catch(()=>{});
+  };
+  list.appendChild(item);
+ });
+}
+
+function openLyrics(){
+ showPage('lyricsPage');
+}
+
+function showPage(page){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById(page).classList.add('active');
+}
+
+// Lock screen / media key controls on supported browsers
+if('mediaSession' in navigator){
+ navigator.mediaSession.setActionHandler('play',()=>audio.play());
+ navigator.mediaSession.setActionHandler('pause',()=>audio.pause());
+ navigator.mediaSession.setActionHandler('nexttrack',nextSong);
+ navigator.mediaSession.setActionHandler('previoustrack',previousSong);
+}
 </script>
 
 </body>
