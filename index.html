@@ -57,8 +57,9 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .full-player.active { transform: none; }
 .full-player-header { display: flex; justify-content: space-between; align-items: center; color: #cbd5e1; font-size: 14px; }
 .close-btn { font-size: 24px; background: none; border: none; color: #fff; cursor: pointer; }
-.video-box { width: min(100%, 360px); aspect-ratio: 16/10; min-height: 200px; margin: 0 auto; border-radius: 12px; overflow: hidden; background: #000; flex-shrink: 0; }
-.video-box iframe, .video-box > div { width: 100%; height: 100%; }
+..video-box { position: relative; width: min(100%, 260px); aspect-ratio: 1/1; margin: 0 auto; border-radius: 16px; overflow: hidden; background: #334155; flex-shrink: 0; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+.video-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; }
+.video-box #ytPlayer, .video-box iframe { position: absolute; top: 0; left: 0; width: 200px; height: 200px; opacity: 0; pointer-events: none; z-index: 1; }
 .track-header-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .track-header-row h2 { color: #fff; font-size: 18px; margin: 0; }
 .track-header-row p { color: #94a3b8; font-size: 14px; margin-top: 4px; }
@@ -153,7 +154,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
     <span style="font-weight:600">Playing from YouTube</span>
     <button class="top-btn" onclick="triggerSleepTimer()" id="timerDisplayBtn">⏱️ Timer</button>
   </div>
-  <div class="video-box"><div id="ytPlayer"></div></div>
+  <div class="video-box"><img id="fullCover" src="" alt=""><div id="ytPlayer"></div></div>
   <div class="track-header-row">
     <div style="min-width:0"><h2 id="fullTitle">No song selected</h2><p id="fullArtist"></p></div>
     <button class="add-btn" onclick="saveTrack()" aria-label="Save to library">＋</button>
@@ -317,7 +318,7 @@ document.head.appendChild(tag);
 
 window.onYouTubeIframeAPIReady = function () {
   player = new YT.Player('ytPlayer', {
-    width: '100%', height: '100%',
+    width: '200', height: '200',
     playerVars: { playsinline: 1, controls: 0, disablekb: 1, rel: 0, modestbranding: 1 },
     events: {
       onReady: () => { playerReady = true; if (pendingId) { player.loadVideoById(pendingId); pendingId = null; } },
@@ -381,7 +382,7 @@ function playSong(song, index, list) {
   document.getElementById('miniCover').src = cover;
   document.getElementById('fullTitle').textContent = song.title;
   document.getElementById('fullArtist').textContent = song.artist;
-  document.getElementById('seekBar').value = 0;
+document.getElementById('fullCover').src = (song.coverImg || FALLBACK).replace('mqdefault', 'hqdefault');  document.getElementById('seekBar').value = 0;
   document.getElementById('currentTime').textContent = '0:00';
   document.getElementById('totalDuration').textContent = '0:00';
 
