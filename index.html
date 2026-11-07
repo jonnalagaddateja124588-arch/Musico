@@ -99,7 +99,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   <section id="searchPage" class="page">
     <h2>Search Songs</h2>
     <div class="search-row">
-      <input type="search" id="songSearch" class="search-input" placeholder="Type song name, 'telugu songs', 'kopam ga song'..." onkeydown="if(event.key==='Enter')runSearch()">
+      <input type="search" id="songSearch" class="search-input" placeholder="Search 'telugu songs', 'kopam ga song', 'old songs'..." onkeydown="if(event.key==='Enter')runSearch()">
       <button class="search-btn" onclick="runSearch()">Search</button>
     </div>
     <div class="grid-container" id="searchResults"><p class="empty">Type any song name above to search...</p></div>
@@ -199,7 +199,7 @@ function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); 
 
 let library = load('musico_library'), recent = load('musico_recent');
 
-// Standard Database with song album images (Old & New Songs)
+// Comprehensive Library of Old & New Songs with Album Artwork
 const musicoDatabase = [
   { id: "m1", title: "Butta Bomma (Telugu Hit)", artist: "Armaan Malik", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
   { id: "m2", title: "Samajavaragamana (Telugu Melody)", artist: "Sid Sriram", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
