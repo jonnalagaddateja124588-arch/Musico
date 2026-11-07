@@ -20,7 +20,7 @@ main { max-width: 900px; margin: auto; padding: 20px; }
 .page { display: none; }
 .page.active { display: block; }
 h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
-.empty { color: #94a3b8; font-size: 14px; text-align: center; padding: 40px 0; }
+.empty { color: #94a3b8; font-size: 14px; }
 .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin-bottom: 25px; }
 .card { background: #1e293b; padding: 14px; border-radius: 14px; border: 1px solid #334155; cursor: pointer; transition: transform .2s; }
 @media (hover: hover) { .card:hover { transform: translateY(-3px); border-color: #3b82f6; } }
@@ -34,11 +34,6 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
 .chip { background: #334155; color: #fff; border: none; padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; }
 
-/* Lyrics Modal */
-.lyrics-modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 400; flex-direction: column; padding: 20px; overflow-y: auto; text-align: center; }
-.lyrics-modal.active { display: flex; }
-.lyrics-content { max-width: 600px; margin: 0 auto; white-space: pre-line; line-height: 1.8; font-size: 15px; color: #e2e8f0; }
-
 .mini-player { display: none; position: fixed; bottom: calc(60px + env(safe-area-inset-bottom, 0px)); left: 0; width: 100%; background: #1e293b; border-top: 1px solid #334155; padding: 10px 20px; z-index: 100; cursor: pointer; }
 .mini-player.visible { display: block; }
 .mini-player-inner { max-width: 900px; margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -50,26 +45,28 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .controls button { border: none; background: transparent; color: #fff; font-size: 20px; cursor: pointer; }
 .controls .main-play { background: #2563eb; width: 42px; height: 42px; border-radius: 50%; font-size: 18px; }
 
-/* Full player */
-.full-player { position: fixed; inset: 0; background: #0f172a; z-index: 300; display: flex; flex-direction: column; gap: 20px; padding: calc(24px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)); overflow-y: auto; transform: translateY(100%); transition: transform .25s; }
+/* Full player stays rendered (slid off-screen) so the YouTube player keeps playing when closed */
+.full-player { position: fixed; inset: 0; background: #0f172a; z-index: 300; display: flex; flex-direction: column; gap: 14px; padding: calc(24px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)); overflow-y: auto; transform: translateY(100%); transition: transform .25s; }
 .full-player.active { transform: none; }
 .full-player-header { display: flex; justify-content: space-between; align-items: center; color: #cbd5e1; font-size: 14px; }
 .close-btn { font-size: 24px; background: none; border: none; color: #fff; cursor: pointer; }
-.full-cover-box { width: min(100%, 280px); aspect-ratio: 1; margin: 0 auto; border-radius: 16px; overflow: hidden; background: #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-.full-cover-box img { width: 100%; height: 100%; object-fit: cover; }
+.video-box { width: min(100%, 360px); aspect-ratio: 16/10; min-height: 200px; margin: 0 auto; border-radius: 12px; overflow: hidden; background: #000; flex-shrink: 0; }
+.video-box iframe, .video-box > div { width: 100%; height: 100%; }
 .track-header-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .track-header-row h2 { color: #fff; font-size: 18px; margin: 0; }
 .track-header-row p { color: #94a3b8; font-size: 14px; margin-top: 4px; }
+.add-btn { width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; border: 2px solid #fff; background: none; color: #fff; font-size: 18px; display: grid; place-items: center; cursor: pointer; }
 .progress-bar { width: 100%; -webkit-appearance: none; appearance: none; height: 4px; background: #334155; border-radius: 2px; cursor: pointer; }
 .progress-bar::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; }
+.progress-bar::-moz-range-thumb { width: 14px; height: 14px; border: none; border-radius: 50%; background: #fff; }
 .time-stamps { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-top: 8px; }
 .media-controls { display: flex; justify-content: space-between; align-items: center; padding: 0 10px; }
 .media-controls button { background: none; border: none; color: #fff; cursor: pointer; display: grid; place-items: center; font-size: 28px; }
 .media-controls .toggle { font-size: 20px; opacity: .5; }
 .media-controls .toggle.on { opacity: 1; color: #22c55e; }
 .media-controls .btn-play-large { width: 68px; height: 68px; background: #fff; color: #000; border-radius: 50%; font-size: 24px; }
-.bottom-tools { display: flex; justify-content: space-around; gap: 10px; }
-.bottom-tools button { background: #1e293b; border: 1px solid #334155; padding: 10px 16px; border-radius: 20px; color: #fff; font-size: 14px; cursor: pointer; font-weight: 600; flex: 1; }
+.bottom-tools { display: flex; justify-content: space-around; }
+.bottom-tools button { background: none; border: none; color: #94a3b8; font-size: 16px; cursor: pointer; }
 .toast { position: fixed; left: 50%; bottom: 140px; transform: translateX(-50%); background: #334155; color: #fff; padding: 10px 18px; border-radius: 20px; font-size: 14px; z-index: 400; opacity: 0; pointer-events: none; transition: opacity .2s; max-width: 90vw; text-align: center; }
 .toast.show { opacity: 1; }
 .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e293b; display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 101; border-top: 1px solid #334155; }
@@ -77,6 +74,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .bottom-nav button.active { color: #3b82f6; }
 .profile-box { background: #1e293b; padding: 24px; border-radius: 16px; text-align: center; margin-top: 20px; border: 1px solid #334155; }
 #userAvatar { font-size: 40px; width: 70px; height: 70px; margin: 0 auto 12px; display: grid; place-items: center; background: #334155; border-radius: 50%; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
 <body>
@@ -91,18 +89,18 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 
 <main>
   <section id="homePage" class="page active">
-    <h2>🎵 All Songs (Old & New Collection)</h2>
+    <h2>🔥 Trending Music</h2>
     <div class="chips" id="chips"></div>
-    <div class="grid-container" id="trendGrid"></div>
+    <div class="grid-container" id="trendGrid"><p class="empty">Loading...</p></div>
   </section>
 
   <section id="searchPage" class="page">
-    <h2>Search Songs</h2>
+    <h2>Search YouTube</h2>
     <div class="search-row">
-      <input type="search" id="songSearch" class="search-input" placeholder="Search 'telugu songs', 'kopam ga song', 'old songs'..." onkeydown="if(event.key==='Enter')runSearch()">
+      <input type="search" id="songSearch" class="search-input" placeholder="Search songs, artists, podcasts..." aria-label="Search" onkeydown="if(event.key==='Enter')runSearch()">
       <button class="search-btn" onclick="runSearch()">Search</button>
     </div>
-    <div class="grid-container" id="searchResults"><p class="empty">Type any song name above to search...</p></div>
+    <div class="grid-container" id="searchResults"></div>
   </section>
 
   <section id="recentPage" class="page">
@@ -128,14 +126,6 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   </section>
 </main>
 
-<div class="lyrics-modal" id="lyricsModal">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-    <h2 style="color:#60a5fa; margin:0; font-size:18px;" id="lyricsTitle">Song Lyrics</h2>
-    <button class="close-btn" onclick="closeLyrics()" style="font-size:20px;">✕</button>
-  </div>
-  <div class="lyrics-content" id="lyricsBox">Loading lyrics...</div>
-</div>
-
 <div class="mini-player" id="miniPlayer" onclick="openFullPlayer()">
   <div class="mini-player-inner">
     <div class="track-meta">
@@ -153,12 +143,13 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 <div class="full-player" id="fullPlayer">
   <div class="full-player-header">
     <button class="close-btn" onclick="closeFullPlayer()" aria-label="Close player">⌵</button>
-    <span style="font-weight:600">Audio Stream Player</span>
+    <span style="font-weight:600">Playing from YouTube</span>
     <button class="top-btn" onclick="triggerSleepTimer()" id="timerDisplayBtn">⏱️ Timer</button>
   </div>
-  <div class="full-cover-box"><img id="fullCover" src="" alt=""></div>
+  <div class="video-box"><div id="ytPlayer"></div></div>
   <div class="track-header-row">
     <div style="min-width:0"><h2 id="fullTitle">No song selected</h2><p id="fullArtist"></p></div>
+    <button class="add-btn" onclick="saveTrack()" aria-label="Save to library">＋</button>
   </div>
   <div>
     <input type="range" class="progress-bar" id="seekBar" value="0" min="0" max="100" step="0.1" aria-label="Seek"
@@ -173,12 +164,11 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
     <button class="toggle" id="repeatBtn" onclick="toggleRepeat()" aria-label="Repeat">🔁</button>
   </div>
   <div class="bottom-tools">
-    <button onclick="downloadTrack()">⬇️ Download</button>
-    <button onclick="openLyricsModal()">🎤 Lyrics</button>
+    <button onclick="saveTrack()">＋ Save to Library</button>
+    <button onclick="shareTrack()">🔗 Share</button>
   </div>
 </div>
 
-<audio id="audioPlayer" preload="auto"></audio>
 <div class="toast" id="toast" role="status"></div>
 
 <nav class="bottom-nav">
@@ -188,33 +178,31 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 </nav>
 
 <script>
-const audio = document.getElementById('audioPlayer');
+/* ===== 1. YOUR YOUTUBE DATA API KEY ===== */
+const YT_API_KEY = "AIzaSyDqi_eQpFxhthmtrF_pOGygTjsuCihneBI";
+const REGION = "IN"; // region for trending music
+
+const API = "https://www.googleapis.com/youtube/v3";
 const FALLBACK = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect width="10" height="10" fill="#334155"/></svg>');
 
+/* ---------- storage ---------- */
 function load(key) {
-  try { const d = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(d) ? d.filter(s => s && s.audioUrl) : []; }
+  try { const d = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(d) ? d.filter(s => s && s.id) : []; }
   catch (e) { return []; }
 }
 function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch (e) { return false; } }
 
-let library = load('musico_library'), recent = load('musico_recent');
-
-// Comprehensive Library of Old & New Songs with Album Artwork
-const musicoDatabase = [
-  { id: "m1", title: "Butta Bomma (Telugu Hit)", artist: "Armaan Malik", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-  { id: "m2", title: "Samajavaragamana (Telugu Melody)", artist: "Sid Sriram", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-  { id: "m3", title: "Geethanjali Classic (Old Gold)", artist: "S.P. Balasubrahmanyam", coverImg: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-  { id: "m4", title: "Kopamga Song (Angry Mood)", artist: "Musico Mix", coverImg: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-  { id: "m5", title: "90s Evergreen Retro Hit", artist: "Chitra & Yesudas", coverImg: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
-];
-
-let trendList = musicoDatabase, searchList = [];
+let library = load('musico_yt_library'), recent = load('musico_yt_recent');
+let trendList = [], searchList = [];
 let currentPlaylist = [], currentIndex = -1, current = null;
 let sleepTimerId = null, seeking = false, shuffleOn = false, repeatOn = false;
+let player = null, playerReady = false, pendingId = null, tick = null;
 
 const lists = { trend: () => trendList, search: () => searchList, recent: () => recent, library: () => library };
 
+/* ---------- helpers ---------- */
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function decode(s) { const t = document.createElement('textarea'); t.innerHTML = s || ''; return t.value; }
 function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
@@ -225,37 +213,48 @@ function formatTime(sec) {
   const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
   return `${m}:${s < 10 ? '0' : ''}${s}`;
 }
+function hasKey() { return YT_API_KEY && !YT_API_KEY.startsWith('PASTE_'); }
 
-function loadTrending() {
-  renderGrid(document.getElementById('trendGrid'), trendList, 'trend');
+function toSong(item) {
+  const id = typeof item.id === 'string' ? item.id : item.id && item.id.videoId;
+  const sn = item.snippet || {};
+  const th = sn.thumbnails || {};
+  return { id, title: decode(sn.title), artist: decode(sn.channelTitle), coverImg: (th.medium || th.high || th.default || {}).url || '' };
 }
 
-// SEARCH ENGINE: Matches old, new, telugu, kopam ga song, or any query instantly
-function runSearch() {
+/* ---------- YouTube Data API ---------- */
+async function ytFetch(path, params) {
+  if (!hasKey()) throw new Error('Add your YouTube API key at the top of the script.');
+  const url = `${API}/${path}?${new URLSearchParams({ ...params, key: YT_API_KEY })}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if (!res.ok) throw new Error((data.error && data.error.message) || 'YouTube API error');
+  return data;
+}
+
+async function loadTrending() {
+  const el = document.getElementById('trendGrid');
+  try {
+    const data = await ytFetch('videos', { part: 'snippet', chart: 'mostPopular', videoCategoryId: '10', regionCode: REGION, maxResults: 20 });
+    trendList = data.items.map(toSong).filter(s => s.id);
+    renderGrid(el, trendList, 'trend');
+  } catch (e) {
+    el.innerHTML = `<p class="empty">${esc(e.message)}</p>`;
+  }
+}
+
+async function runSearch() {
   const q = document.getElementById('songSearch').value.trim();
   const el = document.getElementById('searchResults');
-  if (!q) {
-    el.innerHTML = '<p class="empty">Type any song name above to search...</p>';
-    return;
+  if (!q) return;
+  el.innerHTML = '<p class="empty">Searching...</p>';
+  try {
+    const data = await ytFetch('search', { part: 'snippet', type: 'video', videoEmbeddable: 'true', maxResults: 20, q });
+    searchList = data.items.map(toSong).filter(s => s.id);
+    renderGrid(el, searchList, 'search', 'No results found.');
+  } catch (e) {
+    el.innerHTML = `<p class="empty">${esc(e.message)}</p>`;
   }
-
-  el.innerHTML = '<p class="empty">Searching songs...</p>';
-
-  setTimeout(() => {
-    const query = q.toLowerCase();
-    
-    let matches = musicoDatabase.filter(s => s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query));
-
-    if (matches.length === 0) {
-      matches = [
-        { id: q + "-1", title: `${q} - Original Audio`, artist: "Musico Stream", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-        { id: q + "-2", title: `${q} (Remix Version)`, artist: "Musico DJ", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }
-      ];
-    }
-
-    searchList = matches;
-    renderGrid(el, searchList, 'search');
-  }, 200);
 }
 
 function quickSearch(q) {
@@ -264,6 +263,7 @@ function quickSearch(q) {
   runSearch();
 }
 
+/* ---------- rendering ---------- */
 function renderGrid(el, items, listName, emptyMsg) {
   if (!items.length) { el.innerHTML = `<p class="empty">${emptyMsg || 'Nothing here yet.'}</p>`; return; }
   el.innerHTML = items.map((s, i) => `
@@ -272,30 +272,66 @@ function renderGrid(el, items, listName, emptyMsg) {
       <h3>${esc(s.title)}</h3><p>${esc(s.artist)}</p>
     </div>`).join('');
 }
-
-function renderRecent() { renderGrid(document.getElementById('recentGrid'), recent, 'recent', 'No recently played songs yet.'); }
-function renderLibrary() { renderGrid(document.getElementById('libraryGrid'), library, 'library', 'No saved songs in your library.'); }
+function renderRecent() { renderGrid(document.getElementById('recentGrid'), recent, 'recent', 'No recently played songs yet. Start listening to build your history.'); }
+function renderLibrary() { renderGrid(document.getElementById('libraryGrid'), library, 'library', 'No saved songs yet. Tap ＋ in the player to add songs here.'); }
 
 document.addEventListener('click', e => {
   const card = e.target.closest('.card[data-list]');
-  if (card) { playFromList(card.dataset.list, Number(card.dataset.idx)); }
+  if (card) playFromList(card.dataset.list, Number(card.dataset.idx));
+});
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.card[data-list]')) {
+    e.preventDefault(); playFromList(e.target.dataset.list, Number(e.target.dataset.idx));
+  }
 });
 
 function playFromList(name, idx) {
-  const list = lists[name]();
-  if (list && list[idx]) { playSong(list[idx], idx, list.slice()); }
+  /* copy the list so Recent re-ordering can't change the queue while playing */
+  const list = lists[name]().slice();
+  if (list[idx]) playSong(list[idx], idx, list);
 }
 
-audio.addEventListener('play', () => setPlayIcons(true));
-audio.addEventListener('pause', () => setPlayIcons(false));
-audio.addEventListener('timeupdate', () => {
-  if (audio.duration && !seeking) {
-    document.getElementById('seekBar').value = (audio.currentTime / audio.duration) * 100;
-    document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
-    document.getElementById('totalDuration').textContent = formatTime(audio.duration);
-  }
-});
-audio.addEventListener('ended', () => { if (repeatOn) { audio.currentTime = 0; audio.play(); } else nextSong(); });
+/* ---------- YouTube IFrame player ---------- */
+const tag = document.createElement('script');
+tag.src = 'https://www.youtube.com/iframe_api';
+document.head.appendChild(tag);
+
+window.onYouTubeIframeAPIReady = function () {
+  player = new YT.Player('ytPlayer', {
+    width: '100%', height: '100%',
+    playerVars: { playsinline: 1, controls: 0, disablekb: 1, rel: 0, modestbranding: 1 },
+    events: {
+      onReady: () => { playerReady = true; if (pendingId) { player.loadVideoById(pendingId); pendingId = null; } },
+      onStateChange: onPlayerState,
+      onError: onPlayerError
+    }
+  });
+};
+
+function onPlayerState(e) {
+  const S = YT.PlayerState;
+  setPlayIcons(e.data === S.PLAYING || e.data === S.BUFFERING);
+  if (e.data === S.PLAYING) startTick();
+  if (e.data === S.ENDED) { stopTick(); if (repeatOn) { player.seekTo(0); player.playVideo(); } else nextSong(); }
+}
+function onPlayerError() {
+  toast('This video cannot be played here. Skipping to the next one.');
+  setTimeout(nextSong, 1200);
+}
+
+function startTick() {
+  stopTick();
+  tick = setInterval(() => {
+    if (!playerReady || seeking) return;
+    const d = player.getDuration(), t = player.getCurrentTime();
+    if (d) {
+      document.getElementById('seekBar').value = (t / d) * 100;
+      document.getElementById('currentTime').textContent = formatTime(t);
+      document.getElementById('totalDuration').textContent = formatTime(d);
+    }
+  }, 500);
+}
+function stopTick() { clearInterval(tick); }
 
 function setPlayIcons(playing) {
   const icon = playing ? '⏸' : '▶';
@@ -304,66 +340,46 @@ function setPlayIcons(playing) {
 }
 
 function previewSeek(val) {
-  if (audio.duration) document.getElementById('currentTime').textContent = formatTime((val / 100) * audio.duration);
+  if (playerReady) document.getElementById('currentTime').textContent = formatTime((val / 100) * player.getDuration());
 }
 function seekAudio(val) {
-  if (audio.duration) audio.currentTime = (val / 100) * audio.duration;
+  if (playerReady && player.getDuration()) player.seekTo((val / 100) * player.getDuration(), true);
   seeking = false;
 }
 
+/* ---------- playback control ---------- */
 function playSong(song, index, list) {
-  if (list && list.length > 0) currentPlaylist = list;
+  if (list) currentPlaylist = list;
   currentIndex = index; current = song;
   const cover = song.coverImg || FALLBACK;
-  
   document.getElementById('miniPlayer').classList.add('visible');
   document.getElementById('miniTitle').textContent = song.title;
   document.getElementById('miniArtist').textContent = song.artist;
   document.getElementById('miniCover').src = cover;
-  
   document.getElementById('fullTitle').textContent = song.title;
   document.getElementById('fullArtist').textContent = song.artist;
-  document.getElementById('fullCover').src = cover;
+  document.getElementById('seekBar').value = 0;
+  document.getElementById('currentTime').textContent = '0:00';
+  document.getElementById('totalDuration').textContent = '0:00';
 
   recent = [song, ...recent.filter(s => s.id !== song.id)].slice(0, 20);
-  save('musico_recent', recent);
+  save('musico_yt_recent', recent);
   renderRecent();
 
-  prepareLyrics(song.title, song.artist);
-
-  audio.src = song.audioUrl;
-  audio.play().catch(e => console.log("Playback error:", e));
+  if (playerReady) player.loadVideoById(song.id);
+  else { pendingId = song.id; if (!window.YT) toast('Loading YouTube player...'); }
 
   if ('mediaSession' in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: song.title,
-      artist: song.artist,
-      album: "Musico Stream",
-      artwork: cover ? [{ src: cover, sizes: "512x512", type: "image/jpeg" }] : []
-    });
-    navigator.mediaSession.setActionHandler('play', togglePlay);
-    navigator.mediaSession.setActionHandler('pause', togglePlay);
-    navigator.mediaSession.setActionHandler('previoustrack', previousSong);
-    navigator.mediaSession.setActionHandler('nexttrack', nextSong);
+    navigator.mediaSession.metadata = new MediaMetadata({ title: song.title, artist: song.artist, artwork: cover ? [{ src: cover }] : [] });
   }
 }
 
-function prepareLyrics(title, artist) {
-  const box = document.getElementById('lyricsBox');
-  document.getElementById('lyricsTitle').textContent = title;
-  box.innerHTML = `🎵 <b>${esc(title)}</b>\n👤 ${esc(artist)}\n\n♪ Streaming audio via Musico...\n♪ Enjoy listening to your favorite music!`;
-}
-
-function openLyricsModal() {
-  if (!current) { toast('Play a song first'); return; }
-  document.getElementById('lyricsModal').classList.add('active');
-}
-function closeLyrics() { document.getElementById('lyricsModal').classList.remove('active'); }
-
 function togglePlay() {
   if (!current) { toast('Pick a song first'); return; }
-  if (audio.paused) audio.play();
-  else audio.pause();
+  if (!playerReady) return;
+  const st = player.getPlayerState();
+  if (st === YT.PlayerState.PLAYING || st === YT.PlayerState.BUFFERING) player.pauseVideo();
+  else player.playVideo();
 }
 function nextSong() {
   const n = currentPlaylist.length;
@@ -375,22 +391,40 @@ function nextSong() {
 function previousSong() {
   const n = currentPlaylist.length;
   if (!n) return;
-  if (audio.currentTime > 3) { audio.currentTime = 0; return; }
-  let i = (currentIndex - 1 + n) % n;
+  if (playerReady && player.getCurrentTime() > 3) { player.seekTo(0, true); return; }
+  const i = (currentIndex - 1 + n) % n;
   playSong(currentPlaylist[i], i);
 }
 function toggleShuffle() { shuffleOn = !shuffleOn; document.getElementById('shuffleBtn').classList.toggle('on', shuffleOn); toast(shuffleOn ? 'Shuffle on' : 'Shuffle off'); }
-function toggleRepeat() { repeatOn = !repeatOn; document.getElementById('repeatBtn').classList.toggle('on', repeatOn); toast(repeatOn ? 'Repeat on' : 'Repeat off'); }
+function toggleRepeat() { repeatOn = !repeatOn; document.getElementById('repeatBtn').classList.toggle('on', repeatOn); toast(repeatOn ? 'Repeat this song on' : 'Repeat off'); }
+
+if ('mediaSession' in navigator) {
+  navigator.mediaSession.setActionHandler('play', togglePlay);
+  navigator.mediaSession.setActionHandler('pause', togglePlay);
+  navigator.mediaSession.setActionHandler('previoustrack', previousSong);
+  navigator.mediaSession.setActionHandler('nexttrack', nextSong);
+}
 
 function openFullPlayer() { document.getElementById('fullPlayer').classList.add('active'); }
 function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('active'); }
 
-function downloadTrack() {
+/* ---------- library, share, timer ---------- */
+function saveTrack() {
   if (!current) { toast('Play a song first'); return; }
   if (library.some(s => s.id === current.id)) { toast(`"${current.title}" is already in your Library`); return; }
   library.push(current);
   renderLibrary();
-  toast(save('musico_library', library) ? 'Downloaded & added to Library!' : 'Saved');
+  toast(save('musico_yt_library', library) ? 'Saved to your Library' : 'Saved for this session only (storage unavailable)');
+}
+
+async function shareTrack() {
+  if (!current) { toast('Play a song first'); return; }
+  const url = `https://www.youtube.com/watch?v=${current.id}`;
+  try {
+    if (navigator.share) { await navigator.share({ title: current.title, text: `Listening to ${current.title} on Musico`, url }); return; }
+    await navigator.clipboard.writeText(url);
+    toast('Link copied to clipboard');
+  } catch (e) { if (e.name !== 'AbortError') toast('Sharing is not available here'); }
 }
 
 function triggerSleepTimer() {
@@ -401,12 +435,13 @@ function triggerSleepTimer() {
   if (mins === 0) { btn.textContent = '⏱️ Timer'; toast('Sleep timer cancelled'); return; }
   btn.textContent = `⏱️ ${mins}m`;
   sleepTimerId = setTimeout(() => {
-    audio.pause();
+    if (playerReady) player.pauseVideo();
     btn.textContent = '⏱️ Timer';
     toast('Sleep timer finished. Music paused.');
   }, mins * 60000);
 }
 
+/* ---------- navigation ---------- */
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
@@ -415,6 +450,7 @@ function showPage(id) {
   if (nav) nav.classList.add('active');
 }
 
+/* ---------- Google sign-in (profile only) ---------- */
 function handleCredentialResponse(r) {
   try {
     const b64 = r.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
@@ -437,7 +473,8 @@ function signOut() {
   if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
 }
 
-document.getElementById('chips').innerHTML = ['Telugu Songs', 'Kopam ga song', 'Old Songs', 'New Hits', 'Retro 90s']
+/* ---------- start ---------- */
+document.getElementById('chips').innerHTML = ['Telugu songs', 'Hindi songs', 'Lo-fi beats', 'Podcasts', 'Devotional']
   .map(c => `<button class="chip" onclick="quickSearch('${c}')">${c}</button>`).join('');
 renderRecent();
 renderLibrary();
