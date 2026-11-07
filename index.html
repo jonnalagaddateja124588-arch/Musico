@@ -165,6 +165,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
       <button onclick="shiftLyrics(-0.5)">−0.5s</button>
       <button onclick="shiftLyrics(0.5)">+0.5s</button>
       <button onclick="addCustomLRC()">Add LRC</button>
+      <button onclick="startAlign()">Align</button>
     </span>
   </div>
   <div class="lyrics-box" id="lyricsBox"><div id="lyricsBody"><p class="lyrics-msg">Play a song to see lyrics</p></div></div>
@@ -513,26 +514,35 @@ function titleVariants(title) {
   return [...new Set(out)];
 }
 
-async function fetchLRC(q, videoDuration) {
+async function fetchLRC(q, dur) {
   const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(q)}`);
   if (!res.ok) throw new Error('HTTP ' + res.status);
   let data = await res.json();
-  if (!Array.isArray(data)) data = [];
-  // closest duration to the YouTube video comes first
-  if (videoDuration) data.sort((a, b) => Math.abs((a.duration || 0) - videoDuration) - Math.abs((b.duration || 0) - videoDuration));
-  const synced = data.find(d => d.syncedLyrics && (!videoDuration || Math.abs(d.duration - videoDuration) < 25));
-  const plain = data.find(d => d.plainLyrics && (!videoDuration || Math.abs(d.duration - videoDuration) < 25));
-  return { synced: synced ? synced.syncedLyrics : '', plain: plain ? plain.plainLyrics : '' };
+  data = (Array.isArray(data) ? data : []).filter(d => d.syncedLyrics || d.plainLyrics);
+  if (dur) data.sort((a, b) => Math.abs((a.duration || 0) - dur) - Math.abs((b.duration || 0) - dur));
+  const diff = d => (dur ? Math.abs((d.duration || 0) - dur) : 0);
+  const good = data.find(d => d.syncedLyrics && diff(d) <= 10);
+  const close = data.find(d => d.syncedLyrics && diff(d) <= 30);
+  const pick = good || close;
+  const plain = data.find(d => d.plainLyrics);
+  return {
+    synced: pick ? pick.syncedLyrics : '',
+    approx: !good && !!close,
+    plain: plain ? plain.plainLyrics : ''
+  };
 }
 
-async function waitForDuration() {
-  for (let i = 0; i < 15; i++) {
-    if (playerReady && player.getDuration && player.getDuration() > 0) return player.getDuration();
+async function waitForDuration(id) {
+  for (let i = 0; i < 50; i++) {
+    try {
+      if (playerReady && player.getVideoData && player.getVideoData().video_id === id && player.getDuration() > 0) {
+        return player.getDuration();
+      }
+    } catch (e) {}
     await new Promise(r => setTimeout(r, 200));
   }
   return 0;
 }
-
 function getCustomLRC(id) { try { return JSON.parse(localStorage.getItem('musico_custom_lrc') || '{}')[id] || ''; } catch (e) { return ''; } }
 
 async function loadLyrics(song) {
@@ -544,18 +554,20 @@ async function loadLyrics(song) {
     if (!result) {
       result = { synced: getCustomLRC(id), plain: '' };       // your own LRC wins
       if (!result.synced) {
-        const dur = 0; 
+        const dur = await waitForDuration(id);
         for (const q of titleVariants(song.title)) {
           console.log('Lyrics search:', q);
           const r = await fetchLRC(q, dur);
-          if (r.synced || (!result.plain && r.plain)) result = { synced: r.synced, plain: r.plain || result.plain };
-          if (result.synced) break;
+	  if (r.synced || (!result.plain && r.plain)) result = { synced: r.synced, approx: r.approx, plain: r.plain || result.plain };          
+	    if (result.synced) break;
         }
       }
       lyricsCache[id] = result;
     }
     if (!current || current.id !== id) return;
-    if (result.synced) { lyrics = parseLRC(result.synced); renderLyrics(); }
+    if (result.synced) { lyrics = parseLRC(result.synced); renderLyrics(); 
+	if (result.approx) toast('Lyrics may be slightly off. Use the Sync buttons.');
+	}
     else if (result.plain) {
       lyrics = []; lyricIdx = -2;
       document.getElementById('lyricsBody').innerHTML =
@@ -626,6 +638,12 @@ function shiftLyrics(delta) {
   if (playerReady) updateLyrics(player.getCurrentTime());
   toast(`Lyrics offset: ${lyricsOffset > 0 ? '+' : ''}${lyricsOffset}s`);
 }
+let alignMode = false;
+function startAlign() {
+  if (!lyrics.length) { toast('No synced lyrics to align'); return; }
+  alignMode = true;
+  toast('Now tap the line that is being sung right now');
+}
 function addCustomLRC() {
   if (!current) return;
   const text = prompt('Paste the LRC lyrics for this song (lines like [00:12.50] lyric text):');
@@ -642,10 +660,23 @@ function addCustomLRC() {
 /* tap a line to jump there; pause auto-scroll while the user scrolls manually */
 document.getElementById('lyricsBody').addEventListener('click', e => {
   const line = e.target.closest('.lyric-line');
-  if (line && playerReady) {
-    player.seekTo(lyrics[+line.dataset.i].time + lyricsOffset, true);
-    userScrollUntil = 0;
+  if (!line || !playerReady) return;
+  const l = lyrics[+line.dataset.i];
+  if (alignMode) {
+    alignMode = false;
+    lyricsOffset = Math.round((player.getCurrentTime() - l.time) * 10) / 10;
+    try {
+      const all = JSON.parse(localStorage.getItem('musico_lyric_offsets') || '{}');
+      all[current.id] = lyricsOffset;
+      localStorage.setItem('musico_lyric_offsets', JSON.stringify(all));
+    } catch (err) {}
+    lyricIdx = -2;
+    updateLyrics(player.getCurrentTime());
+    toast(`Aligned. Offset ${lyricsOffset}s (saved for this song)`);
+    return;
   }
+  player.seekTo(l.time + lyricsOffset, true);
+  userScrollUntil = 0;
 });
 ['wheel', 'touchstart'].forEach(ev =>
   document.getElementById('lyricsBox').addEventListener(ev, () => { userScrollUntil = Date.now() + 4000; }, { passive: true }));
