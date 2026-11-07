@@ -91,7 +91,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 
 <main>
   <section id="homePage" class="page active">
-    <h2>🎵 Crescendo Collection (Old & New Songs)</h2>
+    <h2>🎵 All Songs (Old & New Collection)</h2>
     <div class="chips" id="chips"></div>
     <div class="grid-container" id="trendGrid"></div>
   </section>
@@ -99,7 +99,7 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   <section id="searchPage" class="page">
     <h2>Search Songs</h2>
     <div class="search-row">
-      <input type="search" id="songSearch" class="search-input" placeholder="Search 'telugu songs', 'kopam ga song', 'old songs'..." onkeydown="if(event.key==='Enter')runSearch()">
+      <input type="search" id="songSearch" class="search-input" placeholder="Type song name, 'telugu songs', 'kopam ga song'..." onkeydown="if(event.key==='Enter')runSearch()">
       <button class="search-btn" onclick="runSearch()">Search</button>
     </div>
     <div class="grid-container" id="searchResults"><p class="empty">Type any song name above to search...</p></div>
@@ -197,18 +197,18 @@ function load(key) {
 }
 function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch (e) { return false; } }
 
-let library = load('crescendo_library'), recent = load('crescendo_recent');
+let library = load('musico_library'), recent = load('musico_recent');
 
-// Crescendo Master Database with standard song album images (Old & New Collection)
-const crescendoDatabase = [
-  { id: "c1", title: "Butta Bomma (Telugu New Hit)", artist: "Armaan Malik", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-  { id: "c2", title: "Samajavaragamana (Telugu Melody)", artist: "Sid Sriram", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-  { id: "c3", title: "Kopamga Song (Angry Mood Track)", artist: "Musico Mix", coverImg: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-  { id: "c4", title: "Geethanjali Classic (Old Gold)", artist: "S.P. Balasubrahmanyam", coverImg: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-  { id: "c5", title: "90s Evergreen Retro Hit", artist: "Chitra & Yesudas", coverImg: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
+// Standard Database with song album images (Old & New Songs)
+const musicoDatabase = [
+  { id: "m1", title: "Butta Bomma (Telugu Hit)", artist: "Armaan Malik", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+  { id: "m2", title: "Samajavaragamana (Telugu Melody)", artist: "Sid Sriram", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+  { id: "m3", title: "Geethanjali Classic (Old Gold)", artist: "S.P. Balasubrahmanyam", coverImg: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+  { id: "m4", title: "Kopamga Song (Angry Mood)", artist: "Musico Mix", coverImg: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+  { id: "m5", title: "90s Evergreen Retro Hit", artist: "Chitra & Yesudas", coverImg: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
 ];
 
-let trendList = crescendoDatabase, searchList = [];
+let trendList = musicoDatabase, searchList = [];
 let currentPlaylist = [], currentIndex = -1, current = null;
 let sleepTimerId = null, seeking = false, shuffleOn = false, repeatOn = false;
 
@@ -230,7 +230,7 @@ function loadTrending() {
   renderGrid(document.getElementById('trendGrid'), trendList, 'trend');
 }
 
-// CRESCENDO SEARCH ENGINE: Matches old, new, telugu, kopam ga song, or any query instantly
+// SEARCH ENGINE: Matches old, new, telugu, kopam ga song, or any query instantly
 function runSearch() {
   const q = document.getElementById('songSearch').value.trim();
   const el = document.getElementById('searchResults');
@@ -244,12 +244,12 @@ function runSearch() {
   setTimeout(() => {
     const query = q.toLowerCase();
     
-    let matches = crescendoDatabase.filter(s => s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query));
+    let matches = musicoDatabase.filter(s => s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query));
 
     if (matches.length === 0) {
       matches = [
-        { id: q + "-1", title: `${q} - Original Audio`, artist: "Crescendo Stream", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-        { id: q + "-2", title: `${q} (Remix Version)`, artist: "Crescendo DJ", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }
+        { id: q + "-1", title: `${q} - Original Audio`, artist: "Musico Stream", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+        { id: q + "-2", title: `${q} (Remix Version)`, artist: "Musico DJ", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }
       ];
     }
 
@@ -326,7 +326,7 @@ function playSong(song, index, list) {
   document.getElementById('fullCover').src = cover;
 
   recent = [song, ...recent.filter(s => s.id !== song.id)].slice(0, 20);
-  save('crescendo_recent', recent);
+  save('musico_recent', recent);
   renderRecent();
 
   prepareLyrics(song.title, song.artist);
@@ -338,7 +338,7 @@ function playSong(song, index, list) {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: song.title,
       artist: song.artist,
-      album: "Crescendo Stream",
+      album: "Musico Stream",
       artwork: cover ? [{ src: cover, sizes: "512x512", type: "image/jpeg" }] : []
     });
     navigator.mediaSession.setActionHandler('play', togglePlay);
@@ -351,7 +351,7 @@ function playSong(song, index, list) {
 function prepareLyrics(title, artist) {
   const box = document.getElementById('lyricsBox');
   document.getElementById('lyricsTitle').textContent = title;
-  box.innerHTML = `🎵 <b>${esc(title)}</b>\n👤 ${esc(artist)}\n\n♪ Streaming audio via Crescendo...\n♪ Enjoy listening to your favorite music!`;
+  box.innerHTML = `🎵 <b>${esc(title)}</b>\n👤 ${esc(artist)}\n\n♪ Streaming audio via Musico...\n♪ Enjoy listening to your favorite music!`;
 }
 
 function openLyricsModal() {
@@ -390,7 +390,7 @@ function downloadTrack() {
   if (library.some(s => s.id === current.id)) { toast(`"${current.title}" is already in your Library`); return; }
   library.push(current);
   renderLibrary();
-  toast(save('crescendo_library', library) ? 'Downloaded & added to Library!' : 'Saved');
+  toast(save('musico_library', library) ? 'Downloaded & added to Library!' : 'Saved');
 }
 
 function triggerSleepTimer() {
