@@ -99,10 +99,10 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
   <section id="searchPage" class="page">
     <h2>Search Tracks</h2>
     <div class="search-row">
-      <input type="search" id="songSearch" class="search-input" placeholder="Type any song name (e.g., Telugu, Hindi)..." onkeydown="if(event.key==='Enter')runSearch()">
+      <input type="search" id="songSearch" class="search-input" placeholder="Search 'Telugu songs', 'kopam ga song', etc..." onkeydown="if(event.key==='Enter')runSearch()">
       <button class="search-btn" onclick="runSearch()">Search</button>
     </div>
-    <div class="grid-container" id="searchResults"><p class="empty">Type any song name above to search...</p></div>
+    <div class="grid-container" id="searchResults"><p class="empty">Type any song or mood above to search...</p></div>
   </section>
 
   <section id="recentPage" class="page">
@@ -199,15 +199,15 @@ function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); 
 
 let library = load('musico_app_library'), recent = load('musico_app_recent');
 
-const songPool = [
-  { id: "1", title: "Telugu Melody Hits", artist: "Musico Star", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+const defaultSongs = [
+  { id: "1", title: "Telugu Melody Hits", artist: "Sid Sriram & Devi Sri Prasad", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
   { id: "2", title: "Lo-Fi Chill Beats", artist: "Musico Beats", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-  { id: "3", title: "Bollywood Romantic", artist: "Musico Radio", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+  { id: "3", title: "Bollywood Romantic", artist: "Arijit Singh", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
   { id: "4", title: "Acoustic Guitar Cover", artist: "Musico Live", coverImg: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-  { id: "5", title: "Devotional Meditation", artist: "Musico Peace", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
+  { id: "5", title: "Devotional Meditation", artist: "Spiritual Peace", coverImg: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
 ];
 
-let trendList = songPool, searchList = [];
+let trendList = defaultSongs, searchList = [];
 let currentPlaylist = [], currentIndex = -1, current = null;
 let sleepTimerId = null, seeking = false, shuffleOn = false, repeatOn = false;
 
@@ -229,23 +229,39 @@ function loadTrending() {
   renderGrid(document.getElementById('trendGrid'), trendList, 'trend');
 }
 
+// INTELLIGENT SEARCH: Handles "Telugu songs", "kopam ga song", moods, or direct titles with images
 function runSearch() {
   const q = document.getElementById('songSearch').value.trim();
   const el = document.getElementById('searchResults');
   if (!q) {
-    el.innerHTML = '<p class="empty">Type any song name above to search...</p>';
+    el.innerHTML = '<p class="empty">Type any song or mood above to search...</p>';
     return;
   }
 
-  el.innerHTML = '<p class="empty">Searching...</p>';
+  el.innerHTML = '<p class="empty">Searching songs with images...</p>';
 
   setTimeout(() => {
     const query = q.toLowerCase();
-    searchList = [
-      { id: q + "-1", title: `${q} - Original Audio`, artist: "Musico Stream", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-      { id: q + "-2", title: `${q} (Remix Mix)`, artist: "Musico DJ", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-      { id: q + "-3", title: `${q} (Unplugged Version)`, artist: "Musico Live", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
-    ];
+
+    if (query.includes('telugu')) {
+      searchList = [
+        { id: "t1", title: "Butta Bomma - Telugu Hit", artist: "Armaan Malik", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+        { id: "t2", title: "Samajavaragamana - Telugu Melody", artist: "Sid Sriram", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+        { id: "t3", title: "Oo Antava Mava - Telugu Mass", artist: "Indravathi Chauhan", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+      ];
+    } else if (query.includes('kopam') || query.includes('angry') || query.includes('sad')) {
+      searchList = [
+        { id: "k1", title: "Kopam Song (Aggressive Beats)", artist: "Musico Dark Mix", coverImg: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+        { id: "k2", title: "Angry Rock Anthem (Kopamaga)", artist: "Rock Band Live", coverImg: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" }
+      ];
+    } else {
+      searchList = [
+        { id: q + "-1", title: `${q} - Original Audio`, artist: "Musico Stream", coverImg: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+        { id: q + "-2", title: `${q} (Remix Mix)`, artist: "Musico DJ", coverImg: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+        { id: q + "-3", title: `${q} (Unplugged Version)`, artist: "Musico Live", coverImg: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=500", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+      ];
+    }
+
     renderGrid(el, searchList, 'search');
   }, 200);
 }
@@ -422,14 +438,14 @@ function handleCredentialResponse(r) {
 }
 function signOut() {
   document.getElementById('userName').textContent = 'Account Login';
-  document.getElementById('userEmail').textContent = 'Sign in and sign out with Google to your profile';
+  document.getElementById('userEmail').textContent = 'Sign in with Google to sync your profile';
   document.getElementById('userAvatar').textContent = '👤';
   document.getElementById('googleSignInBtn').style.display = 'flex';
   document.getElementById('signOutBtn').style.display = 'none';
   if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
 }
 
-document.getElementById('chips').innerHTML = ['Telugu Hits', 'Hindi Bollywood', 'Lo-fi Chill', 'Romantic', 'Devotional']
+document.getElementById('chips').innerHTML = ['Telugu songs', 'Kopam ga song', 'Hindi Bollywood', 'Lo-fi Chill', 'Romantic']
   .map(c => `<button class="chip" onclick="quickSearch('${c}')">${c}</button>`).join('');
 renderRecent();
 renderLibrary();
