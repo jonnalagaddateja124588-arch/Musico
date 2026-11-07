@@ -45,17 +45,15 @@ h2 { margin: 16px 0 10px; font-size: 18px; color: #60a5fa; font-weight: 700; }
 .controls button { border: none; background: transparent; color: #fff; font-size: 18px; cursor: pointer; }
 .controls .main-play { background: #2563eb; width: 38px; height: 38px; border-radius: 50%; font-size: 16px; }
 
-/* Full Player Layout - Zero bottom gap */
+/* Full Player Layout */
 .full-player { position: fixed; inset: 0; background: #0f172a; z-index: 300; display: flex; flex-direction: column; gap: 8px; padding: calc(12px + env(safe-area-inset-top, 0px)) 16px env(safe-area-inset-bottom, 0px) 16px; overflow-y: auto; transform: translateY(100%); transition: transform .25s; }
 .full-player.active { transform: none; }
 .full-player-header { display: flex; justify-content: space-between; align-items: center; color: #cbd5e1; font-size: 13px; flex-shrink: 0; margin-bottom: 2px; }
 .close-btn { font-size: 22px; background: none; border: none; color: #fff; cursor: pointer; }
 
-/* Hidden Audio Engine Container */
 #ytPlayerContainer { display: none; }
 
-/* Artwork View */
-.artwork-box { width: min(160px, 42vw); aspect-ratio: 1; margin: 0 auto; border-radius: 50%; overflow: hidden; background: #1e293b; box-shadow: 0 6px 20px rgba(0,0,0,0.5); flex-shrink: 0; border: 3px solid #334155; }
+.artwork-box { width: min(150px, 40vw); aspect-ratio: 1; margin: 0 auto; border-radius: 50%; overflow: hidden; background: #1e293b; box-shadow: 0 6px 20px rgba(0,0,0,0.5); flex-shrink: 0; border: 3px solid #334155; }
 .artwork-box img { width: 100%; height: 100%; object-fit: cover; }
 
 .track-header-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-shrink: 0; }
@@ -71,13 +69,12 @@ h2 { margin: 16px 0 10px; font-size: 18px; color: #60a5fa; font-weight: 700; }
 .media-controls button { background: none; border: none; color: #fff; cursor: pointer; display: grid; place-items: center; font-size: 22px; }
 .media-controls .btn-play-large { width: 50px; height: 50px; background: #fff; color: #000; border-radius: 50%; font-size: 18px; }
 
-/* Lyrics Panel inside Full Player - Extended flex to eliminate bottom dead space */
+/* Live Lyrics Panel */
 .lyrics-container { flex: 1; background: #1e293b; border: 1px solid #334155; border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom-left-radius: 0; border-bottom-right-radius: 0; padding: 10px 14px; overflow-y: auto; text-align: center; display: flex; flex-direction: column; gap: 6px; min-height: 80px; margin-bottom: 0; }
 .lyrics-container h3 { font-size: 12px; color: #60a5fa; margin-bottom: 2px; text-align: left; }
 .lyrics-line { font-size: 13px; color: #94a3b8; line-height: 1.4; transition: all 0.2s; }
 .lyrics-line.active-line { color: #fff; font-weight: 700; transform: scale(1.02); }
 
-/* Action Popup Modal */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
 .modal-overlay.active { display: flex; }
 .action-sheet { width: 100%; max-width: 500px; background: #1e293b; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 16px; border-top: 1px solid #334155; display: flex; flex-direction: column; gap: 6px; animation: slideUp 0.2s ease-out; }
@@ -88,7 +85,7 @@ h2 { margin: 16px 0 10px; font-size: 18px; color: #60a5fa; font-weight: 700; }
 .toast { position: fixed; left: 50%; bottom: 120px; transform: translateX(-50%); background: #334155; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 13px; z-index: 600; opacity: 0; pointer-events: none; transition: opacity .2s; max-width: 90vw; text-align: center; }
 .toast.show { opacity: 1; }
 
-.bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e293b; display: flex; justify-content: space-around; padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 101; border-top: 1px solid #334155; }
+.bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #1e293b; display: flex; justify-around: space-around; padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px)); z-index: 101; border-top: 1px solid #334155; }
 .bottom-nav button { background: none; border: none; color: #94a3b8; display: flex; flex-direction: column; align-items: center; font-size: 11px; cursor: pointer; gap: 2px; }
 .bottom-nav button.active { color: #3b82f6; }
 .profile-box { background: #1e293b; padding: 20px; border-radius: 14px; text-align: center; margin-top: 16px; border: 1px solid #334155; }
@@ -166,10 +163,8 @@ h2 { margin: 16px 0 10px; font-size: 18px; color: #60a5fa; font-weight: 700; }
     <button class="top-btn" onclick="triggerSleepTimer()" id="timerDisplayBtn">⏱️ Timer</button>
   </div>
 
-  <!-- Hidden background audio stream element container -->
   <div id="ytPlayerContainer"><div id="ytPlayer"></div></div>
 
-  <!-- Song Album Artwork Image -->
   <div class="artwork-box"><img id="fullCover" src="" alt="Album Artwork"></div>
 
   <div class="track-header-row">
@@ -182,7 +177,6 @@ h2 { margin: 16px 0 10px; font-size: 18px; color: #60a5fa; font-weight: 700; }
     <div class="time-stamps"><span id="currentTime">0:00</span><span id="totalDuration">0:00</span></div>
   </div>
 
-  <!-- Media Controls -->
   <div class="media-controls">
     <button onclick="openQueueModal()" aria-label="Queue" title="Playback Queue">📜</button>
     <button onclick="previousSong()" aria-label="Previous">⏮</button>
@@ -191,14 +185,12 @@ h2 { margin: 16px 0 10px; font-size: 18px; color: #60a5fa; font-weight: 700; }
     <button onclick="openActionSheet()" aria-label="More options" title="More Options">⋮</button>
   </div>
 
-  <!-- Synchronized Line-by-Line Lyrics Panel (Zero bottom gap) -->
   <div class="lyrics-container" id="lyricsContainer">
     <h3>Lyrics</h3>
-    <div id="lyricsContent"><p class="lyrics-line active-line">Enjoy the music stream...</p></div>
+    <div id="lyricsContent"><p class="lyrics-line active-line">Play a song to view lyrics...</p></div>
   </div>
 </div>
 
-<!-- Action Sheet Modal for Three Dots Menu -->
 <div class="modal-overlay" id="actionSheetModal" onclick="closeActionSheet(event)">
   <div class="action-sheet">
     <button onclick="saveTrack(); closeActionSheet();">💾 Save to Library</button>
@@ -209,7 +201,6 @@ h2 { margin: 16px 0 10px; font-size: 18px; color: #60a5fa; font-weight: 700; }
   </div>
 </div>
 
-<!-- Queue Modal -->
 <div class="modal-overlay" id="queueModal" onclick="closeQueueModal(event)">
   <div class="action-sheet" style="max-height: 70vh; overflow-y: auto;">
     <h3 style="color:#60a5fa; margin-bottom: 8px;">Playback Queue</h3>
@@ -226,14 +217,12 @@ h2 { margin: 16px 0 10px; font-size: 18px; color: #60a5fa; font-weight: 700; }
 </nav>
 
 <script>
-/* ===== 1. YOUTUBE API KEY ===== */
 const YT_API_KEY = "AIzaSyAxNB-ib2YieF3WbVIkIGkKnBp-uC1x-GU";
 const REGION = "IN";
 
 const API = "https://www.googleapis.com/youtube/v3";
 const FALLBACK = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><rect width="10" height="10" fill="#334155"/></svg>');
 
-/* ---------- storage ---------- */
 function load(key) {
   try { const d = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(d) ? d.filter(s => s && s.id) : []; }
   catch (e) { return []; }
@@ -245,10 +234,10 @@ let trendList = [], searchList = [];
 let currentPlaylist = [], currentIndex = -1, current = null;
 let sleepTimerId = null, seeking = false;
 let player = null, playerReady = false, pendingId = null, tick = null;
+let currentLyricsLines = [];
 
 const lists = { trend: () => trendList, search: () => searchList, recent: () => recent, library: () => library };
 
-/* ---------- helpers ---------- */
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function decode(s) { const t = document.createElement('textarea'); t.innerHTML = s || ''; return t.value; }
 function toast(msg) {
@@ -270,9 +259,8 @@ function toSong(item) {
   return { id, title: decode(sn.title), artist: decode(sn.channelTitle), coverImg: (th.medium || th.high || th.default || {}).url || '' };
 }
 
-/* ---------- YouTube Data API ---------- */
 async function ytFetch(path, params) {
-  if (!hasKey()) throw new Error('Add your YouTube API key at the top of the script.');
+  if (!hasKey()) throw new Error('Add your YouTube API key.');
   const url = `${API}/${path}?${new URLSearchParams({ ...params, key: YT_API_KEY })}`;
   const res = await fetch(url);
   const data = await res.json();
@@ -311,7 +299,6 @@ function quickSearch(q) {
   runSearch();
 }
 
-/* ---------- rendering ---------- */
 function renderGrid(el, items, listName, emptyMsg) {
   if (!items.length) { el.innerHTML = `<p class="empty">${emptyMsg || 'Nothing here yet.'}</p>`; return; }
   el.innerHTML = items.map((s, i) => `
@@ -327,18 +314,12 @@ document.addEventListener('click', e => {
   const card = e.target.closest('.card[data-list]');
   if (card) playFromList(card.dataset.list, Number(card.dataset.idx));
 });
-document.addEventListener('keydown', e => {
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.card[data-list]')) {
-    e.preventDefault(); playFromList(e.target.dataset.list, Number(e.target.dataset.idx));
-  }
-});
 
 function playFromList(name, idx) {
   const list = lists[name]().slice();
   if (list[idx]) playSong(list[idx], idx, list);
 }
 
-/* ---------- YouTube IFrame Audio Engine ---------- */
 const tag = document.createElement('script');
 tag.src = 'https://www.youtube.com/iframe_api';
 document.head.appendChild(tag);
@@ -395,7 +376,6 @@ function seekAudio(val) {
   seeking = false;
 }
 
-/* ---------- playback control ---------- */
 function playSong(song, index, list) {
   if (list) currentPlaylist = list;
   currentIndex = index; current = song;
@@ -412,7 +392,7 @@ function playSong(song, index, list) {
   document.getElementById('currentTime').textContent = '0:00';
   document.getElementById('totalDuration').textContent = '0:00';
 
-  generateSimulatedLyrics(song.title);
+  fetchLyrics(song.title, song.artist);
 
   recent = [song, ...recent.filter(s => s.id !== song.id)].slice(0, 20);
   save('musico_yt_recent', recent);
@@ -457,22 +437,63 @@ if ('mediaSession' in navigator) {
 function openFullPlayer() { document.getElementById('fullPlayer').classList.add('active'); }
 function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('active'); }
 
-/* ---------- Lyrics Engine ---------- */
-let currentLyricsLines = [];
-function generateSimulatedLyrics(title) {
+/* ---------- Live Lyrics Fetcher & Synchronizer via LRCLIB API ---------- */
+async function fetchLyrics(title, artist) {
   const container = document.getElementById('lyricsContent');
-  currentLyricsLines = [
-    { time: 0, text: "Intro - Enjoy the audio rhythm..." },
-    { time: 10, text: `Listening to ${title}` },
-    { time: 25, text: "Every beat flowing through the air..." },
-    { time: 45, text: "Feel the melody take control now" },
-    { time: 70, text: "Letting go of all the noise around" },
-    { time: 100, text: "Chorus repeating in the background..." },
-    { time: 140, text: "Instrumental bridge and high notes" },
-    { time: 180, text: "Final verse echoing outward..." },
-    { time: 220, text: "Outro fading gently..." }
-  ];
-  container.innerHTML = currentLyricsLines.map((l, idx) => `<div class="lyrics-line ${idx===0?'active-line':''}" data-time="${l.time}">${esc(l.text)}</div>`).join('');
+  container.innerHTML = '<p class="lyrics-line active-line">Searching live lyrics...</p>';
+  currentLyricsLines = [];
+
+  try {
+    const cleanTitle = title.replace(/\([^)]*\)|\[[^]]*\]/g, '').trim();
+    const res = await fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(cleanTitle + ' ' + artist)}`);
+    const data = await res.json();
+
+    if (data && data.length > 0 && data[0].syncedLyrics) {
+      parseSyncedLyrics(data[0].syncedLyrics);
+    } else if (data && data.length > 0 && data[0].plainLyrics) {
+      parsePlainLyrics(data[0].plainLyrics);
+    } else {
+      container.innerHTML = '<p class="lyrics-line active-line">No lyrics found for this track.</p>';
+    }
+  } catch (e) {
+    container.innerHTML = '<p class="lyrics-line active-line">Could not load lyrics.</p>';
+  }
+}
+
+function parseSyncedLyrics(lrcText) {
+  const lines = lrcText.split('\n');
+  currentLyricsLines = [];
+  const regex = /\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/;
+
+  for (let line of lines) {
+    const match = line.match(regex);
+    if (match) {
+      const minutes = parseInt(match[1], 10);
+      const seconds = parseInt(match[2], 10);
+      const milliseconds = parseInt(match[3].padEnd(3, '0'), 10);
+      const timeInSeconds = minutes * 60 + seconds + milliseconds / 1000;
+      const text = match[4].trim();
+      if (text) currentLyricsLines.push({ time: timeInSeconds, text });
+    }
+  }
+
+  if (currentLyricsLines.length === 0) {
+    document.getElementById('lyricsContent').innerHTML = '<p class="lyrics-line active-line">Lyrics formatting unavailable.</p>';
+    return;
+  }
+
+  renderLyricsDOM();
+}
+
+function parsePlainLyrics(plainText) {
+  const lines = plainText.split('\n').filter(l => l.trim() !== '');
+  currentLyricsLines = lines.map((text, idx) => ({ time: idx * 5, text }));
+  renderLyricsDOM();
+}
+
+function renderLyricsDOM() {
+  const container = document.getElementById('lyricsContent');
+  container.innerHTML = currentLyricsLines.map((l, idx) => `<div class="lyrics-line ${idx === 0 ? 'active-line' : ''}" data-time="${l.time}">${esc(l.text)}</div>`).join('');
 }
 
 function updateLyricsHighlight(currentTime) {
@@ -494,7 +515,6 @@ function updateLyricsHighlight(currentTime) {
   });
 }
 
-/* ---------- Modals & Menu Actions ---------- */
 function openActionSheet() { document.getElementById('actionSheetModal').classList.add('active'); }
 function closeActionSheet(e) { if (!e || e.target === document.getElementById('actionSheetModal')) document.getElementById('actionSheetModal').classList.remove('active'); }
 
@@ -557,7 +577,6 @@ function triggerSleepTimer() {
   }, mins * 60000);
 }
 
-/* ---------- navigation ---------- */
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
@@ -566,7 +585,6 @@ function showPage(id) {
   if (nav) nav.classList.add('active');
 }
 
-/* ---------- Google sign-in (profile only) ---------- */
 function handleCredentialResponse(r) {
   try {
     const b64 = r.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
@@ -589,7 +607,6 @@ function signOut() {
   if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
 }
 
-/* ---------- start ---------- */
 document.getElementById('chips').innerHTML = ['Telugu songs', 'Hindi songs', 'Lo-fi beats', 'Podcasts', 'Devotional']
   .map(c => `<button class="chip" onclick="quickSearch('${c}')">${c}</button>`).join('');
 renderRecent();
