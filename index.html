@@ -54,8 +54,8 @@ h2 { margin: 20px 0 12px; font-size: 20px; color: #60a5fa; font-weight: 700; }
 .controls .main-play { background: #2563eb; width: 42px; height: 42px; border-radius: 50%; font-size: 18px; }
 
 /* Full player stays rendered (slid off-screen) so the YouTube player keeps playing when closed */
-.full-player { position: fixed; inset: 0; background: #0f172a; z-index: 300; display: flex; flex-direction: column; gap: 14px; padding: calc(24px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)); overflow-y: auto; transform: translateY(100%); transition: transform .25s; }
-.full-player.active { transform: none; }
+.full-player { position: fixed; inset: 0; background: #0f172a; z-index: 300; display: flex; flex-direction: column; gap: 14px; padding: calc(24px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px)); overflow-y: auto; opacity: 0.01; pointer-events: none; transition: opacity .2s; }
+.full-player.active { opacity: 1; pointer-events: auto; }
 .full-player-header { display: flex; justify-content: space-between; align-items: center; color: #cbd5e1; font-size: 14px; }
 .close-btn { font-size: 24px; background: none; border: none; color: #fff; cursor: pointer; }
 .video-box { position: relative; width: min(100%, 260px); aspect-ratio: 1/1; margin: 0 auto; border-radius: 16px; overflow: hidden; background: #334155; flex-shrink: 0; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
@@ -481,10 +481,22 @@ if ('mediaSession' in navigator) {
   navigator.mediaSession.setActionHandler('previoustrack', previousSong);
   navigator.mediaSession.setActionHandler('nexttrack', nextSong);
 }
-
+function keepPlayingAfterClose() {
+  let wasPlaying = false;
+  try { wasPlaying = playerReady && player.getPlayerState() === YT.PlayerState.PLAYING; } catch (e) {}
+  if (!wasPlaying) return;
+  [300, 900, 1800].forEach(ms => setTimeout(() => {
+    try {
+      const st = player.getPlayerState();
+      if (st === YT.PlayerState.PAUSED || st === YT.PlayerState.CUED) player.playVideo();   // resume if the browser paused it
+    } catch (e) {}
+  }, ms));
+}
 function openFullPlayer() { document.getElementById('fullPlayer').classList.add('active'); }
-function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('active'); }
-
+function closeFullPlayer() {
+  keepPlayingAfterClose();
+  document.getElementById('fullPlayer').classList.remove('active');
+}
 /* ---------- library, share, timer ---------- */
 function saveTrack() {
   if (!current) { toast('Play a song first'); return; }
