@@ -270,8 +270,42 @@ async function loadTrending() {
     const data = await ytFetch('videos', { part: 'snippet', chart: 'mostPopular', videoCategoryId: '10', regionCode: REGION, maxResults: 20 });
     trendList = data.items.map(toSong).filter(s => s.id);
     renderGrid(el, trendList, 'trend');
+    
+    // Check if URL has a shared song ID parameter (e.g. ?v=VIDEO_ID)
+    handleSharedLinkParam();
   } catch (e) {
     el.innerHTML = `<p class="empty">${esc(e.message)}</p>`;
+    handleSharedLinkParam();
+  }
+}
+
+async function handleSharedLinkParam() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const sharedVideoId = urlParams.get('v');
+  if (!sharedVideoId) return;
+
+  // Clear query params so it doesn't re-trigger on refresh
+  window.history.replaceState({}, document.title, window.location.pathname);
+
+  // 1. Check if it's already in trendList
+  let found = trendList.find(s => s.id === sharedVideoId);
+  if (found) {
+    playSong(found, trendList.indexOf(found), trendList);
+    return;
+  }
+
+  // 2. Otherwise fetch the specific video details from YouTube API
+  try {
+    const data = await ytFetch('videos', { part: 'snippet', id: sharedVideoId });
+    if (data.items && data.items.length > 0) {
+      const song = toSong(data.items[0]);
+      if (song.id) {
+        currentPlaylist = [song];
+        playSong(song, 0, currentPlaylist);
+      }
+    }
+  } catch (err) {
+    console.error("Failed to load shared track:", err);
   }
 }
 
@@ -463,7 +497,7 @@ function saveTrack() {
 
 async function shareTrack() {
   if (!current) { toast('Play a song first'); return; }
-  const url = `https://www.youtube.com/watch?v=${current.id}`;
+  const url = `${window.location.origin}${window.location.pathname}?v=${current.id}`;
   try {
     if (navigator.share) { await navigator.share({ title: current.title, text: `Listening to ${current.title} on Musico`, url }); return; }
     await navigator.clipboard.writeText(url);
